@@ -1,0 +1,53 @@
+package com.sunstar.streamcompass.data.datasource.tmdb
+
+import com.sunstar.streamcompass.data.BuildKonfig
+import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMovieDetailDto
+import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbNowPlayingResponseDto
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.get
+import io.ktor.client.request.parameter
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonNamingStrategy
+
+class TmdbDataSource(
+    private val apiKey: String = BuildKonfig.TMDB_API_KEY,
+) {
+    private val httpClient = HttpClient {
+        expectSuccess = true
+        install(ContentNegotiation) {
+            json(
+                Json {
+                    ignoreUnknownKeys = true
+                    explicitNulls = false
+                    namingStrategy = JsonNamingStrategy.SnakeCase
+                },
+            )
+        }
+        install(HttpTimeout) {
+            requestTimeoutMillis = 15_000
+        }
+    }
+
+    suspend fun getNowPlaying(
+        page: Int = 1,
+        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+    ): TmdbNowPlayingResponseDto =
+        httpClient.get("${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_MOVIE}/${TmdbConstants.SEGMENT_NOW_PLAYING}") {
+            parameter(TmdbConstants.PARAM_API_KEY, apiKey)
+            parameter(TmdbConstants.PARAM_LANGUAGE, language)
+            parameter(TmdbConstants.PARAM_PAGE, page)
+        }.body()
+
+    suspend fun getMovieDetail(
+        tmdbId: Int,
+        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+    ): TmdbMovieDetailDto =
+        httpClient.get("${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_MOVIE}/$tmdbId") {
+            parameter(TmdbConstants.PARAM_API_KEY, apiKey)
+            parameter(TmdbConstants.PARAM_LANGUAGE, language)
+        }.body()
+}

@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -7,19 +6,7 @@ plugins {
 }
 
 kotlin {
-    iosArm64()
-    iosSimulatorArm64()
-
     jvm()
-
-    js {
-        browser()
-    }
-
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
-        browser()
-    }
 
     android {
         namespace = "com.sunstar.streamcompass.domain"
