@@ -16,4 +16,10 @@ internal object TmdbConstants {
     const val DEFAULT_LANGUAGE = "en-US"
 
     const val PAGE_SIZE = 20
+
+    const val IMAGE_BASE_URL = "https://image.tmdb.org/t/p"
+    const val POSTER_SIZE = "w342"
+
+    fun posterUrl(posterPath: String): String =
+        if (posterPath.isEmpty()) posterPath else "$IMAGE_BASE_URL/$POSTER_SIZE$posterPath"
 }

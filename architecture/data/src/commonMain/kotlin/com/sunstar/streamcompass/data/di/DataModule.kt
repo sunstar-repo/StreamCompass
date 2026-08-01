@@ -9,6 +9,7 @@ import com.sunstar.streamcompass.data.repository.StreamRepositoryImpl
 import com.sunstar.streamcompass.domain.mapper.Mapper
 import com.sunstar.streamcompass.domain.model.Stream
 import com.sunstar.streamcompass.domain.repository.StreamRepository
+import com.sunstar.streamcompass.domain.usecase.GetSuggestionStreamUseCase
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
@@ -29,4 +30,6 @@ val dataModule =
                 detailMapper = get(TMDB_MOVIE_DETAIL_MAPPER),
             )
         }
+
+        single { GetSuggestionStreamUseCase(get()) }
     }
