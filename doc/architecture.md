@@ -2,25 +2,25 @@
 
 *StreamCompass · Clean Architecture (Dependency Inversion) + KMP 5-모듈 구조*
 
-모듈 경계, Repository/UseCase 분리 기준, 데이터 흐름 방향을 정리한 문서입니다. Uncle Bob의 Clean Architecture 원칙에 따라 **Repository 인터페이스는 domain에, 구현체는 data에** 둡니다. 기존 `:app:shared`/`:core` 모듈은 이름과 위치를 그대로 유지하고, `:domain`/`:presentation`/`:data`를 신규 모듈로 추가합니다(2026-07-27 확정 — 기존 모듈 개명이 아니라 신규 생성).
+모듈 경계, Repository/UseCase 분리 기준, 데이터 흐름 방향을 정리한 문서입니다. Uncle Bob의 Clean Architecture 원칙에 따라 **Repository 인터페이스는 domain에, 구현체는 data에** 둡니다. 기존 `:app:shared`/`:core` 모듈은 이름과 위치를 그대로 유지하고, `:architecture:domain`/`:architecture:presentation`/`:architecture:data`를 신규 모듈로 추가합니다(2026-07-27 확정 — 기존 모듈 개명이 아니라 신규 생성).
 
 ## 모듈 구조 · androidApp / desktopApp 기준
 
-**현재 실제 저장소 상태 확인 결과 (2026-07-27):** `settings.gradle.kts`에는 이미 `:app:androidApp`, `:app:desktopApp`, `:app:shared`, `:app:webApp`, `:core`, `:server`가 존재합니다. `:app:shared`는 이미 `:core`를 `api`로 의존하며 Compose 의존성(`compose.material3`, `androidx.lifecycle.viewmodelCompose` 등)을 갖춘 실제 빌드 대상 공통 모듈이고, `:core`는 아직 `GreetingUtil.kt` 하나뿐인 빈 스캐폴드입니다. **이 두 모듈은 이름도 위치도 그대로 두고**, 다음 3개를 새로 추가합니다: `:domain`, `:presentation`, `:data`.
+**현재 실제 저장소 상태 확인 결과 (2026-07-27):** `settings.gradle.kts`에는 이미 `:app:androidApp`, `:app:desktopApp`, `:app:shared`, `:app:webApp`, `:core`, `:server`가 존재합니다. `:app:shared`는 이미 `:core`를 `api`로 의존하며 Compose 의존성(`compose.material3`, `androidx.lifecycle.viewmodelCompose` 등)을 갖춘 실제 빌드 대상 공통 모듈이고, `:core`는 아직 `GreetingUtil.kt` 하나뿐인 빈 스캐폴드입니다. **이 두 모듈은 이름도 위치도 그대로 두고**, 다음 3개를 새로 추가합니다: `:architecture:domain`, `:architecture:presentation`, `:architecture:data`.
 
-- `:domain` (신규) — Model(Entity) · Repository 인터페이스 · UseCase. 아무것도 의존하지 않음.
-- `:data` (신규) — Repository 구현체 · DataSource · DTO · Mapper. `:domain`(DIP로 인터페이스 구현) + `:core`(platform 객체 타입 참조) 의존.
-- `:presentation` (신규) — Compose 화면 · ViewModel. `:domain`만 의존.
+- `:architecture:domain` (신규) — Model(Entity) · Repository 인터페이스 · UseCase. 아무것도 의존하지 않음.
+- `:architecture:data` (신규) — Repository 구현체 · DataSource · DTO · Mapper. `:architecture:domain`(DIP로 인터페이스 구현) + `:core`(platform 객체 타입 참조) 의존.
+- `:architecture:presentation` (신규) — Compose 화면 · ViewModel. `:architecture:domain`만 의존.
 - `:core` (기존 유지) — KMP platform-dependency 전용 모듈. DB 드라이버 등 `expect`/`actual`을 commonMain+androidMain+desktopMain(jvmMain)으로 자체 소유. 지금 비어있지만 역할은 이걸로 확정.
-- `:app:shared` (기존 유지) — **commonMain composition root**로 확장. `:domain`+`:data`+`:presentation`+`:core`를 전부 의존해 `App()` 안에서 DI(Repository 인터페이스↔구현체 바인딩)를 조립. androidApp/desktopApp이 실제로 빌드하는 공통 진입 모듈이라는 기존 역할과 자연스럽게 맞아떨어짐(기존 `api(project(":core"))` 의존과도 일치).
+- `:app:shared` (기존 유지) — **commonMain composition root**로 확장. `:architecture:domain`+`:architecture:data`+`:architecture:presentation`+`:core`를 전부 의존해 `App()` 안에서 DI(Repository 인터페이스↔구현체 바인딩)를 조립. androidApp/desktopApp이 실제로 빌드하는 공통 진입 모듈이라는 기존 역할과 자연스럽게 맞아떨어짐(기존 `api(project(":core"))` 의존과도 일치).
 - `:app:androidApp` / `:app:desktopApp` (기존 유지) — **얇은 platform 진입점(launcher)**. `:app:shared` + `:core`만 의존. `:core`의 `actual` 클래스를 실제 platform 인자(Android `Context` 등)로 생성해 `:app:shared`의 DI 조립 함수에 넘겨주는 일과 Activity/`main()` 호스팅만 담당.
 
 ```mermaid
 flowchart TD
-    DOM["domain (신규)<br/>Model · Repository 인터페이스 · UseCase<br/>아무것도 의존하지 않음"]
+    DOM[":architecture:domain (신규)<br/>Model · Repository 인터페이스 · UseCase<br/>아무것도 의존하지 않음"]
     CORE["core (기존 유지)<br/>Platform-dependency — expect/actual<br/>commonMain+androidMain+desktopMain 자체 소유"]
-    DATA["data (신규)<br/>Repository 구현체 · DataSource · DTO · Mapper"]
-    PRES["presentation (신규)<br/>Compose 화면 · ViewModel"]
+    DATA[":architecture:data (신규)<br/>Repository 구현체 · DataSource · DTO · Mapper"]
+    PRES[":architecture:presentation (신규)<br/>Compose 화면 · ViewModel"]
     SHARED["app:shared (기존 유지)<br/>commonMain composition root<br/>App() 안에서 DI 조립"]
     APP[":app<br/>androidApp, desktopApp<br/>얇은 platform launcher"]
 
@@ -51,19 +51,21 @@ flowchart TD
 - Kotlin 제약: `expect` 선언과 `actual` 구현은 **반드시 같은 Gradle 모듈** 안에서 target별 source set으로 존재해야 합니다. 그래서 `:core`는 commonMain(expect)+androidMain(actual)+desktopMain(actual)을 전부 자기 안에 소유합니다.
 - 다만 **생성자 인자가 platform마다 다르므로**(Android는 Context 필요) `:core`의 actual 클래스를 실제로 "생성"하는 코드는 `app:shared`의 commonMain이 아니라, Context/플랫폼 자원을 실제로 들고 있는 `app:androidApp`/`app:desktopApp`에 남습니다 — 이건 `expect`/`actual`을 구현하는 게 아니라 이미 완성된 `:core`의 public 클래스를 생성자 호출하는 평범한 코드라 위반이 아닙니다.
 - 그렇게 만들어진 platform 객체(예: `SqlDriver`)를 `app:androidApp`/`app:desktopApp`이 `app:shared`의 DI 조립 함수(예: `fun App(driver: SqlDriver)`)에 인자로 넘기면, 나머지 DI 조립(Repository 인터페이스↔구현체 바인딩 등 platform 무관한 부분)은 전부 `app:shared`의 commonMain에서 한 번에 처리됩니다 — 그래서 `app:shared`가 "commonMain composition root"입니다.
-- `app:shared`가 `:core`를 `api`로 의존해야 하는 이유: `app:shared`의 public 함수 시그니처(`fun App(driver: SqlDriver)`)에 `:core`의 타입이 노출되므로, `app:androidApp`/`app:desktopApp`이 이 타입을 resolve하려면 `api` 전이 의존이 필요합니다. `:domain`/`:data`/`:presentation`은 `app:shared` 내부 구현에서만 쓰이고 외부(androidApp/desktopApp)에 타입을 노출하지 않는다면 `implementation`으로 충분합니다.
+- `app:shared`가 `:core`를 `api`로 의존해야 하는 이유: `app:shared`의 public 함수 시그니처(`fun App(driver: SqlDriver)`)에 `:core`의 타입이 노출되므로, `app:androidApp`/`app:desktopApp`이 이 타입을 resolve하려면 `api` 전이 의존이 필요합니다. `:architecture:domain`/`:architecture:data`/`:architecture:presentation`은 `app:shared` 내부 구현에서만 쓰이고 외부(androidApp/desktopApp)에 타입을 노출하지 않는다면 `implementation`으로 충분합니다.
 
 ## 확정 사항
 
-| 상태    | 내용                                                                                                                 |
-|-------|----------------------------------------------------------------------------------------------------------------|
-| ✅ 확정  | 기존 `:app:shared`, `:core` 모듈은 **개명하지 않고 그대로 유지**. `:domain`, `:presentation`, `:data`를 신규 생성.                        |
-| ✅ 확정  | `:core`는 KMP platform-dependency 전용 모듈 역할로 확정 — DB 드라이버 등 expect/actual을 자체 소유.                                     |
-| ✅ 확정  | `:app:shared`는 commonMain composition root로 확장 — `:domain`+`:data`+`:presentation`+`:core`를 전부 의존, `App()`에서 DI 조립. |
-| ✅ 확정  | `:app:androidApp`/`:app:desktopApp`은 `:app:shared`+`:core`만 의존하는 얇은 launcher로 유지 — `:domain`/`:data`/`:presentation` 직접 참조 안 함. |
-| ✅ 확정  | 컴파일 의존 방향은 `data → domain`(Dependency Inversion). `domain`은 어떤 모듈도 의존하지 않음.                                            |
-| ✅ 확정  | Repository **인터페이스**·Model·UseCase는 `domain`. Repository **구현체**·DataSource·DTO·Mapper는 `data`(+platform 객체는 `core` 참조). |
-| 🆕 신규 | `domain`·`presentation`·`data` 모듈은 현재 프로젝트에 존재하지 않음. `settings.gradle.kts`에 `include(":domain")`, `include(":presentation")`, `include(":data")` 추가부터 시작. |
+| 상태    | 내용                                                                                                                                                        |
+|-------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ✅ 확정  | 기존 `:app:shared`, `:core` 모듈은 **개명하지 않고 그대로 유지**. `:architecture:domain`, `:architecture:presentation`, `:architecture:data`를 신규 생성.                                                             |
+| ✅ 확정  | `:core`는 KMP platform-dependency 전용 모듈 역할로 확정 — DB 드라이버 등 expect/actual을 자체 소유.                                                                           |
+| ✅ 확정  | `:app:shared`는 commonMain composition root로 확장 — `:architecture:domain`+`:architecture:data`+`:architecture:presentation`+`:core`를 전부 의존, `App()`에서 DI 조립.                                       |
+| ✅ 확정  | `:app:androidApp`/`:app:desktopApp`은 `:app:shared`+`:core`만 의존하는 얇은 launcher로 유지 — `:architecture:domain`/`:architecture:data`/`:architecture:presentation` 직접 참조 안 함.                           |
+| ✅ 확정  | 컴파일 의존 방향은 `data → domain`(Dependency Inversion). `domain`은 어떤 모듈도 의존하지 않음.                                                                               |
+| ✅ 확정  | Repository **인터페이스**·Model·UseCase는 `domain`. Repository **구현체**·DataSource·DTO·Mapper는 `data`(+platform 객체는 `core` 참조).                                  |
+| ✅ 완료  | `:architecture:domain`, `:architecture:data` 모듈 생성 완료(2026-08-01) — `settings.gradle.kts`에 `include(":architecture:domain")`, `include(":architecture:data")` 추가, 각 `build.gradle.kts` 스캐폴드(`:core`와 동일한 타겟: iosArm64/iosSimulatorArm64/jvm/js/wasmJs/android). `data`는 `:architecture:domain`+`:core`를 `implementation`으로 의존(유일한 소비자인 `app:shared`가 이미 둘 다 직접 의존하므로 전이 노출 불필요). 아직 내부 소스(Model·Repository 인터페이스·UseCase·RepositoryImpl 등)는 비어 있음. |
+| ✅ 완료  | 2026-08-01: `:domain`/`:data`/`:presentation`을 `:app`처럼 상위 폴더로 묶기로 결정 — `architecture/` 폴더 아래로 이동, Gradle 경로도 `:architecture:domain`/`:architecture:data`/`:architecture:presentation`으로 확정.                                              |
+| ✅ 완료  | `:architecture:presentation` 모듈 생성 완료(2026-08-01) — `settings.gradle.kts`에 `include(":architecture:presentation")` 추가. Compose 화면·ViewModel을 담으므로 `composeMultiplatform`/`composeCompiler` 플러그인과 `compose.runtime`/`foundation`/`material3`/`ui`/`uiToolingPreview`/`androidx.lifecycle.viewmodelCompose`/`runtimeCompose`를 `implementation`으로 추가. `:architecture:domain`만 `implementation`으로 의존(`:data`/`:core` 직접 참조 금지 규칙 유지). 아직 실제 화면·ViewModel 코드는 없음. 이제 domain/data/presentation/core/app:shared 5개 모듈 스캐폴드가 전부 갖춰짐. |
 
 ## 데이터 흐름 · 읽기 전용 소스
 
