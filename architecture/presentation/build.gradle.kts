@@ -21,19 +21,20 @@ kotlin {
        androidResources {
            enable = true
        }
-       withHostTest {
-           isIncludeAndroidResources = true
-       }
     }
 
     sourceSets {
+        androidMain.dependencies {
+            implementation(libs.compose.uiToolingPreview)
+            implementation(libs.compose.uiTooling)
+        }
         commonMain.dependencies {
-            // Compose 화면 + ViewModel. :domain만 의존 (data/core는 직접 참조 금지).
-            implementation(project(":architecture:domain"))
+            implementation(projects.architecture.domain)
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
             implementation(libs.compose.ui)
+            implementation(libs.compose.components.resources)
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
@@ -42,4 +43,8 @@ kotlin {
             implementation(libs.kotlin.test)
         }
     }
+}
+
+dependencies {
+    androidRuntimeClasspath(libs.compose.uiTooling)
 }

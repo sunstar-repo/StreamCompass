@@ -16,17 +16,13 @@ kotlin {
         compilerOptions {
             jvmTarget = JvmTarget.JVM_11
         }
-        androidResources {
-            enable = true
-        }
-        withHostTest {
-            isIncludeAndroidResources = true
-        }
     }
 
     sourceSets {
         commonMain.dependencies {
             // Model(Entity), Repository interfaces, UseCase — no dependency on :data/:core.
+            // Exception: paging-common (KMP, no Android/UI coupling) for Flow<PagingData<T>> in Repository contracts.
+            implementation(libs.paging.common)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

@@ -14,4 +14,6 @@ internal object TmdbConstants {
     const val PARAM_PAGE = "page"
 
     const val DEFAULT_LANGUAGE = "en-US"
+
+    const val PAGE_SIZE = 20
 }

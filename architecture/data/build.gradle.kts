@@ -27,23 +27,17 @@ kotlin {
        compilerOptions {
            jvmTarget = JvmTarget.JVM_11
        }
-       androidResources {
-           enable = true
-       }
-       withHostTest {
-           isIncludeAndroidResources = true
-       }
     }
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":architecture:domain"))
-            implementation(project(":core"))
+            implementation(projects.architecture.domain)
             implementation(libs.ktor.clientCore)
             implementation(libs.ktor.clientContentNegotiation)
             implementation(libs.ktor.serializationKotlinxJson)
             implementation(libs.kotlinx.serializationJson)
             implementation(libs.koin.core)
+            implementation(libs.paging.common)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

@@ -18,17 +18,7 @@ kotlin {
        compilerOptions {
            jvmTarget = JvmTarget.JVM_11
        }
-       androidResources {
-           enable = true
-       }
-       withHostTest {
-           isIncludeAndroidResources = true
-       }
-       withDeviceTestBuilder {
-           sourceSetTreeName = "test"
-       }.configure {
-           instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-       }
+       withHostTest {}
     }
 
     sourceSets {
@@ -37,17 +27,11 @@ kotlin {
             implementation(libs.compose.uiTooling)
         }
         commonMain.dependencies {
-            api(project(":core"))
-            implementation(project(":architecture:data"))
+            implementation(projects.architecture.data)
+            implementation(projects.architecture.presentation)
             implementation(libs.koin.compose)
             implementation(libs.compose.runtime)
-            implementation(libs.compose.foundation)
-            implementation(libs.compose.material3)
-            implementation(libs.compose.ui)
-            implementation(libs.compose.components.resources)
             implementation(libs.compose.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.viewmodelCompose)
-            implementation(libs.androidx.lifecycle.runtimeCompose)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

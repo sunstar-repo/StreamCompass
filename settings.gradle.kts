@@ -1,5 +1,7 @@
 rootProject.name = "StreamCompass"
 
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 pluginManagement {
     repositories {
         google {
@@ -34,7 +36,6 @@ plugins {
 include(":app:androidApp")
 include(":app:desktopApp")
 include(":app:shared")
-include(":core")
 include(":architecture:presentation")
 include(":architecture:domain")
 include(":architecture:data")

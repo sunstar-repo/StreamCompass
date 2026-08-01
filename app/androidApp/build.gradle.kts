@@ -11,7 +11,7 @@ kotlin {
     }
 }
 dependencies {
-    implementation(project(":app:shared"))
+    implementation(projects.app.shared)
 
     implementation(libs.androidx.activity.compose)
 
