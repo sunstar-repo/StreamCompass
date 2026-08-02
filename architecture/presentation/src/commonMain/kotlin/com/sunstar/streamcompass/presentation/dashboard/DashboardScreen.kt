@@ -8,41 +8,79 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.itemKey
 import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.sunstar.streamcompass.domain.model.Stream
+import kotlinx.coroutines.flow.Flow
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun DashboardScreen(viewModel: DashboardViewModel = koinViewModel()) {
-    val nowPlayingStreams = viewModel.nowPlayingStreams.collectAsLazyPagingItems()
+    val state by viewModel.stateFlow.collectAsState()
+
+    Column {
+        SuggestionRow(
+            title = "Now Playing",
+            contentsFlow = state.nowPlayings,
+            onStreamClick = { /* TODO: navigate to detail */ },
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        SuggestionRow(
+            title = "Upcomming",
+            contentsFlow = state.upcommings,
+            onStreamClick = { /* TODO: navigate to detail */ },
+        )
+    }
+}
+
+@Composable
+private fun SuggestionRow(
+    title: String,
+    contentsFlow: Flow<PagingData<Stream>>,
+    onStreamClick: (Stream) -> Unit,
+) {
+    val pagingItems = contentsFlow.collectAsLazyPagingItems()
 
     Column(modifier = Modifier.padding(vertical = 16.dp)) {
         Text(
-            text = "Now Playing",
+            text = title,
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(horizontal = 16.dp),
         )
+
         Spacer(modifier = Modifier.height(8.dp))
+
         LazyRow(
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             items(
-                count = nowPlayingStreams.itemCount,
-                key = nowPlayingStreams.itemKey { it.tmdbId },
+                count = pagingItems.itemCount,
+                key = { index ->
+                    "${index}_${pagingItems[index]?.tmdbId}"
+                },
             ) { index ->
-                nowPlayingStreams[index]?.let { stream ->
-                    StreamPosterItem(stream)
+                val stream = pagingItems[index]
+                if (null != stream) {
+                    SuggestionColumn(stream = stream, onClick = onStreamClick)
                 }
             }
         }
@@ -50,16 +88,26 @@ fun DashboardScreen(viewModel: DashboardViewModel = koinViewModel()) {
 }
 
 @Composable
-private fun StreamPosterItem(stream: Stream) {
+private fun SuggestionColumn(stream: Stream, onClick: (Stream) -> Unit) {
     Column(modifier = Modifier.width(120.dp)) {
-        AsyncImage(
-            model = stream.posterPath,
-            contentDescription = stream.title,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .width(120.dp)
-                .height(180.dp),
-        )
+        ElevatedCard(
+            onClick = { onClick(stream) }
+        ) {
+            val context = LocalPlatformContext.current
+            AsyncImage(
+                model = remember(stream.posterPath) {
+                    ImageRequest.Builder(context)
+                        .data(stream.posterPath)
+                        .crossfade(true)
+                        .build()
+                },
+                contentDescription = stream.title,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .width(120.dp)
+                    .height(180.dp),
+            )
+        }
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = stream.title,

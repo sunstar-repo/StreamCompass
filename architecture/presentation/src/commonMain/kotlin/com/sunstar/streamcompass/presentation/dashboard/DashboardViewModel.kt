@@ -7,12 +7,60 @@ import androidx.paging.cachedIn
 import com.sunstar.streamcompass.domain.model.Stream
 import com.sunstar.streamcompass.domain.model.SuggestionType
 import com.sunstar.streamcompass.domain.usecase.GetSuggestionStreamUseCase
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.cache
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.runningFold
+import kotlinx.coroutines.flow.stateIn
 
 class DashboardViewModel(
-    getSuggestionStreamUseCase: GetSuggestionStreamUseCase,
+    private val getSuggestionUseCase: GetSuggestionStreamUseCase,
 ) : ViewModel() {
-    val nowPlayingStreams: Flow<PagingData<Stream>> =
-        getSuggestionStreamUseCase(SuggestionType.NowPlaying)
-            .cachedIn(viewModelScope)
+
+    val stateFlow: StateFlow<State>
+
+    private val eventChannel: Channel<Event>
+
+    init {
+        eventChannel = Channel()
+        stateFlow = eventChannel.receiveAsFlow()
+            .onStart {
+                emit(Event.Initialize)
+            }
+            .runningFold(
+                initial = State(),
+                operation = ::handleEvent
+            )
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = State()
+            )
+    }
+
+    private fun handleEvent(current: State, event: Event): State = when (event) {
+        is Event.Initialize -> current.copy(
+            nowPlayings = getSuggestionUseCase(
+                type = SuggestionType.NowPlaying
+            ).cachedIn(viewModelScope),
+            upcommings = getSuggestionUseCase(
+                type = SuggestionType.Upcoming
+            ).cachedIn(viewModelScope)
+        )
+    }
+
+    sealed interface Event {
+        data object Initialize : Event
+
+    }
+
+    data class State(
+        val nowPlayings: Flow<PagingData<Stream>> = flowOf(),
+        val upcommings: Flow<PagingData<Stream>> = flowOf()
+    )
 }

@@ -22,7 +22,7 @@ internal class StreamRepositoryImpl(
 
     override fun getSuggestionStreamFlow(type: SuggestionType): Flow<PagingData<Stream>> =
         Pager(
-            config = PagingConfig(pageSize = TmdbConstants.PAGE_SIZE),
+            config = PagingConfig(pageSize = TmdbConstants.PAGE_SIZE, enablePlaceholders = false),
             pagingSourceFactory = { TmdbSuggestionPagingSource(tmdbDataSource, summaryMapper, type) },
         ).flow
 

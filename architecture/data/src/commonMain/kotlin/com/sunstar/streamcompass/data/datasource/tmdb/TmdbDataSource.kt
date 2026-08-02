@@ -25,6 +25,7 @@ internal class TmdbDataSource(
                 Json {
                     ignoreUnknownKeys = true
                     explicitNulls = false
+                    coerceInputValues = true
                     namingStrategy = JsonNamingStrategy.SnakeCase
                 },
             )

@@ -39,4 +39,5 @@ include(":app:shared")
 include(":architecture:presentation")
 include(":architecture:domain")
 include(":architecture:data")
+include(":core")
 
