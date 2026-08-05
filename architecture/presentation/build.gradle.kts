@@ -11,13 +11,13 @@ kotlin {
     jvm()
 
     android {
-       namespace = "com.sunstar.streamcompass.presentation"
-       compileSdk = libs.versions.android.compileSdk.get().toInt()
-       minSdk = libs.versions.android.minSdk.get().toInt()
+        namespace = "com.sunstar.streamcompass.presentation"
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
 
-       compilerOptions {
-           jvmTarget = JvmTarget.JVM_11
-       }
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_11
+        }
     }
 
     sourceSets {

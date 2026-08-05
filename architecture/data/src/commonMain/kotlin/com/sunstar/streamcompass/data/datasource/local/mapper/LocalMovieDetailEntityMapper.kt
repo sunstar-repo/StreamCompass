@@ -1,17 +1,16 @@
-package com.sunstar.streamcompass.data.datasource.tmdb.mapper
+package com.sunstar.streamcompass.data.datasource.local.mapper
 
-import com.sunstar.streamcompass.data.datasource.tmdb.TmdbConstants
-import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMovieDetailDto
+import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieDetailEntity
 import com.sunstar.streamcompass.domain.mapper.Mapper
 import com.sunstar.streamcompass.domain.model.StreamDetail.MovieStreamDetail
 
-internal class TmdbMovieDetailMapper : Mapper<TmdbMovieDetailDto, MovieStreamDetail> {
-    override fun map(source: TmdbMovieDetailDto): MovieStreamDetail =
+internal class LocalMovieDetailEntityMapper : Mapper<LocalMovieDetailEntity, MovieStreamDetail> {
+    override fun map(source: LocalMovieDetailEntity): MovieStreamDetail =
         MovieStreamDetail(
             tmdbId = source.tmdbId,
             title = source.title,
             overview = source.overview,
-            posterPath = TmdbConstants.posterUrl(source.posterPath),
+            posterPath = source.posterPath,
             backdropPath = source.backdropPath,
             releaseDate = source.releaseDate,
             voteAverage = source.voteAverage,
@@ -19,7 +18,7 @@ internal class TmdbMovieDetailMapper : Mapper<TmdbMovieDetailDto, MovieStreamDet
             popularity = source.popularity,
             originalLanguage = source.originalLanguage,
             originalTitle = source.originalTitle,
-            genres = source.genres.map { it.name },
+            genres = source.genres,
             runtime = source.runtime,
             status = source.status,
             tagline = source.tagline,

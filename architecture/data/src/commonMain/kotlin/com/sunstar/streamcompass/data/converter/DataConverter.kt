@@ -1,0 +1,75 @@
+package com.sunstar.streamcompass.data.converter
+
+import com.sunstar.streamcompass.data.datasource.local.entity.LocalDeeplinkEntity
+import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieDetailEntity
+import com.sunstar.streamcompass.data.datasource.streamingavailability.SaConstants
+import com.sunstar.streamcompass.data.datasource.streamingavailability.dto.SaShowDto
+import com.sunstar.streamcompass.data.datasource.streamingavailability.dto.SaStreamingOptionDto
+import com.sunstar.streamcompass.data.datasource.tmdb.TmdbConstants
+import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMovieDetailDto
+import com.sunstar.streamcompass.domain.model.StreamType
+
+internal fun TmdbMovieDetailDto.toEntity(locale: String): LocalMovieDetailEntity =
+    LocalMovieDetailEntity(
+        tmdbId = tmdbId,
+        locale = locale,
+        title = title,
+        overview = overview,
+        posterPath = TmdbConstants.posterUrl(posterPath),
+        backdropPath = backdropPath,
+        releaseDate = releaseDate,
+        voteAverage = voteAverage,
+        voteCount = voteCount,
+        popularity = popularity,
+        originalLanguage = originalLanguage,
+        originalTitle = originalTitle,
+        genres = genres.map { it.name },
+        runtime = runtime,
+        status = status,
+        tagline = tagline,
+        homepage = homepage,
+        imdbId = imdbId,
+        budget = budget,
+        revenue = revenue,
+        adult = adult,
+        video = video,
+    )
+
+internal fun SaShowDto.toEntities(): List<LocalDeeplinkEntity> {
+    val (streamType, parsedTmdbId) = parseTmdbId(tmdbId) ?: return emptyList()
+
+    return streamingOptions.flatMap { (locale, options) ->
+        options.map { option -> option.toEntity(parsedTmdbId, streamType, locale) }
+    }
+}
+
+private fun parseTmdbId(raw: String): Pair<StreamType, Int>? {
+    val segments = raw.split("/")
+    if (segments.size != 2) return null
+
+    val streamType =
+        when (segments[0]) {
+            SaConstants.PATH_MOVIE -> StreamType.Movie
+            SaConstants.PATH_TV -> StreamType.Tv
+            else -> return null
+        }
+    val tmdbId = segments[1].toIntOrNull() ?: return null
+
+    return streamType to tmdbId
+}
+
+private fun SaStreamingOptionDto.toEntity(
+    tmdbId: Int,
+    streamType: StreamType,
+    locale: String,
+): LocalDeeplinkEntity =
+    LocalDeeplinkEntity(
+        tmdbId = tmdbId,
+        streamType = streamType.rawValue,
+        locale = locale,
+        service = service.name,
+        link = link,
+        videoLink = videoLink,
+        lightThemeImage = service.imageSet.lightThemeImage,
+        darkThemeImage = service.imageSet.darkThemeImage,
+    )

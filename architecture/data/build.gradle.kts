@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.buildkonfig)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.room)
 }
 
 buildkonfig {
@@ -17,17 +19,21 @@ buildkonfig {
     }
 }
 
+room {
+    schemaDirectory("$projectDir/schemas")
+}
+
 kotlin {
     jvm()
 
     android {
-       namespace = "com.sunstar.streamcompass.data"
-       compileSdk = libs.versions.android.compileSdk.get().toInt()
-       minSdk = libs.versions.android.minSdk.get().toInt()
+        namespace = "com.sunstar.streamcompass.data"
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
 
-       compilerOptions {
-           jvmTarget = JvmTarget.JVM_11
-       }
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_11
+        }
     }
 
     sourceSets {
@@ -39,6 +45,8 @@ kotlin {
             implementation(libs.kotlinx.serializationJson)
             implementation(libs.koin.core)
             implementation(libs.paging.common)
+            implementation(libs.room.runtime)
+            implementation(libs.sqlite.bundled)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -50,4 +58,9 @@ kotlin {
             implementation(libs.ktor.clientCio)
         }
     }
+}
+
+dependencies {
+    add("kspAndroid", libs.room.compiler)
+    add("kspJvm", libs.room.compiler)
 }

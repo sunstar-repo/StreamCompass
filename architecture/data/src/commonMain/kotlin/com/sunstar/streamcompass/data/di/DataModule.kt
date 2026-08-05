@@ -1,12 +1,15 @@
 package com.sunstar.streamcompass.data.di
 
+import com.sunstar.streamcompass.data.datasource.local.AppDatabase
+import com.sunstar.streamcompass.data.datasource.local.LocalDataSource
+import com.sunstar.streamcompass.data.datasource.local.createDatabase
+import com.sunstar.streamcompass.data.datasource.local.entity.LocalDeeplinkEntity
+import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieDetailEntity
+import com.sunstar.streamcompass.data.datasource.local.mapper.LocalDeeplinkEntityMapper
+import com.sunstar.streamcompass.data.datasource.local.mapper.LocalMovieDetailEntityMapper
 import com.sunstar.streamcompass.data.datasource.streamingavailability.SaDataSource
-import com.sunstar.streamcompass.data.datasource.streamingavailability.dto.SaShowDto
-import com.sunstar.streamcompass.data.datasource.streamingavailability.mapper.SaShowMapper
 import com.sunstar.streamcompass.data.datasource.tmdb.TmdbDataSource
-import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMovieDetailDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMovieSummaryDto
-import com.sunstar.streamcompass.data.datasource.tmdb.mapper.TmdbMovieDetailMapper
 import com.sunstar.streamcompass.data.datasource.tmdb.mapper.TmdbMovieSummaryMapper
 import com.sunstar.streamcompass.data.repository.StreamRepositoryImpl
 import com.sunstar.streamcompass.domain.mapper.Mapper
@@ -21,9 +24,13 @@ import org.koin.dsl.module
 private val TMDB_DATA_SOURCE = named("tmdbDataSource")
 private val SA_DATA_SOURCE = named("saDataSource")
 private val TMDB_MOVIE_SUMMARY_MAPPER = named("tmdbMovieSummaryMapper")
-private val TMDB_MOVIE_DETAIL_MAPPER = named("tmdbMovieDetailMapper")
-private val SA_SHOW_MAPPER = named("saShowMapper")
 private val STREAM_REPOSITORY = named("streamRepository")
+private val APP_DATABASE = named("appDatabase")
+private val MOVIE_DETAIL_DAO = named("movieDetailDao")
+private val DEEPLINK_DAO = named("deeplinkDao")
+private val LOCAL_DATA_SOURCE = named("localDataSource")
+private val MOVIE_DETAIL_ENTITY_MAPPER = named("movieDetailEntityMapper")
+private val DEEPLINK_ENTITY_MAPPER = named("deeplinkEntityMapper")
 
 val dataModule =
     module {
@@ -31,18 +38,31 @@ val dataModule =
         single(SA_DATA_SOURCE) { SaDataSource() }
 
         single<Mapper<TmdbMovieSummaryDto, MovieStream>>(TMDB_MOVIE_SUMMARY_MAPPER) { TmdbMovieSummaryMapper() }
-        single<Mapper<TmdbMovieDetailDto, MovieStreamDetail>>(TMDB_MOVIE_DETAIL_MAPPER) { TmdbMovieDetailMapper() }
-        single<Mapper<SaShowDto, List<Deeplink>>>(SA_SHOW_MAPPER) { SaShowMapper() }
+        single<Mapper<LocalMovieDetailEntity, MovieStreamDetail>>(MOVIE_DETAIL_ENTITY_MAPPER) {
+            LocalMovieDetailEntityMapper()
+        }
+        single<Mapper<LocalDeeplinkEntity, Deeplink>>(DEEPLINK_ENTITY_MAPPER) { LocalDeeplinkEntityMapper() }
 
-        single<StreamRepository>(STREAM_REPOSITORY) {
-            StreamRepositoryImpl(
-                tmdbDataSource = get(TMDB_DATA_SOURCE),
-                summaryMapper = get(TMDB_MOVIE_SUMMARY_MAPPER),
-                detailMapper = get(TMDB_MOVIE_DETAIL_MAPPER),
-                saDataSource = get(SA_DATA_SOURCE),
-                saShowMapper = get(SA_SHOW_MAPPER),
+        single<AppDatabase>(APP_DATABASE) { createDatabase() }
+        single(MOVIE_DETAIL_DAO) { get<AppDatabase>(qualifier = APP_DATABASE).movieDetailDao() }
+        single(DEEPLINK_DAO) { get<AppDatabase>(qualifier = APP_DATABASE).deeplinkDao() }
+        single(LOCAL_DATA_SOURCE) {
+            LocalDataSource(
+                movieDetailDao = get(qualifier = MOVIE_DETAIL_DAO),
+                deeplinkDao = get(qualifier = DEEPLINK_DAO),
             )
         }
 
-        single { GetSuggestionStreamUseCase(get(STREAM_REPOSITORY)) }
+        single<StreamRepository>(STREAM_REPOSITORY) {
+            StreamRepositoryImpl(
+                tmdbDataSource = get(qualifier = TMDB_DATA_SOURCE),
+                saDataSource = get(qualifier = SA_DATA_SOURCE),
+                localDataSource = get(qualifier = LOCAL_DATA_SOURCE),
+                summaryMapper = get(qualifier = TMDB_MOVIE_SUMMARY_MAPPER),
+                detailEntityMapper = get(qualifier = MOVIE_DETAIL_ENTITY_MAPPER),
+                deeplinkEntityMapper = get(qualifier = DEEPLINK_ENTITY_MAPPER),
+            )
+        }
+
+        single { GetSuggestionStreamUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
     }

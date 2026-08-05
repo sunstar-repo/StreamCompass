@@ -9,5 +9,5 @@ import kotlinx.coroutines.flow.Flow
 interface StreamRepository {
     fun getSuggestionStreamFlow(type: SuggestionType): Flow<PagingData<MovieStream>>
 
-    suspend fun getStreamDetail(streamId: Int): MovieStreamDetail
+    suspend fun getStreamDetail(tmdbId: Int, locale: String): MovieStreamDetail
 }
