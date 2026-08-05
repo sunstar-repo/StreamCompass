@@ -26,7 +26,7 @@ import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.sunstar.streamcompass.domain.model.Stream
+import com.sunstar.streamcompass.domain.model.Stream.MovieStream
 import kotlinx.coroutines.flow.Flow
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -54,8 +54,8 @@ fun DashboardScreen(viewModel: DashboardViewModel = koinViewModel()) {
 @Composable
 private fun SuggestionRow(
     title: String,
-    contentsFlow: Flow<PagingData<Stream>>,
-    onStreamClick: (Stream) -> Unit,
+    contentsFlow: Flow<PagingData<MovieStream>>,
+    onStreamClick: (MovieStream) -> Unit,
 ) {
     val pagingItems = contentsFlow.collectAsLazyPagingItems()
 
@@ -88,7 +88,7 @@ private fun SuggestionRow(
 }
 
 @Composable
-private fun SuggestionColumn(stream: Stream, onClick: (Stream) -> Unit) {
+private fun SuggestionColumn(stream: MovieStream, onClick: (MovieStream) -> Unit) {
     Column(modifier = Modifier.width(120.dp)) {
         ElevatedCard(
             onClick = { onClick(stream) }
@@ -105,7 +105,7 @@ private fun SuggestionColumn(stream: Stream, onClick: (Stream) -> Unit) {
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .width(120.dp)
-                    .height(180.dp),
+                    .height(180.dp)
             )
         }
         Spacer(modifier = Modifier.height(4.dp))

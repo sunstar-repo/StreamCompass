@@ -5,15 +5,15 @@ import androidx.paging.PagingState
 import com.sunstar.streamcompass.data.datasource.tmdb.TmdbDataSource
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMovieSummaryDto
 import com.sunstar.streamcompass.domain.mapper.Mapper
-import com.sunstar.streamcompass.domain.model.Stream
+import com.sunstar.streamcompass.domain.model.Stream.MovieStream
 import com.sunstar.streamcompass.domain.model.SuggestionType
 
 internal class TmdbSuggestionPagingSource(
     private val tmdbDataSource: TmdbDataSource,
-    private val summaryMapper: Mapper<TmdbMovieSummaryDto, Stream>,
+    private val summaryMapper: Mapper<TmdbMovieSummaryDto, MovieStream>,
     private val type: SuggestionType,
-) : PagingSource<Int, Stream>() {
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Stream> {
+) : PagingSource<Int, MovieStream>() {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, MovieStream> {
         val page = params.key ?: 1
         return try {
             val response =
@@ -33,7 +33,7 @@ internal class TmdbSuggestionPagingSource(
         }
     }
 
-    override fun getRefreshKey(state: PagingState<Int, Stream>): Int? =
+    override fun getRefreshKey(state: PagingState<Int, MovieStream>): Int? =
         state.anchorPosition?.let { anchorPosition ->
             val anchorPage = state.closestPageToPosition(anchorPosition)
             anchorPage?.prevKey?.plus(1) ?: anchorPage?.nextKey?.minus(1)

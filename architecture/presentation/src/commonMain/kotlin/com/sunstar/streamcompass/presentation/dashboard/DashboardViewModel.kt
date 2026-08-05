@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.sunstar.streamcompass.domain.model.Stream
+import com.sunstar.streamcompass.domain.model.Stream.MovieStream
 import com.sunstar.streamcompass.domain.model.SuggestionType
 import com.sunstar.streamcompass.domain.usecase.GetSuggestionStreamUseCase
 import kotlinx.coroutines.channels.Channel
@@ -60,7 +60,7 @@ class DashboardViewModel(
     }
 
     data class State(
-        val nowPlayings: Flow<PagingData<Stream>> = flowOf(),
-        val upcommings: Flow<PagingData<Stream>> = flowOf()
+        val nowPlayings: Flow<PagingData<MovieStream>> = flowOf(),
+        val upcommings: Flow<PagingData<MovieStream>> = flowOf()
     )
 }

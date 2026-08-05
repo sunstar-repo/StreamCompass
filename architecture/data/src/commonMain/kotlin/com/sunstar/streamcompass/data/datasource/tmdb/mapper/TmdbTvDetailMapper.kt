@@ -1,34 +1,33 @@
 package com.sunstar.streamcompass.data.datasource.tmdb.mapper
 
 import com.sunstar.streamcompass.data.datasource.tmdb.TmdbConstants
-import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMovieDetailDto
+import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTvDetailDto
 import com.sunstar.streamcompass.domain.mapper.Mapper
-import com.sunstar.streamcompass.domain.model.StreamDetail.MovieStreamDetail
+import com.sunstar.streamcompass.domain.model.StreamDetail.TvStreamDetail
 
-internal class TmdbMovieDetailMapper : Mapper<TmdbMovieDetailDto, MovieStreamDetail> {
-    override fun map(source: TmdbMovieDetailDto): MovieStreamDetail =
-        MovieStreamDetail(
+internal class TmdbTvDetailMapper : Mapper<TmdbTvDetailDto, TvStreamDetail> {
+    override fun map(source: TmdbTvDetailDto): TvStreamDetail =
+        TvStreamDetail(
             tmdbId = source.tmdbId,
-            title = source.title,
+            name = source.name,
             overview = source.overview,
             posterPath = TmdbConstants.posterUrl(source.posterPath),
             backdropPath = source.backdropPath,
-            releaseDate = source.releaseDate,
+            firstAirDate = source.firstAirDate,
+            lastAirDate = source.lastAirDate,
             voteAverage = source.voteAverage,
             voteCount = source.voteCount,
             popularity = source.popularity,
             originalLanguage = source.originalLanguage,
-            originalTitle = source.originalTitle,
+            originalName = source.originalName,
             genres = source.genres.map { it.name },
-            runtime = source.runtime,
+            numberOfSeasons = source.numberOfSeasons,
+            numberOfEpisodes = source.numberOfEpisodes,
+            episodeRunTime = source.episodeRunTime,
             status = source.status,
             tagline = source.tagline,
             homepage = source.homepage,
-            imdbId = source.imdbId,
-            budget = source.budget,
-            revenue = source.revenue,
-            adult = source.adult,
-            video = source.video,
+            inProduction = source.inProduction,
             deeplinks = emptyList(),
         )
 }

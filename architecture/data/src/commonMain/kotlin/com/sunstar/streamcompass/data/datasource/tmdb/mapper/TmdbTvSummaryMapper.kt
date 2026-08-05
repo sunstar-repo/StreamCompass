@@ -1,23 +1,23 @@
 package com.sunstar.streamcompass.data.datasource.tmdb.mapper
 
 import com.sunstar.streamcompass.data.datasource.tmdb.TmdbConstants
-import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMovieSummaryDto
+import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTvSummaryDto
 import com.sunstar.streamcompass.domain.mapper.Mapper
-import com.sunstar.streamcompass.domain.model.Stream.MovieStream
+import com.sunstar.streamcompass.domain.model.Stream.TvStream
 
-internal class TmdbMovieSummaryMapper : Mapper<TmdbMovieSummaryDto, MovieStream> {
-    override fun map(source: TmdbMovieSummaryDto): MovieStream =
-        MovieStream(
+internal class TmdbTvSummaryMapper : Mapper<TmdbTvSummaryDto, TvStream> {
+    override fun map(source: TmdbTvSummaryDto): TvStream =
+        TvStream(
             tmdbId = source.tmdbId,
-            title = source.title,
+            name = source.name,
             overview = source.overview,
             posterPath = TmdbConstants.posterUrl(source.posterPath),
             backdropPath = source.backdropPath,
-            releaseDate = source.releaseDate,
+            firstAirDate = source.firstAirDate,
             voteAverage = source.voteAverage,
             voteCount = source.voteCount,
             popularity = source.popularity,
             originalLanguage = source.originalLanguage,
-            originalTitle = source.originalTitle,
+            originalName = source.originalName,
         )
 }
