@@ -32,7 +32,7 @@ kotlin {
         minSdk = libs.versions.android.minSdk.get().toInt()
 
         compilerOptions {
-            jvmTarget = JvmTarget.JVM_11
+            jvmTarget = JvmTarget.JVM_17
         }
     }
 
@@ -47,12 +47,14 @@ kotlin {
             implementation(libs.paging.common)
             implementation(libs.room.runtime)
             implementation(libs.sqlite.bundled)
+            implementation(libs.firebase.firestore)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
         androidMain.dependencies {
             implementation(libs.ktor.clientOkhttp)
+            implementation(project.dependencies.platform(libs.firebase.bom))
         }
         jvmMain.dependencies {
             implementation(libs.ktor.clientCio)

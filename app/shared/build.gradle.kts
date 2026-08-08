@@ -16,7 +16,7 @@ kotlin {
        minSdk = libs.versions.android.minSdk.get().toInt()
 
        compilerOptions {
-           jvmTarget = JvmTarget.JVM_11
+           jvmTarget = JvmTarget.JVM_17
        }
        withHostTest {}
     }
@@ -25,6 +25,7 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.compose.uiTooling)
+            implementation(project.dependencies.platform(libs.firebase.bom))
         }
         commonMain.dependencies {
             implementation(projects.architecture.data)
@@ -32,6 +33,7 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.compose.runtime)
             implementation(libs.compose.uiToolingPreview)
+            implementation(libs.firebase.firestore)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

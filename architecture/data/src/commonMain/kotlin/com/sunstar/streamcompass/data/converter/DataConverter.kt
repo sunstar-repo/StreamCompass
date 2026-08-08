@@ -1,5 +1,6 @@
 package com.sunstar.streamcompass.data.converter
 
+import com.sunstar.streamcompass.data.datasource.firestore.dto.FirestoreDeeplinkDto
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalDeeplinkEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieDetailEntity
 import com.sunstar.streamcompass.data.datasource.streamingavailability.SaConstants
@@ -7,6 +8,8 @@ import com.sunstar.streamcompass.data.datasource.streamingavailability.dto.SaSho
 import com.sunstar.streamcompass.data.datasource.streamingavailability.dto.SaStreamingOptionDto
 import com.sunstar.streamcompass.data.datasource.tmdb.TmdbConstants
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMovieDetailDto
+import com.sunstar.streamcompass.domain.model.Deeplink
+import com.sunstar.streamcompass.domain.model.Logo
 import com.sunstar.streamcompass.domain.model.StreamType
 
 internal fun TmdbMovieDetailDto.toEntity(locale: String): LocalMovieDetailEntity =
@@ -73,3 +76,24 @@ private fun SaStreamingOptionDto.toEntity(
         lightThemeImage = service.imageSet.lightThemeImage,
         darkThemeImage = service.imageSet.darkThemeImage,
     )
+
+internal fun FirestoreDeeplinkDto.toDeeplink(tmdbId: Int, streamType: StreamType, locale: String, service: String): Deeplink =
+    Deeplink(
+        link = link,
+        videoLink = videoLink,
+        tmdbId = tmdbId,
+        streamType = streamType,
+        locale = locale,
+        service = service,
+        logo = Logo(lightThemeImage = lightThemeImage, darkThemeImage = darkThemeImage),
+    )
+
+internal fun SaShowDto.toFirestoreDeeplinkDtos(): Map<String, FirestoreDeeplinkDto> =
+    streamingOptions.values.flatten().associate { option ->
+        option.service.name to FirestoreDeeplinkDto(
+            link = option.link,
+            videoLink = option.videoLink,
+            lightThemeImage = option.service.imageSet.lightThemeImage,
+            darkThemeImage = option.service.imageSet.darkThemeImage,
+        )
+    }

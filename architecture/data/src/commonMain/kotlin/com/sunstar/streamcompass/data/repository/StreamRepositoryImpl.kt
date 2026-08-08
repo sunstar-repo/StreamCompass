@@ -3,8 +3,11 @@ package com.sunstar.streamcompass.data.repository
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import com.sunstar.streamcompass.data.converter.toDeeplink
 import com.sunstar.streamcompass.data.converter.toEntities
 import com.sunstar.streamcompass.data.converter.toEntity
+import com.sunstar.streamcompass.data.converter.toFirestoreDeeplinkDtos
+import com.sunstar.streamcompass.data.datasource.firestore.FirestoreDataSource
 import com.sunstar.streamcompass.data.datasource.local.LocalDataSource
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalDeeplinkEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieDetailEntity
@@ -18,6 +21,7 @@ import com.sunstar.streamcompass.domain.mapper.Mapper
 import com.sunstar.streamcompass.domain.model.Deeplink
 import com.sunstar.streamcompass.domain.model.Stream.MovieStream
 import com.sunstar.streamcompass.domain.model.StreamDetail.MovieStreamDetail
+import com.sunstar.streamcompass.domain.model.StreamType
 import com.sunstar.streamcompass.domain.model.SuggestionType
 import com.sunstar.streamcompass.domain.repository.StreamRepository
 import kotlinx.coroutines.flow.Flow
@@ -26,6 +30,7 @@ internal class StreamRepositoryImpl(
     private val tmdbDataSource: TmdbDataSource,
     private val saDataSource: SaDataSource,
     private val localDataSource: LocalDataSource,
+    private val firestoreDataSource: FirestoreDataSource,
     private val summaryMapper: Mapper<TmdbMovieSummaryDto, MovieStream>,
     private val detailEntityMapper: Mapper<LocalMovieDetailEntity, MovieStreamDetail>,
     private val deeplinkEntityMapper: Mapper<LocalDeeplinkEntity, Deeplink>,
@@ -67,14 +72,23 @@ internal class StreamRepositoryImpl(
     }
 
     private suspend fun fetchAndCacheDeeplinks(tmdbId: Int, locale: String): List<Deeplink> {
+        val cachedDeeplinks =
+            firestoreDataSource.getDeeplinks(tmdbId = tmdbId, streamType = StreamType.Movie, locale = locale)
+        if (cachedDeeplinks.isNotEmpty()) return cachedDeeplinks
+
         val dto = saDataSource.getMovie(tmdbId = tmdbId, country = locale)
-        val entities = dto.toEntities()
         localDataSource.replaceDeeplinks(
             tmdbId = tmdbId,
             streamType = SaConstants.PATH_MOVIE,
             locale = locale,
-            entities = entities,
+            entities = dto.toEntities(),
         )
-        return entities.map { deeplinkEntityMapper.map(source = it) }
+
+        val firestoreDtos = dto.toFirestoreDeeplinkDtos()
+        firestoreDataSource.setDeeplinks(tmdbId = tmdbId, streamType = StreamType.Movie, locale = locale, dtos = firestoreDtos)
+
+        return firestoreDtos.map { (service, firestoreDto) ->
+            firestoreDto.toDeeplink(tmdbId = tmdbId, streamType = StreamType.Movie, locale = locale, service = service)
+        }
     }
 }

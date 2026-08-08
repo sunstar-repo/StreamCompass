@@ -1,5 +1,6 @@
 package com.sunstar.streamcompass.data.di
 
+import com.sunstar.streamcompass.data.datasource.firestore.FirestoreDataSource
 import com.sunstar.streamcompass.data.datasource.local.AppDatabase
 import com.sunstar.streamcompass.data.datasource.local.LocalDataSource
 import com.sunstar.streamcompass.data.datasource.local.createDatabase
@@ -18,6 +19,9 @@ import com.sunstar.streamcompass.domain.model.Stream.MovieStream
 import com.sunstar.streamcompass.domain.model.StreamDetail.MovieStreamDetail
 import com.sunstar.streamcompass.domain.repository.StreamRepository
 import com.sunstar.streamcompass.domain.usecase.GetSuggestionStreamUseCase
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.firestore.FirebaseFirestore
+import dev.gitlive.firebase.firestore.firestore
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
@@ -31,6 +35,8 @@ private val DEEPLINK_DAO = named("deeplinkDao")
 private val LOCAL_DATA_SOURCE = named("localDataSource")
 private val MOVIE_DETAIL_ENTITY_MAPPER = named("movieDetailEntityMapper")
 private val DEEPLINK_ENTITY_MAPPER = named("deeplinkEntityMapper")
+private val FIRESTORE = named("firestore")
+private val FIRESTORE_DATA_SOURCE = named("firestoreDataSource")
 
 val dataModule =
     module {
@@ -53,11 +59,15 @@ val dataModule =
             )
         }
 
+        single<FirebaseFirestore>(FIRESTORE) { Firebase.firestore }
+        single(FIRESTORE_DATA_SOURCE) { FirestoreDataSource(firestore = get(qualifier = FIRESTORE)) }
+
         single<StreamRepository>(STREAM_REPOSITORY) {
             StreamRepositoryImpl(
                 tmdbDataSource = get(qualifier = TMDB_DATA_SOURCE),
                 saDataSource = get(qualifier = SA_DATA_SOURCE),
                 localDataSource = get(qualifier = LOCAL_DATA_SOURCE),
+                firestoreDataSource = get(qualifier = FIRESTORE_DATA_SOURCE),
                 summaryMapper = get(qualifier = TMDB_MOVIE_SUMMARY_MAPPER),
                 detailEntityMapper = get(qualifier = MOVIE_DETAIL_ENTITY_MAPPER),
                 deeplinkEntityMapper = get(qualifier = DEEPLINK_ENTITY_MAPPER),
