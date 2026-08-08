@@ -1,4 +1,4 @@
-package com.sunstar.streamcompass.presentation.dashboard
+package com.sunstar.streamcompass.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.runningFold
 import kotlinx.coroutines.flow.stateIn
 
-class DashboardViewModel(
+class HomeViewModel(
     private val getSuggestionUseCase: GetSuggestionStreamUseCase,
 ) : ViewModel() {
 
