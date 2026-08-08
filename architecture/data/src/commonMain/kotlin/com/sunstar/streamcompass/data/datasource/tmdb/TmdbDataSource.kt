@@ -1,6 +1,5 @@
 package com.sunstar.streamcompass.data.datasource.tmdb
 
-import com.sunstar.streamcompass.data.BuildKonfig
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMovieDetailDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMoviePageResponseDto
 import io.ktor.client.HttpClient
@@ -15,7 +14,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNamingStrategy
 
 internal class TmdbDataSource(
-    private val apiKey: String = BuildKonfig.TMDB_API_KEY,
+    private val apiKey: String,
 ) {
     @OptIn(ExperimentalSerializationApi::class)
     private val httpClient = HttpClient {

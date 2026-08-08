@@ -28,6 +28,7 @@ kotlin {
             implementation(project.dependencies.platform(libs.firebase.bom))
         }
         commonMain.dependencies {
+            implementation(projects.architecture.domain)
             implementation(projects.architecture.data)
             implementation(projects.architecture.presentation)
             implementation(libs.koin.compose)

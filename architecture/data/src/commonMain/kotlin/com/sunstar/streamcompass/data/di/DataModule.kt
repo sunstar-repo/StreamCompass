@@ -14,6 +14,7 @@ import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMovieSummaryDto
 import com.sunstar.streamcompass.data.datasource.tmdb.mapper.TmdbMovieSummaryMapper
 import com.sunstar.streamcompass.data.repository.StreamRepositoryImpl
 import com.sunstar.streamcompass.domain.mapper.Mapper
+import com.sunstar.streamcompass.domain.model.ApiKey
 import com.sunstar.streamcompass.domain.model.Deeplink
 import com.sunstar.streamcompass.domain.model.Stream.MovieStream
 import com.sunstar.streamcompass.domain.model.StreamDetail.MovieStreamDetail
@@ -22,6 +23,7 @@ import com.sunstar.streamcompass.domain.usecase.GetSuggestionStreamUseCase
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.firestore.FirebaseFirestore
 import dev.gitlive.firebase.firestore.firestore
+import org.koin.core.module.Module
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
@@ -38,10 +40,10 @@ private val DEEPLINK_ENTITY_MAPPER = named("deeplinkEntityMapper")
 private val FIRESTORE = named("firestore")
 private val FIRESTORE_DATA_SOURCE = named("firestoreDataSource")
 
-val dataModule =
+fun dataModule(apiKey: ApiKey): Module =
     module {
-        single(TMDB_DATA_SOURCE) { TmdbDataSource() }
-        single(SA_DATA_SOURCE) { SaDataSource() }
+        single(TMDB_DATA_SOURCE) { TmdbDataSource(apiKey = apiKey.tmdbKey) }
+        single(SA_DATA_SOURCE) { SaDataSource(apiKey = apiKey.saKey) }
 
         single<Mapper<TmdbMovieSummaryDto, MovieStream>>(TMDB_MOVIE_SUMMARY_MAPPER) { TmdbMovieSummaryMapper() }
         single<Mapper<LocalMovieDetailEntity, MovieStreamDetail>>(MOVIE_DETAIL_ENTITY_MAPPER) {

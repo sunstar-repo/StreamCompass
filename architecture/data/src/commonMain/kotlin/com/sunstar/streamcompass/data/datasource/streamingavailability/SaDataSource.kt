@@ -1,6 +1,5 @@
 package com.sunstar.streamcompass.data.datasource.streamingavailability
 
-import com.sunstar.streamcompass.data.BuildKonfig
 import com.sunstar.streamcompass.data.datasource.streamingavailability.dto.SaShowDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -14,7 +13,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
 internal class SaDataSource(
-    private val apiKey: String = BuildKonfig.SA_API_KEY,
+    private val apiKey: String,
 ) {
     private val httpClient = HttpClient {
         expectSuccess = true

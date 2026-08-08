@@ -12,11 +12,6 @@ plugins {
 
 buildkonfig {
     packageName = "com.sunstar.streamcompass.data"
-
-    defaultConfigs {
-        buildConfigField(STRING, "TMDB_API_KEY", "5aebc223c62db410f22372277c609140")
-        buildConfigField(STRING, "SA_API_KEY", "")
-    }
 }
 
 room {
@@ -48,6 +43,7 @@ kotlin {
             implementation(libs.room.runtime)
             implementation(libs.sqlite.bundled)
             implementation(libs.firebase.firestore)
+            implementation(libs.firebase.config)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
