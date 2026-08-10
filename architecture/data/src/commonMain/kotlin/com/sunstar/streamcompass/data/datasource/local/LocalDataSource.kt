@@ -18,19 +18,19 @@ internal class LocalDataSource(
     suspend fun getDeeplinks(
         tmdbId: Int,
         streamType: String,
-        locale: String
+        country: String
     ): List<LocalDeeplinkEntity> =
-        deeplinkDao.get(tmdbId = tmdbId, streamType = streamType, locale = locale)
+        deeplinkDao.get(tmdbId = tmdbId, streamType = streamType, country = country)
 
     suspend fun replaceDeeplinks(
         tmdbId: Int,
         streamType: String,
-        locale: String,
+        country: String,
         entities: List<LocalDeeplinkEntity>,
     ) = deeplinkDao.replace(
         tmdbId = tmdbId,
         streamType = streamType,
-        locale = locale,
+        country = country,
         entities = entities
     )
 }

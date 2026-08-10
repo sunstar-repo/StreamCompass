@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "e56a596d7672a6db225ba01fc4360c99",
+    "identityHash": "b7a823e270766253af730af57e1a57c9",
     "entities": [
       {
         "tableName": "movie_detail",
@@ -283,14 +283,8 @@
       },
       {
         "tableName": "deeplink",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tmdbId` INTEGER NOT NULL, `streamType` TEXT NOT NULL, `locale` TEXT NOT NULL, `service` TEXT NOT NULL, `link` TEXT NOT NULL, `videoLink` TEXT NOT NULL, `lightThemeImage` TEXT NOT NULL, `darkThemeImage` TEXT NOT NULL, PRIMARY KEY(`tmdbId`, `streamType`, `locale`, `service`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`streamType` TEXT NOT NULL, `tmdbId` INTEGER NOT NULL, `country` TEXT NOT NULL, `service` TEXT NOT NULL, `link` TEXT NOT NULL, `videoLink` TEXT NOT NULL, `lightThemeImage` TEXT NOT NULL, `darkThemeImage` TEXT NOT NULL, PRIMARY KEY(`tmdbId`, `streamType`, `country`, `service`))",
         "fields": [
-          {
-            "fieldPath": "tmdbId",
-            "columnName": "tmdbId",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
           {
             "fieldPath": "streamType",
             "columnName": "streamType",
@@ -298,8 +292,14 @@
             "notNull": true
           },
           {
-            "fieldPath": "locale",
-            "columnName": "locale",
+            "fieldPath": "tmdbId",
+            "columnName": "tmdbId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "country",
+            "columnName": "country",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -339,7 +339,7 @@
           "columnNames": [
             "tmdbId",
             "streamType",
-            "locale",
+            "country",
             "service"
           ]
         }
@@ -347,7 +347,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e56a596d7672a6db225ba01fc4360c99')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b7a823e270766253af730af57e1a57c9')"
     ]
   }
 }

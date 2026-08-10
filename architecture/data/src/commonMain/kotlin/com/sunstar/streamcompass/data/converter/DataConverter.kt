@@ -41,8 +41,8 @@ internal fun TmdbMovieDetailDto.toEntity(locale: String): LocalMovieDetailEntity
 internal fun SaShowDto.toEntities(): List<LocalDeeplinkEntity> {
     val (streamType, parsedTmdbId) = parseTmdbId(tmdbId) ?: return emptyList()
 
-    return streamingOptions.flatMap { (locale, options) ->
-        options.map { option -> option.toEntity(parsedTmdbId, streamType, locale) }
+    return streamingOptions.flatMap { (country, options) ->
+        options.map { option -> option.toEntity(parsedTmdbId, streamType, country) }
     }
 }
 
@@ -64,12 +64,12 @@ private fun parseTmdbId(raw: String): Pair<StreamType, Int>? {
 private fun SaStreamingOptionDto.toEntity(
     tmdbId: Int,
     streamType: StreamType,
-    locale: String,
+    country: String,
 ): LocalDeeplinkEntity =
     LocalDeeplinkEntity(
-        tmdbId = tmdbId,
         streamType = streamType.rawValue,
-        locale = locale,
+        tmdbId = tmdbId,
+        country = country,
         service = service.name,
         link = link,
         videoLink = videoLink,
@@ -77,15 +77,20 @@ private fun SaStreamingOptionDto.toEntity(
         darkThemeImage = service.imageSet.darkThemeImage,
     )
 
-internal fun FirestoreDeeplinkDto.toDeeplink(tmdbId: Int, streamType: StreamType, locale: String, service: String): Deeplink =
+internal fun FirestoreDeeplinkDto.toDeeplink(
+    tmdbId: Int,
+    streamType: StreamType,
+    country: String,
+    service: String
+): Deeplink =
     Deeplink(
-        link = link,
-        videoLink = videoLink,
-        tmdbId = tmdbId,
         streamType = streamType,
-        locale = locale,
+        tmdbId = tmdbId,
+        locale = country,
         service = service,
         logo = Logo(lightThemeImage = lightThemeImage, darkThemeImage = darkThemeImage),
+        link = link,
+        videoLink = videoLink,
     )
 
 internal fun SaShowDto.toFirestoreDeeplinkDtos(): Map<String, FirestoreDeeplinkDto> =

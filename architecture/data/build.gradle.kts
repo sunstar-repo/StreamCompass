@@ -34,6 +34,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(projects.architecture.domain)
+            implementation(projects.core)
             implementation(libs.ktor.clientCore)
             implementation(libs.ktor.clientContentNegotiation)
             implementation(libs.ktor.serializationKotlinxJson)

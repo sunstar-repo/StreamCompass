@@ -14,7 +14,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun StreamCompassApp(
     viewModel: StreamCompassAppViewModel = koinViewModel(),
-    onApiKeyReady: @Composable (apiKey: ApiKey) -> Unit,
+    onAppReady: @Composable (apiKey: ApiKey) -> Unit,
 ) {
     val state by viewModel.stateFlow.collectAsState()
 
@@ -24,7 +24,7 @@ fun StreamCompassApp(
             onLoading = { CircularProgressIndicator() },
             onFailure = { message -> Text(message) },
         ) { apiKey ->
-            onApiKeyReady(apiKey)
+            onAppReady(apiKey)
             MainScreen()
         }
     }

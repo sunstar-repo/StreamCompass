@@ -19,6 +19,7 @@ import com.sunstar.streamcompass.domain.model.Deeplink
 import com.sunstar.streamcompass.domain.model.Stream.MovieStream
 import com.sunstar.streamcompass.domain.model.StreamDetail.MovieStreamDetail
 import com.sunstar.streamcompass.domain.repository.StreamRepository
+import com.sunstar.streamcompass.domain.usecase.GetStreamDetailUseCase
 import com.sunstar.streamcompass.domain.usecase.GetSuggestionStreamUseCase
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.firestore.FirebaseFirestore
@@ -77,4 +78,5 @@ fun dataModule(apiKey: ApiKey): Module =
         }
 
         single { GetSuggestionStreamUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
+        single { GetStreamDetailUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
     }

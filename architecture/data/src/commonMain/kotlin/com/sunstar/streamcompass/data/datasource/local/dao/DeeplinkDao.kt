@@ -9,18 +9,18 @@ import com.sunstar.streamcompass.data.datasource.local.entity.LocalDeeplinkEntit
 
 @Dao
 internal interface DeeplinkDao {
-    @Query("SELECT * FROM deeplink WHERE tmdbId = :tmdbId AND streamType = :streamType AND locale = :locale")
+    @Query("SELECT * FROM deeplink WHERE tmdbId = :tmdbId AND streamType = :streamType AND country = :country")
     suspend fun get(
         tmdbId: Int,
         streamType: String,
-        locale: String,
+        country: String,
     ): List<LocalDeeplinkEntity>
 
-    @Query("DELETE FROM deeplink WHERE tmdbId = :tmdbId AND streamType = :streamType AND locale = :locale")
+    @Query("DELETE FROM deeplink WHERE tmdbId = :tmdbId AND streamType = :streamType AND country = :country")
     suspend fun delete(
         tmdbId: Int,
         streamType: String,
-        locale: String,
+        country: String,
     )
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -30,10 +30,10 @@ internal interface DeeplinkDao {
     suspend fun replace(
         tmdbId: Int,
         streamType: String,
-        locale: String,
+        country: String,
         entities: List<LocalDeeplinkEntity>,
     ) {
-        delete(tmdbId, streamType, locale)
+        delete(tmdbId, streamType, country)
         insertAll(entities)
     }
 }

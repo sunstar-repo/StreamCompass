@@ -5,10 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.sunstar.streamcompass.core.Log
 import com.sunstar.streamcompass.domain.model.ApiKey
 import com.sunstar.streamcompass.domain.usecase.InitializeAppUseCase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class StreamCompassAppViewModel(
     private val initializeAppUseCase: InitializeAppUseCase,
@@ -21,7 +23,7 @@ class StreamCompassAppViewModel(
         viewModelScope.launch {
             _stateFlow.value = State.Loading
 
-            val apiKey = initializeAppUseCase()
+            val apiKey = withContext(Dispatchers.IO) { initializeAppUseCase() }
             _stateFlow.value =
                 if (apiKey.tmdbKey.isEmpty()) {
                     State.Failure("TMDB initialize failed")

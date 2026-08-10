@@ -9,15 +9,15 @@ import com.sunstar.streamcompass.domain.model.StreamType
 internal class LocalDeeplinkEntityMapper : Mapper<LocalDeeplinkEntity, Deeplink> {
     override fun map(source: LocalDeeplinkEntity): Deeplink =
         Deeplink(
-            link = source.link,
-            videoLink = source.videoLink,
-            tmdbId = source.tmdbId,
             streamType = StreamType.from(rawValue = source.streamType),
-            locale = source.locale,
+            tmdbId = source.tmdbId,
+            locale = source.country,
             service = source.service,
             logo = Logo(
                 lightThemeImage = source.lightThemeImage,
                 darkThemeImage = source.darkThemeImage
             ),
+            link = source.link,
+            videoLink = source.videoLink,
         )
 }

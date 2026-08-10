@@ -1,5 +1,6 @@
 package com.sunstar.streamcompass.data.repository
 
+import android.util.Log
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -25,6 +26,7 @@ import com.sunstar.streamcompass.domain.model.StreamType
 import com.sunstar.streamcompass.domain.model.SuggestionType
 import com.sunstar.streamcompass.domain.repository.StreamRepository
 import kotlinx.coroutines.flow.Flow
+import java.util.Locale
 
 internal class StreamRepositoryImpl(
     private val tmdbDataSource: TmdbDataSource,
@@ -49,17 +51,21 @@ internal class StreamRepositoryImpl(
         ).flow
 
     override suspend fun getStreamDetail(tmdbId: Int, locale: String): MovieStreamDetail {
-        val detailEntity =
-            localDataSource.getMovieDetail(tmdbId = tmdbId, locale = locale)
-                ?: fetchAndCacheDetail(tmdbId = tmdbId, locale = locale)
-        val deeplinks =
+        val detailEntity = localDataSource.getMovieDetail(tmdbId = tmdbId, locale = locale)
+            ?: fetchAndCacheDetail(tmdbId = tmdbId, locale = locale)
+        val country = locale.split("-").lastOrNull()
+
+        val deeplinks = if (null != country) {
             localDataSource.getDeeplinks(
                 tmdbId = tmdbId,
                 streamType = SaConstants.PATH_MOVIE,
-                locale = locale
-            )
-                .map { deeplinkEntityMapper.map(source = it) }
-                .ifEmpty { fetchAndCacheDeeplinks(tmdbId = tmdbId, locale = locale) }
+                country = country
+            ).map {
+                deeplinkEntityMapper.map(source = it)
+            }.ifEmpty {
+                fetchAndCacheDeeplinks(tmdbId = tmdbId, country = country)
+            }
+        } else listOf()
 
         return detailEntityMapper.map(source = detailEntity).copy(deeplinks = deeplinks)
     }
@@ -71,24 +77,38 @@ internal class StreamRepositoryImpl(
         return entity
     }
 
-    private suspend fun fetchAndCacheDeeplinks(tmdbId: Int, locale: String): List<Deeplink> {
+    private suspend fun fetchAndCacheDeeplinks(tmdbId: Int, country: String): List<Deeplink> {
         val cachedDeeplinks =
-            firestoreDataSource.getDeeplinks(tmdbId = tmdbId, streamType = StreamType.Movie, locale = locale)
+            firestoreDataSource.getDeeplinks(
+                tmdbId = tmdbId,
+                streamType = StreamType.Movie,
+                country = country
+            )
         if (cachedDeeplinks.isNotEmpty()) return cachedDeeplinks
 
-        val dto = saDataSource.getMovie(tmdbId = tmdbId, country = locale)
+        val dto = saDataSource.getMovie(tmdbId = tmdbId, country = country)
         localDataSource.replaceDeeplinks(
             tmdbId = tmdbId,
             streamType = SaConstants.PATH_MOVIE,
-            locale = locale,
+            country = country,
             entities = dto.toEntities(),
         )
 
         val firestoreDtos = dto.toFirestoreDeeplinkDtos()
-        firestoreDataSource.setDeeplinks(tmdbId = tmdbId, streamType = StreamType.Movie, locale = locale, dtos = firestoreDtos)
+        firestoreDataSource.setDeeplinks(
+            tmdbId = tmdbId,
+            streamType = StreamType.Movie,
+            country = country,
+            dtos = firestoreDtos
+        )
 
         return firestoreDtos.map { (service, firestoreDto) ->
-            firestoreDto.toDeeplink(tmdbId = tmdbId, streamType = StreamType.Movie, locale = locale, service = service)
+            firestoreDto.toDeeplink(
+                tmdbId = tmdbId,
+                streamType = StreamType.Movie,
+                country = country,
+                service = service
+            )
         }
     }
 }

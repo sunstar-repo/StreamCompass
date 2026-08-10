@@ -20,6 +20,12 @@ sealed class MainDestination(
     @Serializable
     data object SettingDestination : MainDestination(label = "Setting", icon = "⚙️")
 
+    @Serializable
+    data class StreamDetailDestination(val tmdbId: Int) : MainDestination(label = "StreamDetail", icon = "🎬")
+
+    @Serializable
+    data object SearchDestination : MainDestination(label = "Search", icon = "🔍")
+
     companion object {
         fun values(): List<MainDestination> =
             listOf(HomeDestination, MovieDestination, TvDestination, SettingDestination)

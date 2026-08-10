@@ -16,9 +16,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.sunstar.streamcompass.presentation.home.HomeScreen
 import com.sunstar.streamcompass.presentation.movie.MovieScreen
+import com.sunstar.streamcompass.presentation.search.SearchScreen
 import com.sunstar.streamcompass.presentation.setting.SettingScreen
+import com.sunstar.streamcompass.presentation.streamdetail.StreamDetailScreen
 import com.sunstar.streamcompass.presentation.tv.TvScreen
 
 @Composable
@@ -46,28 +49,43 @@ fun MainScreen() {
         },
     ) {
         Scaffold(
-            topBar = { PresenterTopBar() },
+            topBar = {
+                PresenterTopBar(
+                    onSearchClick = { navController.navigate(route = MainDestination.SearchDestination) },
+                )
+            },
         ) { innerPadding ->
             NavHost(
                 navController = navController,
                 startDestination = MainDestination.HomeDestination,
                 modifier = Modifier.padding(innerPadding),
             ) {
-                composable<MainDestination.HomeDestination> { HomeScreen() }
+                composable<MainDestination.HomeDestination> {
+                    HomeScreen(
+                        onStreamClick = { tmdbId ->
+                            navController.navigate(route = MainDestination.StreamDetailDestination(tmdbId = tmdbId))
+                        },
+                    )
+                }
                 composable<MainDestination.MovieDestination> { MovieScreen() }
                 composable<MainDestination.TvDestination> { TvScreen() }
                 composable<MainDestination.SettingDestination> { SettingScreen() }
+                composable<MainDestination.StreamDetailDestination> { backStackEntry ->
+                    val destination: MainDestination.StreamDetailDestination = backStackEntry.toRoute()
+                    StreamDetailScreen(tmdbId = destination.tmdbId)
+                }
+                composable<MainDestination.SearchDestination> { SearchScreen() }
             }
         }
     }
 }
 
 @Composable
-private fun PresenterTopBar() {
+private fun PresenterTopBar(onSearchClick: () -> Unit) {
     TopAppBar(
         title = { Text(text = "StreamCompass") },
         actions = {
-            IconButton(onClick = { /* TODO: 검색 기능 추후 구현 */ }) {
+            IconButton(onClick = onSearchClick) {
                 Text(text = "🔍")
             }
         },

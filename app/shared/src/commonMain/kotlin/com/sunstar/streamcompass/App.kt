@@ -23,7 +23,7 @@ fun App() {
         )
     }) {
         StreamCompassApp(
-            onApiKeyReady = { apiKey ->
+            onAppReady = { apiKey ->
                 rememberKoinModules {
                     listOf(dataModule(apiKey = apiKey))
                 }
