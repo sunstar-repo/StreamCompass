@@ -3,6 +3,7 @@ package com.sunstar.streamcompass.data.datasource.tmdb
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMovieDetailDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMoviePageResponseDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTrendingPageResponseDto
+import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTvPageResponseDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.HttpTimeout
@@ -61,6 +62,37 @@ internal class TmdbDataSource(
         language: String,
     ): TmdbMoviePageResponseDto =
         httpClient.get("${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_MOVIE}/$segment") {
+            parameter(TmdbConstants.PARAM_API_KEY, apiKey)
+            parameter(TmdbConstants.PARAM_LANGUAGE, language)
+            parameter(TmdbConstants.PARAM_PAGE, page)
+        }.body()
+
+    suspend fun getAiringToday(
+        page: Int = 1,
+        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+    ): TmdbTvPageResponseDto = getTvList(TmdbConstants.SEGMENT_AIRING_TODAY, page, language)
+
+    suspend fun getOnTheAir(
+        page: Int = 1,
+        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+    ): TmdbTvPageResponseDto = getTvList(TmdbConstants.SEGMENT_ON_THE_AIR, page, language)
+
+    suspend fun getTvPopular(
+        page: Int = 1,
+        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+    ): TmdbTvPageResponseDto = getTvList(TmdbConstants.SEGMENT_POPULAR, page, language)
+
+    suspend fun getTvTopRated(
+        page: Int = 1,
+        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+    ): TmdbTvPageResponseDto = getTvList(TmdbConstants.SEGMENT_TOP_RATED, page, language)
+
+    private suspend fun getTvList(
+        segment: String,
+        page: Int,
+        language: String,
+    ): TmdbTvPageResponseDto =
+        httpClient.get("${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_TV}/$segment") {
             parameter(TmdbConstants.PARAM_API_KEY, apiKey)
             parameter(TmdbConstants.PARAM_LANGUAGE, language)
             parameter(TmdbConstants.PARAM_PAGE, page)

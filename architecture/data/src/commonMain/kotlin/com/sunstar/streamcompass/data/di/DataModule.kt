@@ -12,19 +12,23 @@ import com.sunstar.streamcompass.data.datasource.streamingavailability.SaDataSou
 import com.sunstar.streamcompass.data.datasource.tmdb.TmdbDataSource
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMovieSummaryDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTrendingItemDto
+import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTvSummaryDto
 import com.sunstar.streamcompass.data.datasource.tmdb.mapper.TmdbMovieSummaryMapper
 import com.sunstar.streamcompass.data.datasource.tmdb.mapper.TmdbTrendingItemMapper
+import com.sunstar.streamcompass.data.datasource.tmdb.mapper.TmdbTvSummaryMapper
 import com.sunstar.streamcompass.data.repository.StreamRepositoryImpl
 import com.sunstar.streamcompass.domain.mapper.Mapper
 import com.sunstar.streamcompass.domain.model.ApiKey
 import com.sunstar.streamcompass.domain.model.Deeplink
 import com.sunstar.streamcompass.domain.model.Stream
 import com.sunstar.streamcompass.domain.model.Stream.MovieStream
+import com.sunstar.streamcompass.domain.model.Stream.TvStream
 import com.sunstar.streamcompass.domain.model.StreamDetail.MovieStreamDetail
 import com.sunstar.streamcompass.domain.repository.StreamRepository
 import com.sunstar.streamcompass.domain.usecase.GetStreamDetailUseCase
 import com.sunstar.streamcompass.domain.usecase.GetSuggestionStreamUseCase
 import com.sunstar.streamcompass.domain.usecase.GetTrendingStreamUseCase
+import com.sunstar.streamcompass.domain.usecase.GetTvSuggestionStreamUseCase
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.firestore.FirebaseFirestore
 import dev.gitlive.firebase.firestore.firestore
@@ -35,6 +39,7 @@ import org.koin.dsl.module
 private val TMDB_DATA_SOURCE = named("tmdbDataSource")
 private val SA_DATA_SOURCE = named("saDataSource")
 private val TMDB_MOVIE_SUMMARY_MAPPER = named("tmdbMovieSummaryMapper")
+private val TMDB_TV_SUMMARY_MAPPER = named("tmdbTvSummaryMapper")
 private val TMDB_TRENDING_MAPPER = named("tmdbTrendingMapper")
 private val STREAM_REPOSITORY = named("streamRepository")
 private val APP_DATABASE = named("appDatabase")
@@ -52,6 +57,7 @@ fun dataModule(apiKey: ApiKey): Module =
         single(SA_DATA_SOURCE) { SaDataSource(apiKey = apiKey.saKey) }
 
         single<Mapper<TmdbMovieSummaryDto, MovieStream>>(TMDB_MOVIE_SUMMARY_MAPPER) { TmdbMovieSummaryMapper() }
+        single<Mapper<TmdbTvSummaryDto, TvStream>>(TMDB_TV_SUMMARY_MAPPER) { TmdbTvSummaryMapper() }
         single<Mapper<TmdbTrendingItemDto, Stream>>(TMDB_TRENDING_MAPPER) { TmdbTrendingItemMapper() }
         single<Mapper<LocalMovieDetailEntity, MovieStreamDetail>>(MOVIE_DETAIL_ENTITY_MAPPER) {
             LocalMovieDetailEntityMapper()
@@ -78,6 +84,7 @@ fun dataModule(apiKey: ApiKey): Module =
                 localDataSource = get(qualifier = LOCAL_DATA_SOURCE),
                 firestoreDataSource = get(qualifier = FIRESTORE_DATA_SOURCE),
                 summaryMapper = get(qualifier = TMDB_MOVIE_SUMMARY_MAPPER),
+                tvSummaryMapper = get(qualifier = TMDB_TV_SUMMARY_MAPPER),
                 trendingMapper = get(qualifier = TMDB_TRENDING_MAPPER),
                 detailEntityMapper = get(qualifier = MOVIE_DETAIL_ENTITY_MAPPER),
                 deeplinkEntityMapper = get(qualifier = DEEPLINK_ENTITY_MAPPER),
@@ -85,6 +92,7 @@ fun dataModule(apiKey: ApiKey): Module =
         }
 
         single { GetSuggestionStreamUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
+        single { GetTvSuggestionStreamUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
         single { GetTrendingStreamUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
         single { GetStreamDetailUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
     }

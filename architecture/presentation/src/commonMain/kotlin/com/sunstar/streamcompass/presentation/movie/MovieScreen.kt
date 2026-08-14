@@ -5,9 +5,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -27,6 +30,8 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.sunstar.streamcompass.domain.model.Stream.MovieStream
 import kotlinx.coroutines.flow.Flow
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -36,26 +41,20 @@ fun MovieScreen(
 ) {
     val state by viewModel.stateFlow.collectAsState()
 
-    Column {
-        SuggestionRow(
-            title = "Now Playing",
-            contentsFlow = state.nowPlayings,
-            onStreamClick = onStreamClick,
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        SuggestionRow(
-            title = "Upcomming",
-            contentsFlow = state.upcommings,
-            onStreamClick = onStreamClick,
-        )
+    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+        state.rows.forEach { (rowType, contentsFlow) ->
+            SuggestionRow(
+                titleRes = rowType.titleRes,
+                contentsFlow = contentsFlow,
+                onStreamClick = onStreamClick,
+            )
+        }
     }
 }
 
 @Composable
 private fun SuggestionRow(
-    title: String,
+    titleRes: StringResource,
     contentsFlow: Flow<PagingData<MovieStream>>,
     onStreamClick: (tmdbId: Int) -> Unit,
 ) {
@@ -63,7 +62,7 @@ private fun SuggestionRow(
 
     Column(modifier = Modifier.padding(vertical = 16.dp)) {
         Text(
-            text = title,
+            text = stringResource(titleRes),
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(horizontal = 16.dp),
         )
@@ -73,6 +72,7 @@ private fun SuggestionRow(
         LazyRow(
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.heightIn(min = ROW_MIN_HEIGHT),
         ) {
             items(
                 count = pagingItems.itemCount,
@@ -91,7 +91,7 @@ private fun SuggestionRow(
 
 @Composable
 private fun SuggestionColumn(stream: MovieStream, onClick: (tmdbId: Int) -> Unit) {
-    Column(modifier = Modifier.width(120.dp)) {
+    Column(modifier = Modifier.width(POSTER_WIDTH)) {
         ElevatedCard(
             onClick = { onClick(stream.tmdbId) }
         ) {
@@ -106,11 +106,11 @@ private fun SuggestionColumn(stream: MovieStream, onClick: (tmdbId: Int) -> Unit
                 contentDescription = stream.title,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .width(120.dp)
-                    .height(180.dp)
+                    .width(POSTER_WIDTH)
+                    .height(POSTER_HEIGHT)
             )
         }
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(TITLE_SPACING))
         Text(
             text = stream.title,
             style = MaterialTheme.typography.bodySmall,
@@ -119,3 +119,9 @@ private fun SuggestionColumn(stream: MovieStream, onClick: (tmdbId: Int) -> Unit
         )
     }
 }
+
+private val POSTER_WIDTH = 120.dp
+private val POSTER_HEIGHT = 180.dp
+private val TITLE_SPACING = 4.dp
+private val TITLE_LINE_HEIGHT = 16.dp
+private val ROW_MIN_HEIGHT = POSTER_HEIGHT + TITLE_SPACING + TITLE_LINE_HEIGHT

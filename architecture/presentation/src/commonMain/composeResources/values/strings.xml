@@ -15,4 +15,14 @@
     <string name="stream_detail_no_streaming_options">이용 가능한 스트리밍 서비스가 없습니다</string>
     <string name="stream_detail_recommended_placeholder">추천 정보는 추후 연동됩니다</string>
     <string name="stream_detail_review_placeholder">리뷰 정보는 추후 연동됩니다</string>
+
+    <string name="movie_row_now_playing">Now Playing</string>
+    <string name="movie_row_popular">Popular</string>
+    <string name="movie_row_top_rated">Top Rated</string>
+    <string name="movie_row_upcoming">Upcoming</string>
+
+    <string name="tv_row_airing_today">Airing Today</string>
+    <string name="tv_row_on_the_air">On The Air</string>
+    <string name="tv_row_popular">Popular</string>
+    <string name="tv_row_top_rated">Top Rated</string>
 </resources>

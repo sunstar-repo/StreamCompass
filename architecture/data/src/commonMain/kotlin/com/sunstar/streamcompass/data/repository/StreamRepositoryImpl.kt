@@ -18,14 +18,18 @@ import com.sunstar.streamcompass.data.datasource.tmdb.TmdbConstants
 import com.sunstar.streamcompass.data.datasource.tmdb.TmdbDataSource
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMovieSummaryDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTrendingItemDto
+import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTvSummaryDto
 import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbSuggestionPagingSource
+import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbTvSuggestionPagingSource
 import com.sunstar.streamcompass.domain.mapper.Mapper
 import com.sunstar.streamcompass.domain.model.Deeplink
 import com.sunstar.streamcompass.domain.model.Stream
 import com.sunstar.streamcompass.domain.model.Stream.MovieStream
+import com.sunstar.streamcompass.domain.model.Stream.TvStream
 import com.sunstar.streamcompass.domain.model.StreamDetail.MovieStreamDetail
 import com.sunstar.streamcompass.domain.model.StreamType
 import com.sunstar.streamcompass.domain.model.SuggestionType
+import com.sunstar.streamcompass.domain.model.TvSuggestionType
 import com.sunstar.streamcompass.domain.repository.StreamRepository
 import kotlinx.coroutines.flow.Flow
 import java.util.Locale
@@ -36,6 +40,7 @@ internal class StreamRepositoryImpl(
     private val localDataSource: LocalDataSource,
     private val firestoreDataSource: FirestoreDataSource,
     private val summaryMapper: Mapper<TmdbMovieSummaryDto, MovieStream>,
+    private val tvSummaryMapper: Mapper<TmdbTvSummaryDto, TvStream>,
     private val trendingMapper: Mapper<TmdbTrendingItemDto, Stream>,
     private val detailEntityMapper: Mapper<LocalMovieDetailEntity, MovieStreamDetail>,
     private val deeplinkEntityMapper: Mapper<LocalDeeplinkEntity, Deeplink>,
@@ -48,6 +53,18 @@ internal class StreamRepositoryImpl(
                 TmdbSuggestionPagingSource(
                     tmdbDataSource = tmdbDataSource,
                     summaryMapper = summaryMapper,
+                    type = type,
+                )
+            },
+        ).flow
+
+    override fun getTvSuggestionStreamFlow(type: TvSuggestionType): Flow<PagingData<TvStream>> =
+        Pager(
+            config = PagingConfig(pageSize = TmdbConstants.PAGE_SIZE),
+            pagingSourceFactory = {
+                TmdbTvSuggestionPagingSource(
+                    tmdbDataSource = tmdbDataSource,
+                    summaryMapper = tvSummaryMapper,
                     type = type,
                 )
             },

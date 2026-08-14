@@ -2,7 +2,6 @@ package com.sunstar.streamcompass.presentation.home
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -65,7 +64,10 @@ fun HomeScreen(
 private fun CarouselItemScope.TrendingCarouselItem(stream: Stream, onClick: (tmdbId: Int) -> Unit) {
     val drawInfo = carouselItemDrawInfo
     val focusFraction = if (drawInfo.maxSize > drawInfo.minSize) {
-        ((drawInfo.size - drawInfo.minSize) / (drawInfo.maxSize - drawInfo.minSize)).coerceIn(0f, 1f)
+        ((drawInfo.size - drawInfo.minSize) / (drawInfo.maxSize - drawInfo.minSize)).coerceIn(
+            0f,
+            1f
+        )
     } else {
         1f
     }
