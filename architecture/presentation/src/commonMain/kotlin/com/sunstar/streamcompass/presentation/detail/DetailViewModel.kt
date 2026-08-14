@@ -18,7 +18,7 @@ import streamcompass.architecture.presentation.generated.resources.stream_detail
 import streamcompass.architecture.presentation.generated.resources.stream_detail_tab_recommended
 import streamcompass.architecture.presentation.generated.resources.stream_detail_tab_review
 
-class StreamDetailViewModel(
+class DetailViewModel(
     private val tmdbId: Int,
     private val getStreamDetailUseCase: GetStreamDetailUseCase,
 ) : ViewModel() {

@@ -56,18 +56,18 @@ import streamcompass.architecture.presentation.generated.resources.stream_detail
 @Composable
 fun DetailScreen(
     tmdbId: Int,
-    viewModel: StreamDetailViewModel = koinViewModel(parameters = { parametersOf(tmdbId) }),
+    viewModel: DetailViewModel = koinViewModel(parameters = { parametersOf(tmdbId) }),
 ) {
     val state by viewModel.stateFlow.collectAsState()
 
     when (val current = state) {
-        StreamDetailViewModel.State.Loading -> {
+        DetailViewModel.State.Loading -> {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
         }
 
-        is StreamDetailViewModel.State.Succeed -> {
+        is DetailViewModel.State.Succeed -> {
             DetailContent(
                 streamDetail = current.streamDetail,
                 selectedTab = current.selectedTab,
@@ -80,11 +80,11 @@ fun DetailScreen(
 @Composable
 private fun DetailContent(
     streamDetail: MovieStreamDetail,
-    selectedTab: StreamDetailViewModel.Tab,
-    onTabSelected: (StreamDetailViewModel.Tab) -> Unit,
+    selectedTab: DetailViewModel.Tab,
+    onTabSelected: (DetailViewModel.Tab) -> Unit,
 ) {
     var isSheetShown by remember { mutableStateOf(false) }
-    val tabs = StreamDetailViewModel.Tab.values()
+    val tabs = DetailViewModel.Tab.values()
 
     Column(modifier = Modifier.fillMaxSize()) {
         BoxWithConstraints(modifier = Modifier.fillMaxWidth().height(BACKDROP_HEIGHT)) {
@@ -136,17 +136,17 @@ private fun DetailContent(
         }
 
         when (selectedTab) {
-            StreamDetailViewModel.Tab.Detail -> Text(
+            DetailViewModel.Tab.Detail -> Text(
                 text = streamDetail.overview,
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
             )
 
-            StreamDetailViewModel.Tab.Recommended -> Text(
+            DetailViewModel.Tab.Recommended -> Text(
                 text = stringResource(Res.string.stream_detail_recommended_placeholder),
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
             )
 
-            StreamDetailViewModel.Tab.Review -> Text(
+            DetailViewModel.Tab.Review -> Text(
                 text = stringResource(Res.string.stream_detail_review_placeholder),
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
             )
