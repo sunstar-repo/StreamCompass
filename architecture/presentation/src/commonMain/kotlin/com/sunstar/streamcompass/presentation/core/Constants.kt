@@ -1,0 +1,14 @@
+package com.sunstar.streamcompass.presentation.core
+
+import androidx.compose.ui.unit.dp
+
+val POSTER_WIDTH = 120.dp
+val POSTER_HEIGHT = 180.dp
+val BACKDROP_WIDTH = 200.dp
+val BACKDROP_HEIGHT = 112.dp
+
+val MEDIA_TITLE_SPACING = 4.dp
+private val MEDIA_TITLE_LINE_HEIGHT = 16.dp
+
+val POSTER_ROW_MIN_HEIGHT = POSTER_HEIGHT + MEDIA_TITLE_SPACING + MEDIA_TITLE_LINE_HEIGHT
+val BACKDROP_ROW_MIN_HEIGHT = BACKDROP_HEIGHT + MEDIA_TITLE_SPACING + MEDIA_TITLE_LINE_HEIGHT

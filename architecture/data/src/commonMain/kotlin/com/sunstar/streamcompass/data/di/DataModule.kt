@@ -6,8 +6,12 @@ import com.sunstar.streamcompass.data.datasource.local.LocalDataSource
 import com.sunstar.streamcompass.data.datasource.local.createDatabase
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalDeeplinkEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieDetailEntity
+import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieHistoryEntity
+import com.sunstar.streamcompass.data.datasource.local.entity.LocalTvHistoryEntity
 import com.sunstar.streamcompass.data.datasource.local.mapper.LocalDeeplinkEntityMapper
 import com.sunstar.streamcompass.data.datasource.local.mapper.LocalMovieDetailEntityMapper
+import com.sunstar.streamcompass.data.datasource.local.mapper.LocalMovieHistoryEntityMapper
+import com.sunstar.streamcompass.data.datasource.local.mapper.LocalTvHistoryEntityMapper
 import com.sunstar.streamcompass.data.datasource.streamingavailability.SaDataSource
 import com.sunstar.streamcompass.data.datasource.tmdb.TmdbDataSource
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMovieSummaryDto
@@ -25,10 +29,16 @@ import com.sunstar.streamcompass.domain.model.Stream.MovieStream
 import com.sunstar.streamcompass.domain.model.Stream.TvStream
 import com.sunstar.streamcompass.domain.model.StreamDetail.MovieStreamDetail
 import com.sunstar.streamcompass.domain.repository.StreamRepository
+import com.sunstar.streamcompass.domain.usecase.GetMovieHistoryStreamUseCase
 import com.sunstar.streamcompass.domain.usecase.GetStreamDetailUseCase
 import com.sunstar.streamcompass.domain.usecase.GetSuggestionStreamUseCase
 import com.sunstar.streamcompass.domain.usecase.GetTrendingStreamUseCase
+import com.sunstar.streamcompass.domain.usecase.GetTvHistoryStreamUseCase
 import com.sunstar.streamcompass.domain.usecase.GetTvSuggestionStreamUseCase
+import com.sunstar.streamcompass.domain.usecase.RecordMovieHistoryUseCase
+import com.sunstar.streamcompass.domain.usecase.RecordTvHistoryUseCase
+import com.sunstar.streamcompass.domain.usecase.RemoveMovieHistoryUseCase
+import com.sunstar.streamcompass.domain.usecase.RemoveTvHistoryUseCase
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.firestore.FirebaseFirestore
 import dev.gitlive.firebase.firestore.firestore
@@ -45,9 +55,13 @@ private val STREAM_REPOSITORY = named("streamRepository")
 private val APP_DATABASE = named("appDatabase")
 private val MOVIE_DETAIL_DAO = named("movieDetailDao")
 private val DEEPLINK_DAO = named("deeplinkDao")
+private val MOVIE_HISTORY_DAO = named("movieHistoryDao")
+private val TV_HISTORY_DAO = named("tvHistoryDao")
 private val LOCAL_DATA_SOURCE = named("localDataSource")
 private val MOVIE_DETAIL_ENTITY_MAPPER = named("movieDetailEntityMapper")
 private val DEEPLINK_ENTITY_MAPPER = named("deeplinkEntityMapper")
+private val MOVIE_HISTORY_ENTITY_MAPPER = named("movieHistoryEntityMapper")
+private val TV_HISTORY_ENTITY_MAPPER = named("tvHistoryEntityMapper")
 private val FIRESTORE = named("firestore")
 private val FIRESTORE_DATA_SOURCE = named("firestoreDataSource")
 
@@ -63,14 +77,24 @@ fun dataModule(apiKey: ApiKey): Module =
             LocalMovieDetailEntityMapper()
         }
         single<Mapper<LocalDeeplinkEntity, Deeplink>>(DEEPLINK_ENTITY_MAPPER) { LocalDeeplinkEntityMapper() }
+        single<Mapper<LocalMovieHistoryEntity, MovieStream>>(MOVIE_HISTORY_ENTITY_MAPPER) {
+            LocalMovieHistoryEntityMapper()
+        }
+        single<Mapper<LocalTvHistoryEntity, TvStream>>(TV_HISTORY_ENTITY_MAPPER) {
+            LocalTvHistoryEntityMapper()
+        }
 
         single<AppDatabase>(APP_DATABASE) { createDatabase() }
         single(MOVIE_DETAIL_DAO) { get<AppDatabase>(qualifier = APP_DATABASE).movieDetailDao() }
         single(DEEPLINK_DAO) { get<AppDatabase>(qualifier = APP_DATABASE).deeplinkDao() }
+        single(MOVIE_HISTORY_DAO) { get<AppDatabase>(qualifier = APP_DATABASE).movieHistoryDao() }
+        single(TV_HISTORY_DAO) { get<AppDatabase>(qualifier = APP_DATABASE).tvHistoryDao() }
         single(LOCAL_DATA_SOURCE) {
             LocalDataSource(
                 movieDetailDao = get(qualifier = MOVIE_DETAIL_DAO),
                 deeplinkDao = get(qualifier = DEEPLINK_DAO),
+                movieHistoryDao = get(qualifier = MOVIE_HISTORY_DAO),
+                tvHistoryDao = get(qualifier = TV_HISTORY_DAO),
             )
         }
 
@@ -88,6 +112,8 @@ fun dataModule(apiKey: ApiKey): Module =
                 trendingMapper = get(qualifier = TMDB_TRENDING_MAPPER),
                 detailEntityMapper = get(qualifier = MOVIE_DETAIL_ENTITY_MAPPER),
                 deeplinkEntityMapper = get(qualifier = DEEPLINK_ENTITY_MAPPER),
+                movieHistoryEntityMapper = get(qualifier = MOVIE_HISTORY_ENTITY_MAPPER),
+                tvHistoryEntityMapper = get(qualifier = TV_HISTORY_ENTITY_MAPPER),
             )
         }
 
@@ -95,4 +121,10 @@ fun dataModule(apiKey: ApiKey): Module =
         single { GetTvSuggestionStreamUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
         single { GetTrendingStreamUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
         single { GetStreamDetailUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
+        single { RecordMovieHistoryUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
+        single { RecordTvHistoryUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
+        single { GetMovieHistoryStreamUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
+        single { GetTvHistoryStreamUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
+        single { RemoveMovieHistoryUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
+        single { RemoveTvHistoryUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
     }

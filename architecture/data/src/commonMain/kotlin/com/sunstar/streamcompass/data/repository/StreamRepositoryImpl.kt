@@ -12,6 +12,8 @@ import com.sunstar.streamcompass.data.datasource.firestore.FirestoreDataSource
 import com.sunstar.streamcompass.data.datasource.local.LocalDataSource
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalDeeplinkEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieDetailEntity
+import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieHistoryEntity
+import com.sunstar.streamcompass.data.datasource.local.entity.LocalTvHistoryEntity
 import com.sunstar.streamcompass.data.datasource.streamingavailability.SaConstants
 import com.sunstar.streamcompass.data.datasource.streamingavailability.SaDataSource
 import com.sunstar.streamcompass.data.datasource.tmdb.TmdbConstants
@@ -32,7 +34,10 @@ import com.sunstar.streamcompass.domain.model.SuggestionType
 import com.sunstar.streamcompass.domain.model.TvSuggestionType
 import com.sunstar.streamcompass.domain.repository.StreamRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import java.util.Locale
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 internal class StreamRepositoryImpl(
     private val tmdbDataSource: TmdbDataSource,
@@ -44,6 +49,8 @@ internal class StreamRepositoryImpl(
     private val trendingMapper: Mapper<TmdbTrendingItemDto, Stream>,
     private val detailEntityMapper: Mapper<LocalMovieDetailEntity, MovieStreamDetail>,
     private val deeplinkEntityMapper: Mapper<LocalDeeplinkEntity, Deeplink>,
+    private val movieHistoryEntityMapper: Mapper<LocalMovieHistoryEntity, MovieStream>,
+    private val tvHistoryEntityMapper: Mapper<LocalTvHistoryEntity, TvStream>,
 ) : StreamRepository {
 
     override fun getSuggestionStreamFlow(type: SuggestionType): Flow<PagingData<MovieStream>> =
@@ -77,6 +84,34 @@ internal class StreamRepositoryImpl(
             .map { trendingMapper.map(source = it) }
             .take(TmdbConstants.PAGE_SIZE)
     }
+
+    @OptIn(ExperimentalTime::class)
+    override suspend fun recordMovieHistory(movieStream: MovieStream) {
+        localDataSource.upsertMovieHistory(
+            entity = movieStream.toEntity(visitedAt = Clock.System.now().toEpochMilliseconds()),
+        )
+    }
+
+    @OptIn(ExperimentalTime::class)
+    override suspend fun recordTvHistory(tvStream: TvStream) {
+        localDataSource.upsertTvHistory(
+            entity = tvStream.toEntity(visitedAt = Clock.System.now().toEpochMilliseconds()),
+        )
+    }
+
+    override fun getMovieHistoryStreamFlow(): Flow<List<MovieStream>> =
+        localDataSource.observeMovieHistory().map { entities ->
+            entities.map { movieHistoryEntityMapper.map(source = it) }
+        }
+
+    override fun getTvHistoryStreamFlow(): Flow<List<TvStream>> =
+        localDataSource.observeTvHistory().map { entities ->
+            entities.map { tvHistoryEntityMapper.map(source = it) }
+        }
+
+    override suspend fun removeMovieHistory(tmdbId: Int) = localDataSource.deleteMovieHistory(tmdbId = tmdbId)
+
+    override suspend fun removeTvHistory(tmdbId: Int) = localDataSource.deleteTvHistory(tmdbId = tmdbId)
 
     override suspend fun getStreamDetail(tmdbId: Int, locale: String): MovieStreamDetail {
         val detailEntity = localDataSource.getMovieDetail(tmdbId = tmdbId, locale = locale)

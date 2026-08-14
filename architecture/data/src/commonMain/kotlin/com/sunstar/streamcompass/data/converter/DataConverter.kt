@@ -3,12 +3,16 @@ package com.sunstar.streamcompass.data.converter
 import com.sunstar.streamcompass.data.datasource.firestore.dto.FirestoreDeeplinkDto
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalDeeplinkEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieDetailEntity
+import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieHistoryEntity
+import com.sunstar.streamcompass.data.datasource.local.entity.LocalTvHistoryEntity
 import com.sunstar.streamcompass.data.datasource.streamingavailability.SaConstants
 import com.sunstar.streamcompass.data.datasource.streamingavailability.dto.SaShowDto
 import com.sunstar.streamcompass.data.datasource.streamingavailability.dto.SaStreamingOptionDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMovieDetailDto
 import com.sunstar.streamcompass.domain.model.Deeplink
 import com.sunstar.streamcompass.domain.model.Logo
+import com.sunstar.streamcompass.domain.model.Stream.MovieStream
+import com.sunstar.streamcompass.domain.model.Stream.TvStream
 import com.sunstar.streamcompass.domain.model.StreamType
 
 internal fun TmdbMovieDetailDto.toEntity(locale: String): LocalMovieDetailEntity =
@@ -35,6 +39,38 @@ internal fun TmdbMovieDetailDto.toEntity(locale: String): LocalMovieDetailEntity
         revenue = revenue,
         adult = adult,
         video = video,
+    )
+
+internal fun MovieStream.toEntity(visitedAt: Long): LocalMovieHistoryEntity =
+    LocalMovieHistoryEntity(
+        tmdbId = tmdbId,
+        title = title,
+        overview = overview,
+        posterPath = posterPath,
+        backdropPath = backdropPath,
+        releaseDate = releaseDate,
+        voteAverage = voteAverage,
+        voteCount = voteCount,
+        popularity = popularity,
+        originalLanguage = originalLanguage,
+        originalTitle = originalTitle,
+        visitedAt = visitedAt,
+    )
+
+internal fun TvStream.toEntity(visitedAt: Long): LocalTvHistoryEntity =
+    LocalTvHistoryEntity(
+        tmdbId = tmdbId,
+        name = name,
+        overview = overview,
+        posterPath = posterPath,
+        backdropPath = backdropPath,
+        firstAirDate = firstAirDate,
+        voteAverage = voteAverage,
+        voteCount = voteCount,
+        popularity = popularity,
+        originalLanguage = originalLanguage,
+        originalName = originalName,
+        visitedAt = visitedAt,
     )
 
 internal fun SaShowDto.toEntities(): List<LocalDeeplinkEntity> {

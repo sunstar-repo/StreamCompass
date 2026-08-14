@@ -10,14 +10,23 @@ import org.koin.dsl.module
 
 val presentationModule =
     module {
-        viewModel { HomeViewModel(get()) }
+        viewModel {
+            HomeViewModel(
+                getTrendingStreamUseCase = get(),
+                getMovieHistoryStreamUseCase = get(),
+                getTvHistoryStreamUseCase = get(),
+                removeMovieHistoryUseCase = get(),
+                removeTvHistoryUseCase = get(),
+            )
+        }
         viewModel { MovieViewModel(get()) }
         viewModel { TvViewModel(get()) }
         viewModel { StreamCompassAppViewModel(get()) }
         viewModel { (tmdbId: Int) ->
             DetailViewModel(
                 tmdbId = tmdbId,
-                getStreamDetailUseCase = get()
+                getStreamDetailUseCase = get(),
+                recordMovieHistoryUseCase = get(),
             )
         }
     }

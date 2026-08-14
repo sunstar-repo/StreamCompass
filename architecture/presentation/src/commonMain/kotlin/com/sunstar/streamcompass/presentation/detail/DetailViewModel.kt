@@ -2,8 +2,10 @@ package com.sunstar.streamcompass.presentation.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sunstar.streamcompass.domain.model.Stream.MovieStream
 import com.sunstar.streamcompass.domain.model.StreamDetail.MovieStreamDetail
 import com.sunstar.streamcompass.domain.usecase.GetStreamDetailUseCase
+import com.sunstar.streamcompass.domain.usecase.RecordMovieHistoryUseCase
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -21,6 +23,7 @@ import streamcompass.architecture.presentation.generated.resources.stream_detail
 class DetailViewModel(
     private val tmdbId: Int,
     private val getStreamDetailUseCase: GetStreamDetailUseCase,
+    private val recordMovieHistoryUseCase: RecordMovieHistoryUseCase,
 ) : ViewModel() {
 
     val stateFlow: StateFlow<State>
@@ -51,15 +54,32 @@ class DetailViewModel(
     }
 
     private suspend fun handleEvent(current: State, event: Event): State = when (event) {
-        is Event.Initialize -> State.Succeed(
-            streamDetail = getStreamDetailUseCase(tmdbId = tmdbId, locale = DEFAULT_LOCALE),
-        )
+        is Event.Initialize -> {
+            val streamDetail = getStreamDetailUseCase(tmdbId = tmdbId, locale = DEFAULT_LOCALE)
+            recordMovieHistoryUseCase(movieStream = streamDetail.toMovieStream())
+            State.Succeed(streamDetail = streamDetail)
+        }
 
         is Event.SelectTab -> when (current) {
             is State.Succeed -> current.copy(selectedTab = event.tab)
             State.Loading -> current
         }
     }
+
+    private fun MovieStreamDetail.toMovieStream(): MovieStream =
+        MovieStream(
+            tmdbId = tmdbId,
+            title = title,
+            overview = overview,
+            posterPath = posterPath,
+            backdropPath = backdropPath,
+            releaseDate = releaseDate,
+            voteAverage = voteAverage,
+            voteCount = voteCount,
+            popularity = popularity,
+            originalLanguage = originalLanguage,
+            originalTitle = originalTitle,
+        )
 
     sealed class Tab {
         abstract val label: StringResource
