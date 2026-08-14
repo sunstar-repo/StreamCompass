@@ -2,64 +2,22 @@ package com.sunstar.streamcompass.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.PagingData
-import androidx.paging.cachedIn
-import com.sunstar.streamcompass.domain.model.Stream.MovieStream
-import com.sunstar.streamcompass.domain.model.SuggestionType
-import com.sunstar.streamcompass.domain.usecase.GetSuggestionStreamUseCase
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharingStarted
+import com.sunstar.streamcompass.domain.model.Stream
+import com.sunstar.streamcompass.domain.usecase.GetTrendingStreamUseCase
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.runningFold
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class HomeViewModel(
-    private val getSuggestionUseCase: GetSuggestionStreamUseCase,
+    private val getTrendingStreamUseCase: GetTrendingStreamUseCase,
 ) : ViewModel() {
-
-    val stateFlow: StateFlow<State>
-
-    private val eventChannel: Channel<Event>
+    private val _trendingStreams = MutableStateFlow<List<Stream>>(emptyList())
+    val trendingStreams: StateFlow<List<Stream>> = _trendingStreams.asStateFlow()
 
     init {
-        eventChannel = Channel()
-        stateFlow = eventChannel.receiveAsFlow()
-            .onStart {
-                emit(Event.Initialize)
-            }
-            .runningFold(
-                initial = State(),
-                operation = ::handleEvent
-            )
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = State()
-            )
+        viewModelScope.launch {
+            _trendingStreams.value = getTrendingStreamUseCase()
+        }
     }
-
-    private fun handleEvent(current: State, event: Event): State = when (event) {
-        is Event.Initialize -> current.copy(
-            nowPlayings = getSuggestionUseCase(
-                type = SuggestionType.NowPlaying
-            ).cachedIn(viewModelScope),
-            upcommings = getSuggestionUseCase(
-                type = SuggestionType.Upcoming
-            ).cachedIn(viewModelScope)
-        )
-    }
-
-    sealed interface Event {
-        data object Initialize : Event
-
-    }
-
-    data class State(
-        val nowPlayings: Flow<PagingData<MovieStream>> = flowOf(),
-        val upcommings: Flow<PagingData<MovieStream>> = flowOf()
-    )
 }

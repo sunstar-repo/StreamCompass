@@ -16,12 +16,14 @@ import org.koin.dsl.koinConfiguration
 @Composable
 @Preview
 fun App() {
-    KoinApplication(configuration = koinConfiguration {
-        modules(
-            remoteConfigModule,
-            presentationModule
-        )
-    }) {
+    KoinApplication(
+        configuration = koinConfiguration {
+            modules(
+                remoteConfigModule,
+                presentationModule
+            )
+        }
+    ) {
         StreamCompassApp(
             onAppReady = { apiKey ->
                 rememberKoinModules {

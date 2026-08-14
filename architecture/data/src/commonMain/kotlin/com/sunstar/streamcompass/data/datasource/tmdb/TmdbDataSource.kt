@@ -2,6 +2,7 @@ package com.sunstar.streamcompass.data.datasource.tmdb
 
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMovieDetailDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMoviePageResponseDto
+import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTrendingPageResponseDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.HttpTimeout
@@ -60,6 +61,19 @@ internal class TmdbDataSource(
         language: String,
     ): TmdbMoviePageResponseDto =
         httpClient.get("${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_MOVIE}/$segment") {
+            parameter(TmdbConstants.PARAM_API_KEY, apiKey)
+            parameter(TmdbConstants.PARAM_LANGUAGE, language)
+            parameter(TmdbConstants.PARAM_PAGE, page)
+        }.body()
+
+    suspend fun getTrendingAllDay(
+        page: Int = 1,
+        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+    ): TmdbTrendingPageResponseDto =
+        httpClient.get(
+            "${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_TRENDING}" +
+                "/${TmdbConstants.MEDIA_TYPE_ALL}/${TmdbConstants.TIME_WINDOW_DAY}"
+        ) {
             parameter(TmdbConstants.PARAM_API_KEY, apiKey)
             parameter(TmdbConstants.PARAM_LANGUAGE, language)
             parameter(TmdbConstants.PARAM_PAGE, page)

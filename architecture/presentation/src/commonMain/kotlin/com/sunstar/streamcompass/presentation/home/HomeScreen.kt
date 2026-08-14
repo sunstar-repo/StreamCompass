@@ -1,121 +1,101 @@
 package com.sunstar.streamcompass.presentation.home
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.carousel.CarouselDefaults
+import androidx.compose.material3.carousel.CarouselItemScope
+import androidx.compose.material3.carousel.HorizontalCenteredHeroCarousel
+import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.paging.PagingData
-import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.compose.ui.util.lerp
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.sunstar.streamcompass.domain.model.Stream.MovieStream
-import kotlinx.coroutines.flow.Flow
+import com.sunstar.streamcompass.domain.model.Stream
 import org.koin.compose.viewmodel.koinViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = koinViewModel(),
     onStreamClick: (tmdbId: Int) -> Unit,
 ) {
-    val state by viewModel.stateFlow.collectAsState()
+    val items by viewModel.trendingStreams.collectAsState()
 
-    Column {
-        SuggestionRow(
-            title = "Now Playing",
-            contentsFlow = state.nowPlayings,
-            onStreamClick = onStreamClick,
-        )
+    if (items.isEmpty()) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        return
+    }
 
-        Spacer(modifier = Modifier.height(8.dp))
+    // for modulo indexing
+    val virtualItemCount = items.size * VIRTUAL_LOOP_COUNT
+    val initialItem = virtualItemCount / 2
+    val carouselState = rememberCarouselState(initialItem = initialItem) { virtualItemCount }
 
-        SuggestionRow(
-            title = "Upcomming",
-            contentsFlow = state.upcommings,
-            onStreamClick = onStreamClick,
-        )
+    HorizontalCenteredHeroCarousel(
+        state = carouselState,
+        flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(state = carouselState),
+        itemSpacing = 10.dp,
+        modifier = Modifier.fillMaxWidth(),
+    ) { index ->
+        val stream = items[index % items.size]
+        TrendingCarouselItem(stream = stream, onClick = onStreamClick)
     }
 }
 
 @Composable
-private fun SuggestionRow(
-    title: String,
-    contentsFlow: Flow<PagingData<MovieStream>>,
-    onStreamClick: (tmdbId: Int) -> Unit,
-) {
-    val pagingItems = contentsFlow.collectAsLazyPagingItems()
-
-    Column(modifier = Modifier.padding(vertical = 16.dp)) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(horizontal = 16.dp),
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            items(
-                count = pagingItems.itemCount,
-                key = { index ->
-                    "${index}_${pagingItems[index]?.tmdbId}"
-                },
-            ) { index ->
-                val stream = pagingItems[index]
-                if (null != stream) {
-                    SuggestionColumn(stream = stream, onClick = onStreamClick)
-                }
-            }
-        }
+private fun CarouselItemScope.TrendingCarouselItem(stream: Stream, onClick: (tmdbId: Int) -> Unit) {
+    val drawInfo = carouselItemDrawInfo
+    val focusFraction = if (drawInfo.maxSize > drawInfo.minSize) {
+        ((drawInfo.size - drawInfo.minSize) / (drawInfo.maxSize - drawInfo.minSize)).coerceIn(0f, 1f)
+    } else {
+        1f
     }
+
+    val (tmdbId, backdropPath, title) = when (stream) {
+        is Stream.MovieStream -> Triple(stream.tmdbId, stream.backdropPath, stream.title)
+        is Stream.TvStream -> Triple(stream.tmdbId, stream.backdropPath, stream.name)
+    }
+
+    val context = LocalPlatformContext.current
+    AsyncImage(
+        model = remember(backdropPath) {
+            ImageRequest.Builder(context)
+                .data(backdropPath)
+                .crossfade(true)
+                .build()
+        },
+        contentDescription = title,
+        contentScale = ContentScale.Crop,
+        modifier = Modifier
+            .height(ITEM_HEIGHT)
+            .maskClip(RoundedCornerShape(ITEM_CORNER_RADIUS))
+            .clickable(enabled = stream is Stream.MovieStream) { onClick(tmdbId) }
+            .graphicsLayer {
+                alpha = lerp(start = DIM_ALPHA, stop = 1f, fraction = focusFraction)
+            },
+    )
 }
 
-@Composable
-private fun SuggestionColumn(stream: MovieStream, onClick: (tmdbId: Int) -> Unit) {
-    Column(modifier = Modifier.width(120.dp)) {
-        ElevatedCard(
-            onClick = { onClick(stream.tmdbId) }
-        ) {
-            val context = LocalPlatformContext.current
-            AsyncImage(
-                model = remember(stream.posterPath) {
-                    ImageRequest.Builder(context)
-                        .data(stream.posterPath)
-                        .crossfade(true)
-                        .build()
-                },
-                contentDescription = stream.title,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .width(120.dp)
-                    .height(180.dp)
-            )
-        }
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = stream.title,
-            style = MaterialTheme.typography.bodySmall,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-    }
-}
+private val ITEM_HEIGHT = 200.dp
+private val ITEM_CORNER_RADIUS = 20.dp
+private const val DIM_ALPHA = 0.5f
+private const val VIRTUAL_LOOP_COUNT = 1000

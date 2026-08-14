@@ -9,6 +9,12 @@ internal object TmdbConstants {
     const val SEGMENT_TOP_RATED = "top_rated"
     const val SEGMENT_UPCOMING = "upcoming"
 
+    const val PATH_TRENDING = "trending"
+    const val MEDIA_TYPE_ALL = "all"
+    const val TIME_WINDOW_DAY = "day"
+    const val MEDIA_TYPE_MOVIE = "movie"
+    const val MEDIA_TYPE_TV = "tv"
+
     const val PARAM_API_KEY = "api_key"
     const val PARAM_LANGUAGE = "language"
     const val PARAM_PAGE = "page"

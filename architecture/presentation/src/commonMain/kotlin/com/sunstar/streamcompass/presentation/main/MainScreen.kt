@@ -106,7 +106,17 @@ fun MainScreen() {
                     },
                 )
             }
-            composable<MainDestination.MovieDestination> { MovieScreen() }
+            composable<MainDestination.MovieDestination> {
+                MovieScreen(
+                    onStreamClick = { tmdbId ->
+                        navController.navigate(
+                            route = MainDestination.DetailDestination(
+                                tmdbId = tmdbId
+                            )
+                        )
+                    },
+                )
+            }
             composable<MainDestination.TvDestination> { TvScreen() }
             composable<MainDestination.SettingDestination> { SettingScreen() }
             composable<MainDestination.DetailDestination> { backStackEntry ->

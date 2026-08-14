@@ -17,9 +17,11 @@ import com.sunstar.streamcompass.data.datasource.streamingavailability.SaDataSou
 import com.sunstar.streamcompass.data.datasource.tmdb.TmdbConstants
 import com.sunstar.streamcompass.data.datasource.tmdb.TmdbDataSource
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMovieSummaryDto
+import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTrendingItemDto
 import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbSuggestionPagingSource
 import com.sunstar.streamcompass.domain.mapper.Mapper
 import com.sunstar.streamcompass.domain.model.Deeplink
+import com.sunstar.streamcompass.domain.model.Stream
 import com.sunstar.streamcompass.domain.model.Stream.MovieStream
 import com.sunstar.streamcompass.domain.model.StreamDetail.MovieStreamDetail
 import com.sunstar.streamcompass.domain.model.StreamType
@@ -34,6 +36,7 @@ internal class StreamRepositoryImpl(
     private val localDataSource: LocalDataSource,
     private val firestoreDataSource: FirestoreDataSource,
     private val summaryMapper: Mapper<TmdbMovieSummaryDto, MovieStream>,
+    private val trendingMapper: Mapper<TmdbTrendingItemDto, Stream>,
     private val detailEntityMapper: Mapper<LocalMovieDetailEntity, MovieStreamDetail>,
     private val deeplinkEntityMapper: Mapper<LocalDeeplinkEntity, Deeplink>,
 ) : StreamRepository {
@@ -49,6 +52,14 @@ internal class StreamRepositoryImpl(
                 )
             },
         ).flow
+
+    override suspend fun getTrendingStream(): List<Stream> {
+        val response = tmdbDataSource.getTrendingAllDay(page = 1)
+        return response.results
+            .filter { it.mediaType == TmdbConstants.MEDIA_TYPE_MOVIE || it.mediaType == TmdbConstants.MEDIA_TYPE_TV }
+            .map { trendingMapper.map(source = it) }
+            .take(TmdbConstants.PAGE_SIZE)
+    }
 
     override suspend fun getStreamDetail(tmdbId: Int, locale: String): MovieStreamDetail {
         val detailEntity = localDataSource.getMovieDetail(tmdbId = tmdbId, locale = locale)
