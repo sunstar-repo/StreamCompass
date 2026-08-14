@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_title">StreamCompass</string>
+
+    <string name="destination_home">Home</string>
+    <string name="destination_movie">Movie</string>
+    <string name="destination_tv">Tv</string>
+    <string name="destination_setting">Setting</string>
+    <string name="destination_stream_detail">StreamDetail</string>
+    <string name="destination_search">Search</string>
+
+    <string name="stream_detail_tab_detail">Detail</string>
+    <string name="stream_detail_tab_recommended">Recommended</string>
+    <string name="stream_detail_tab_review">Review</string>
+    <string name="stream_detail_view_streaming_options">시청 옵션 보기</string>
+    <string name="stream_detail_no_streaming_options">이용 가능한 스트리밍 서비스가 없습니다</string>
+    <string name="stream_detail_recommended_placeholder">추천 정보는 추후 연동됩니다</string>
+    <string name="stream_detail_review_placeholder">리뷰 정보는 추후 연동됩니다</string>
+</resources>

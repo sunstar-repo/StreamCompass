@@ -2,7 +2,6 @@ package com.sunstar.streamcompass.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sunstar.streamcompass.core.Log
 import com.sunstar.streamcompass.domain.model.ApiKey
 import com.sunstar.streamcompass.domain.usecase.InitializeAppUseCase
 import kotlinx.coroutines.Dispatchers

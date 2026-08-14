@@ -1,5 +1,6 @@
 package com.sunstar.streamcompass.presentation.streamdetail
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -30,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
@@ -37,8 +39,14 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.sunstar.streamcompass.domain.model.Deeplink
 import com.sunstar.streamcompass.domain.model.StreamDetail.MovieStreamDetail
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import streamcompass.architecture.presentation.generated.resources.Res
+import streamcompass.architecture.presentation.generated.resources.stream_detail_no_streaming_options
+import streamcompass.architecture.presentation.generated.resources.stream_detail_recommended_placeholder
+import streamcompass.architecture.presentation.generated.resources.stream_detail_review_placeholder
+import streamcompass.architecture.presentation.generated.resources.stream_detail_view_streaming_options
 
 @Composable
 fun StreamDetailScreen(
@@ -55,16 +63,23 @@ fun StreamDetailScreen(
         }
 
         is StreamDetailViewModel.State.Succeed -> {
-            StreamDetailContent(streamDetail = current.streamDetail)
+            StreamDetailContent(
+                streamDetail = current.streamDetail,
+                selectedTab = current.selectedTab,
+                onTabSelected = viewModel::onTabSelected,
+            )
         }
     }
 }
 
 @Composable
-private fun StreamDetailContent(streamDetail: MovieStreamDetail) {
+private fun StreamDetailContent(
+    streamDetail: MovieStreamDetail,
+    selectedTab: StreamDetailViewModel.Tab,
+    onTabSelected: (StreamDetailViewModel.Tab) -> Unit,
+) {
     var showStreamingOptionSheet by remember { mutableStateOf(false) }
-    var selectedTabIndex by remember { mutableStateOf(0) }
-    val tabs = listOf("Detail", "Recommended", "Review")
+    val tabs = StreamDetailViewModel.Tab.values()
 
     Column(modifier = Modifier.fillMaxSize()) {
         BoxWithConstraints(modifier = Modifier.fillMaxWidth().height(BACKDROP_HEIGHT)) {
@@ -87,33 +102,33 @@ private fun StreamDetailContent(streamDetail: MovieStreamDetail) {
                     .align(Alignment.TopCenter)
                     .offset(y = maxHeight * BACKDROP_BUTTON_POSITION_RATIO),
             ) {
-                Text(text = "시청 옵션 보기")
+                Text(text = stringResource(Res.string.stream_detail_view_streaming_options))
             }
         }
 
-        TabRow(selectedTabIndex = selectedTabIndex, modifier = Modifier.fillMaxWidth()) {
-            tabs.forEachIndexed { index, title ->
+        TabRow(selectedTabIndex = tabs.indexOf(selectedTab), modifier = Modifier.fillMaxWidth()) {
+            tabs.forEach { tab ->
                 Tab(
-                    selected = selectedTabIndex == index,
-                    onClick = { selectedTabIndex = index },
-                    text = { Text(text = title) },
+                    selected = tab == selectedTab,
+                    onClick = { onTabSelected(tab) },
+                    text = { Text(text = stringResource(tab.label)) },
                 )
             }
         }
 
-        when (selectedTabIndex) {
-            0 -> Text(
+        when (selectedTab) {
+            StreamDetailViewModel.Tab.Detail -> Text(
                 text = streamDetail.overview,
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
             )
 
-            1 -> Text(
-                text = "추천 정보는 추후 연동됩니다",
+            StreamDetailViewModel.Tab.Recommended -> Text(
+                text = stringResource(Res.string.stream_detail_recommended_placeholder),
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
             )
 
-            else -> Text(
-                text = "리뷰 정보는 추후 연동됩니다",
+            StreamDetailViewModel.Tab.Review -> Text(
+                text = stringResource(Res.string.stream_detail_review_placeholder),
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
             )
         }
@@ -132,14 +147,23 @@ private fun StreamDetailContent(streamDetail: MovieStreamDetail) {
 private fun StreamingOptionBottomSheet(deeplinks: List<Deeplink>, onDismissRequest: () -> Unit) {
     val sheetState = rememberModalBottomSheetState()
 
+    val uriHandler = LocalUriHandler.current
+
     ModalBottomSheet(onDismissRequest = onDismissRequest, sheetState = sheetState) {
         Column(modifier = Modifier.padding(16.dp)) {
             if (deeplinks.isEmpty()) {
-                Text(text = "이용 가능한 스트리밍 서비스가 없습니다")
+
+                Text(text = stringResource(Res.string.stream_detail_no_streaming_options))
             } else {
                 deeplinks.forEach { deeplink ->
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                uriHandler.openUri(uri = deeplink.link)
+                                onDismissRequest()
+                            }
+                            .padding(vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         val context = LocalPlatformContext.current

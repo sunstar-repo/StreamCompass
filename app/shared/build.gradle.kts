@@ -18,14 +18,12 @@ kotlin {
        compilerOptions {
            jvmTarget = JvmTarget.JVM_17
        }
-       withHostTest {}
     }
 
     sourceSets {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.compose.uiTooling)
-            implementation(project.dependencies.platform(libs.firebase.bom))
         }
         commonMain.dependencies {
             implementation(projects.architecture.domain)
@@ -34,10 +32,8 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.compose.runtime)
             implementation(libs.compose.uiToolingPreview)
+            implementation(project.dependencies.platform(libs.firebase.bom))
             implementation(libs.firebase.firestore)
-        }
-        commonTest.dependencies {
-            implementation(libs.kotlin.test)
         }
     }
 }

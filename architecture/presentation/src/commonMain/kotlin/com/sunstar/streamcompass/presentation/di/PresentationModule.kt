@@ -10,5 +10,10 @@ val presentationModule =
     module {
         viewModel { HomeViewModel(get()) }
         viewModel { StreamCompassAppViewModel(get()) }
-        viewModel { (tmdbId: Int) -> StreamDetailViewModel(tmdbId = tmdbId, getStreamDetailUseCase = get()) }
+        viewModel { (tmdbId: Int) ->
+            StreamDetailViewModel(
+                tmdbId = tmdbId,
+                getStreamDetailUseCase = get()
+            )
+        }
     }

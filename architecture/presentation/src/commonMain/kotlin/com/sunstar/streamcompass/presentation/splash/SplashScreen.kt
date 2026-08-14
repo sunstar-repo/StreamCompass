@@ -2,8 +2,6 @@ package com.sunstar.streamcompass.presentation.splash
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,6 +19,7 @@ fun SplashScreen(
         when (state) {
             StreamCompassAppViewModel.State.Idle,
             StreamCompassAppViewModel.State.Loading -> onLoading()
+
             is StreamCompassAppViewModel.State.Failure -> onFailure(state.message)
             is StreamCompassAppViewModel.State.Succeed -> onSucceed(state.apiKey)
         }
