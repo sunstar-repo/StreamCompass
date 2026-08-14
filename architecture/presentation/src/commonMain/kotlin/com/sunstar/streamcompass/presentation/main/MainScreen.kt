@@ -5,6 +5,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -55,12 +56,22 @@ fun MainScreen() {
     val isNavigationUsed = currentMainDestination?.isNavigationUsed ?: true
     val isTopBarUsed = currentMainDestination?.isTopBarUsed ?: true
 
+    val homeScrollState = rememberScrollState()
+    val movieScrollState = rememberScrollState()
+    val tvScrollState = rememberScrollState()
+    val isScrolledToTop = when (currentMainDestination) {
+        MainDestination.HomeDestination -> homeScrollState.value == 0
+        MainDestination.MovieDestination -> movieScrollState.value == 0
+        MainDestination.TvDestination -> tvScrollState.value == 0
+        else -> true
+    }
+
     Scaffold(
         modifier = Modifier.statusBarsPadding().navigationBarsPadding(),
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             AnimatedVisibility(
-                visible = isTopBarUsed,
+                visible = isTopBarUsed && isScrolledToTop,
                 enter = slideInVertically(initialOffsetY = { -it }) + expandVertically(expandFrom = Alignment.Top),
                 exit = slideOutVertically(targetOffsetY = { -it }) + shrinkVertically(shrinkTowards = Alignment.Top),
             ) {
@@ -97,6 +108,7 @@ fun MainScreen() {
         ) {
             composable<MainDestination.HomeDestination> {
                 HomeScreen(
+                    scrollState = homeScrollState,
                     onStreamClick = { tmdbId ->
                         navController.navigate(
                             route = MainDestination.DetailDestination(
@@ -108,6 +120,7 @@ fun MainScreen() {
             }
             composable<MainDestination.MovieDestination> {
                 MovieScreen(
+                    scrollState = movieScrollState,
                     onStreamClick = { tmdbId ->
                         navController.navigate(
                             route = MainDestination.DetailDestination(
@@ -117,7 +130,7 @@ fun MainScreen() {
                     },
                 )
             }
-            composable<MainDestination.TvDestination> { TvScreen() }
+            composable<MainDestination.TvDestination> { TvScreen(scrollState = tvScrollState) }
             composable<MainDestination.SettingDestination> { SettingScreen() }
             composable<MainDestination.DetailDestination> { backStackEntry ->
                 val destination: MainDestination.DetailDestination =

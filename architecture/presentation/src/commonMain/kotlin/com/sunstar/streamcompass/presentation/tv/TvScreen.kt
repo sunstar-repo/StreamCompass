@@ -1,5 +1,6 @@
 package com.sunstar.streamcompass.presentation.tv
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -18,10 +19,13 @@ import org.jetbrains.compose.resources.StringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun TvScreen(viewModel: TvViewModel = koinViewModel()) {
+fun TvScreen(
+    viewModel: TvViewModel = koinViewModel(),
+    scrollState: ScrollState = rememberScrollState(),
+) {
     val state by viewModel.stateFlow.collectAsState()
 
-    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+    Column(modifier = Modifier.verticalScroll(scrollState)) {
         state.rows.forEach { (rowType, contentsFlow) ->
             SuggestionRow(titleRes = rowType.titleRes, contentsFlow = contentsFlow)
         }

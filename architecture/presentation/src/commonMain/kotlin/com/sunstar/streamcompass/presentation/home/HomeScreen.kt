@@ -1,5 +1,6 @@
 package com.sunstar.streamcompass.presentation.home
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -68,12 +69,13 @@ import streamcompass.architecture.presentation.generated.resources.home_row_tv_h
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = koinViewModel(),
+    scrollState: ScrollState = rememberScrollState(),
     onStreamClick: (tmdbId: Int) -> Unit,
 ) {
     val state by viewModel.stateFlow.collectAsState()
     var selectedHistoryItem by remember { mutableStateOf<HistoryItem?>(null) }
 
-    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+    Column(modifier = Modifier.verticalScroll(scrollState)) {
         if (state.trendingStreams.isEmpty()) {
             TrendingLoadingRow()
         } else {
