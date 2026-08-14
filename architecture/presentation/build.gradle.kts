@@ -50,6 +50,7 @@ kotlin {
             implementation(libs.koin.composeViewmodel)
             implementation(libs.coil.compose)
             implementation(libs.coil.networkKtor3)
+            implementation(libs.coil.svg)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

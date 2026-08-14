@@ -6,7 +6,6 @@ import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieDetailEn
 import com.sunstar.streamcompass.data.datasource.streamingavailability.SaConstants
 import com.sunstar.streamcompass.data.datasource.streamingavailability.dto.SaShowDto
 import com.sunstar.streamcompass.data.datasource.streamingavailability.dto.SaStreamingOptionDto
-import com.sunstar.streamcompass.data.datasource.tmdb.TmdbConstants
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMovieDetailDto
 import com.sunstar.streamcompass.domain.model.Deeplink
 import com.sunstar.streamcompass.domain.model.Logo
@@ -18,7 +17,7 @@ internal fun TmdbMovieDetailDto.toEntity(locale: String): LocalMovieDetailEntity
         locale = locale,
         title = title,
         overview = overview,
-        posterPath = TmdbConstants.posterUrl(posterPath),
+        posterPath = posterPath,
         backdropPath = backdropPath,
         releaseDate = releaseDate,
         voteAverage = voteAverage,

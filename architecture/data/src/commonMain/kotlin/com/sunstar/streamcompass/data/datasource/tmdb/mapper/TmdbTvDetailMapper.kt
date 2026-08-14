@@ -1,6 +1,5 @@
 package com.sunstar.streamcompass.data.datasource.tmdb.mapper
 
-import com.sunstar.streamcompass.data.datasource.tmdb.TmdbConstants
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTvDetailDto
 import com.sunstar.streamcompass.domain.mapper.Mapper
 import com.sunstar.streamcompass.domain.model.StreamDetail.TvStreamDetail
@@ -11,7 +10,7 @@ internal class TmdbTvDetailMapper : Mapper<TmdbTvDetailDto, TvStreamDetail> {
             tmdbId = source.tmdbId,
             name = source.name,
             overview = source.overview,
-            posterPath = TmdbConstants.posterUrl(source.posterPath),
+            posterPath = source.posterPath,
             backdropPath = source.backdropPath,
             firstAirDate = source.firstAirDate,
             lastAirDate = source.lastAirDate,

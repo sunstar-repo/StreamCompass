@@ -1,4 +1,4 @@
-package com.sunstar.streamcompass.presentation.streamdetail
+package com.sunstar.streamcompass.presentation.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

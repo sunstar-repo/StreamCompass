@@ -1,6 +1,5 @@
 package com.sunstar.streamcompass.data.datasource.tmdb.mapper
 
-import com.sunstar.streamcompass.data.datasource.tmdb.TmdbConstants
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMovieSummaryDto
 import com.sunstar.streamcompass.domain.mapper.Mapper
 import com.sunstar.streamcompass.domain.model.Stream.MovieStream
@@ -11,7 +10,7 @@ internal class TmdbMovieSummaryMapper : Mapper<TmdbMovieSummaryDto, MovieStream>
             tmdbId = source.tmdbId,
             title = source.title,
             overview = source.overview,
-            posterPath = TmdbConstants.posterUrl(source.posterPath),
+            posterPath = source.posterPath,
             backdropPath = source.backdropPath,
             releaseDate = source.releaseDate,
             voteAverage = source.voteAverage,

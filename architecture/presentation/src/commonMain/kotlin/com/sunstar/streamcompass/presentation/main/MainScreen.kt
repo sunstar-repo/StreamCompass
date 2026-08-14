@@ -29,11 +29,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.sunstar.streamcompass.presentation.detail.DetailScreen
 import com.sunstar.streamcompass.presentation.home.HomeScreen
 import com.sunstar.streamcompass.presentation.movie.MovieScreen
 import com.sunstar.streamcompass.presentation.search.SearchScreen
 import com.sunstar.streamcompass.presentation.setting.SettingScreen
-import com.sunstar.streamcompass.presentation.streamdetail.StreamDetailScreen
 import com.sunstar.streamcompass.presentation.tv.TvScreen
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -99,7 +99,7 @@ fun MainScreen() {
                 HomeScreen(
                     onStreamClick = { tmdbId ->
                         navController.navigate(
-                            route = MainDestination.StreamDetailDestination(
+                            route = MainDestination.DetailDestination(
                                 tmdbId = tmdbId
                             )
                         )
@@ -109,10 +109,10 @@ fun MainScreen() {
             composable<MainDestination.MovieDestination> { MovieScreen() }
             composable<MainDestination.TvDestination> { TvScreen() }
             composable<MainDestination.SettingDestination> { SettingScreen() }
-            composable<MainDestination.StreamDetailDestination> { backStackEntry ->
-                val destination: MainDestination.StreamDetailDestination =
+            composable<MainDestination.DetailDestination> { backStackEntry ->
+                val destination: MainDestination.DetailDestination =
                     backStackEntry.toRoute()
-                StreamDetailScreen(tmdbId = destination.tmdbId)
+                DetailScreen(tmdbId = destination.tmdbId)
             }
             composable<MainDestination.SearchDestination> { SearchScreen() }
         }

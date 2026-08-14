@@ -1,6 +1,7 @@
-package com.sunstar.streamcompass.presentation.streamdetail
+package com.sunstar.streamcompass.presentation.detail
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -16,10 +17,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -33,10 +36,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
+import coil3.ImageLoader
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import coil3.svg.SvgDecoder
 import com.sunstar.streamcompass.domain.model.Deeplink
 import com.sunstar.streamcompass.domain.model.StreamDetail.MovieStreamDetail
 import org.jetbrains.compose.resources.stringResource
@@ -49,7 +54,7 @@ import streamcompass.architecture.presentation.generated.resources.stream_detail
 import streamcompass.architecture.presentation.generated.resources.stream_detail_view_streaming_options
 
 @Composable
-fun StreamDetailScreen(
+fun DetailScreen(
     tmdbId: Int,
     viewModel: StreamDetailViewModel = koinViewModel(parameters = { parametersOf(tmdbId) }),
 ) {
@@ -63,7 +68,7 @@ fun StreamDetailScreen(
         }
 
         is StreamDetailViewModel.State.Succeed -> {
-            StreamDetailContent(
+            DetailContent(
                 streamDetail = current.streamDetail,
                 selectedTab = current.selectedTab,
                 onTabSelected = viewModel::onTabSelected,
@@ -73,12 +78,12 @@ fun StreamDetailScreen(
 }
 
 @Composable
-private fun StreamDetailContent(
+private fun DetailContent(
     streamDetail: MovieStreamDetail,
     selectedTab: StreamDetailViewModel.Tab,
     onTabSelected: (StreamDetailViewModel.Tab) -> Unit,
 ) {
-    var showStreamingOptionSheet by remember { mutableStateOf(false) }
+    var isSheetShown by remember { mutableStateOf(false) }
     val tabs = StreamDetailViewModel.Tab.values()
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -97,7 +102,7 @@ private fun StreamDetailContent(
             )
 
             Button(
-                onClick = { showStreamingOptionSheet = true },
+                onClick = { isSheetShown = true },
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .offset(y = maxHeight * BACKDROP_BUTTON_POSITION_RATIO),
@@ -106,7 +111,21 @@ private fun StreamDetailContent(
             }
         }
 
-        TabRow(selectedTabIndex = tabs.indexOf(selectedTab), modifier = Modifier.fillMaxWidth()) {
+        val selectedTabIndex = tabs.indexOf(selectedTab)
+        SecondaryTabRow(
+            selectedTabIndex = selectedTabIndex,
+            modifier = Modifier.fillMaxWidth(),
+            containerColor = TabRowDefaults.primaryContainerColor,
+            contentColor = TabRowDefaults.primaryContentColor,
+            indicator = {
+                TabRowDefaults.SecondaryIndicator(
+                    Modifier.tabIndicatorOffset(selectedTabIndex)
+                )
+            },
+            divider = {
+                HorizontalDivider()
+            }
+        ) {
             tabs.forEach { tab ->
                 Tab(
                     selected = tab == selectedTab,
@@ -134,10 +153,10 @@ private fun StreamDetailContent(
         }
     }
 
-    if (showStreamingOptionSheet) {
+    if (isSheetShown) {
         StreamingOptionBottomSheet(
             deeplinks = streamDetail.deeplinks,
-            onDismissRequest = { showStreamingOptionSheet = false },
+            onDismissRequest = { isSheetShown = false },
         )
     }
 }
@@ -148,11 +167,11 @@ private fun StreamingOptionBottomSheet(deeplinks: List<Deeplink>, onDismissReque
     val sheetState = rememberModalBottomSheetState()
 
     val uriHandler = LocalUriHandler.current
+    val isDarkTheme = isSystemInDarkTheme()
 
     ModalBottomSheet(onDismissRequest = onDismissRequest, sheetState = sheetState) {
         Column(modifier = Modifier.padding(16.dp)) {
             if (deeplinks.isEmpty()) {
-
                 Text(text = stringResource(Res.string.stream_detail_no_streaming_options))
             } else {
                 deeplinks.forEach { deeplink ->
@@ -167,13 +186,24 @@ private fun StreamingOptionBottomSheet(deeplinks: List<Deeplink>, onDismissReque
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         val context = LocalPlatformContext.current
+                        val svgImageLoader = remember(context) {
+                            ImageLoader.Builder(context)
+                                .components { add(SvgDecoder.Factory()) }
+                                .build()
+                        }
+                        val logoImage = if (isDarkTheme) {
+                            deeplink.logo.darkThemeImage
+                        } else {
+                            deeplink.logo.lightThemeImage
+                        }
                         AsyncImage(
-                            model = remember(deeplink.logo.lightThemeImage) {
+                            model = remember(logoImage) {
                                 ImageRequest.Builder(context)
-                                    .data(deeplink.logo.lightThemeImage)
+                                    .data(logoImage)
                                     .crossfade(true)
                                     .build()
                             },
+                            imageLoader = svgImageLoader,
                             contentDescription = deeplink.service,
                             contentScale = ContentScale.Fit,
                             modifier = Modifier.size(32.dp),
