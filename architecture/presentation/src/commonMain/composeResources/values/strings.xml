@@ -31,4 +31,9 @@
     <string name="home_row_movie_history_empty">최근 확인한 영화가 없습니다</string>
     <string name="home_row_tv_history_empty">최근 확인한 TV 프로그램이 없습니다</string>
     <string name="home_history_remove">이력에서 삭제</string>
+
+    <string name="setting_theme_title">테마</string>
+    <string name="setting_theme_mode_system">시스템 설정</string>
+    <string name="setting_theme_mode_light">라이트</string>
+    <string name="setting_theme_mode_dark">다크</string>
 </resources>

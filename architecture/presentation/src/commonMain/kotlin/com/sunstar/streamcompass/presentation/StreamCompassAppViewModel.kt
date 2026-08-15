@@ -3,20 +3,32 @@ package com.sunstar.streamcompass.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sunstar.streamcompass.domain.model.ApiKey
+import com.sunstar.streamcompass.domain.model.ThemeMode
+import com.sunstar.streamcompass.domain.usecase.GetThemeModeUseCase
 import com.sunstar.streamcompass.domain.usecase.InitializeAppUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class StreamCompassAppViewModel(
     private val initializeAppUseCase: InitializeAppUseCase,
+    private val getThemeModeUseCase: GetThemeModeUseCase,
 ) : ViewModel() {
 
     private val _stateFlow = MutableStateFlow<State>(State.Idle)
     val stateFlow: StateFlow<State> = _stateFlow.asStateFlow()
+
+    val themeModeFlow: StateFlow<ThemeMode> = getThemeModeUseCase()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = ThemeMode.System,
+        )
 
     init {
         viewModelScope.launch {

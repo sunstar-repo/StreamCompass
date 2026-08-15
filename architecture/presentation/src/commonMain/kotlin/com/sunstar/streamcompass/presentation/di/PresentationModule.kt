@@ -4,6 +4,7 @@ import com.sunstar.streamcompass.presentation.StreamCompassAppViewModel
 import com.sunstar.streamcompass.presentation.detail.DetailViewModel
 import com.sunstar.streamcompass.presentation.home.HomeViewModel
 import com.sunstar.streamcompass.presentation.movie.MovieViewModel
+import com.sunstar.streamcompass.presentation.setting.SettingViewModel
 import com.sunstar.streamcompass.presentation.tv.TvViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -19,9 +20,15 @@ val presentationModule =
                 removeTvHistoryUseCase = get(),
             )
         }
-        viewModel { MovieViewModel(get()) }
-        viewModel { TvViewModel(get()) }
-        viewModel { StreamCompassAppViewModel(get()) }
+        viewModel { MovieViewModel(getSuggestionUseCase = get()) }
+        viewModel { TvViewModel(getTvSuggestionUseCase = get()) }
+        viewModel { SettingViewModel(setThemeModeUseCase = get(), getThemeModeUseCase = get()) }
+        viewModel {
+            StreamCompassAppViewModel(
+                initializeAppUseCase = get(),
+                getThemeModeUseCase = get(),
+            )
+        }
         viewModel { (tmdbId: Int) ->
             DetailViewModel(
                 tmdbId = tmdbId,

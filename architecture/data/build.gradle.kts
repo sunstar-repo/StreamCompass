@@ -43,6 +43,7 @@ kotlin {
             implementation(libs.paging.common)
             implementation(libs.room.runtime)
             implementation(libs.sqlite.bundled)
+            implementation(libs.androidx.datastore.preferencesCore)
             implementation(libs.firebase.firestore)
             implementation(libs.firebase.config)
         }

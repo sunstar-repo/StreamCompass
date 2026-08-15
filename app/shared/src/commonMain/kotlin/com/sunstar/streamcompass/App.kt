@@ -5,6 +5,7 @@ import androidx.compose.ui.tooling.preview.Preview
 
 import com.sunstar.streamcompass.data.di.dataModule
 import com.sunstar.streamcompass.data.di.remoteConfigModule
+import com.sunstar.streamcompass.data.di.settingModule
 import com.sunstar.streamcompass.presentation.StreamCompassApp
 import com.sunstar.streamcompass.presentation.di.presentationModule
 import org.koin.compose.KoinApplication
@@ -20,6 +21,7 @@ fun App() {
         configuration = koinConfiguration {
             modules(
                 remoteConfigModule,
+                settingModule,
                 presentationModule
             )
         }
