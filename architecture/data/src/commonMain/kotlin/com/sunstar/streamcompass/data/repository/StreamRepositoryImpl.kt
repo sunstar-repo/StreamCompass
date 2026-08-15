@@ -21,6 +21,7 @@ import com.sunstar.streamcompass.data.datasource.tmdb.TmdbDataSource
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMovieSummaryDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTrendingItemDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTvSummaryDto
+import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbMovieRecommendationsPagingSource
 import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbSuggestionPagingSource
 import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbTvSuggestionPagingSource
 import com.sunstar.streamcompass.domain.mapper.Mapper
@@ -112,6 +113,18 @@ internal class StreamRepositoryImpl(
     override suspend fun removeMovieHistory(tmdbId: Int) = localDataSource.deleteMovieHistory(tmdbId = tmdbId)
 
     override suspend fun removeTvHistory(tmdbId: Int) = localDataSource.deleteTvHistory(tmdbId = tmdbId)
+
+    override fun getMovieRecommendationsStreamFlow(tmdbId: Int): Flow<PagingData<MovieStream>> =
+        Pager(
+            config = PagingConfig(pageSize = TmdbConstants.PAGE_SIZE),
+            pagingSourceFactory = {
+                TmdbMovieRecommendationsPagingSource(
+                    tmdbDataSource = tmdbDataSource,
+                    summaryMapper = summaryMapper,
+                    tmdbId = tmdbId,
+                )
+            },
+        ).flow
 
     override suspend fun getStreamDetail(tmdbId: Int, locale: String): MovieStreamDetail {
         val detailEntity = localDataSource.getMovieDetail(tmdbId = tmdbId, locale = locale)

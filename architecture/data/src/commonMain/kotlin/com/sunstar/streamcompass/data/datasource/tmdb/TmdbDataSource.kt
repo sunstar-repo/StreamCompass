@@ -120,4 +120,16 @@ internal class TmdbDataSource(
             parameter(TmdbConstants.PARAM_LANGUAGE, language)
         }.body()
 
+    suspend fun getMovieRecommendations(
+        tmdbId: Int,
+        page: Int = 1,
+        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+    ): TmdbMoviePageResponseDto =
+        httpClient.get(
+            "${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_MOVIE}/$tmdbId/${TmdbConstants.SEGMENT_RECOMMENDATIONS}"
+        ) {
+            parameter(TmdbConstants.PARAM_API_KEY, apiKey)
+            parameter(TmdbConstants.PARAM_LANGUAGE, language)
+            parameter(TmdbConstants.PARAM_PAGE, page)
+        }.body()
 }

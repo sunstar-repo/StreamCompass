@@ -13,7 +13,6 @@
     <string name="stream_detail_tab_review">Review</string>
     <string name="stream_detail_view_streaming_options">시청 옵션 보기</string>
     <string name="stream_detail_no_streaming_options">이용 가능한 스트리밍 서비스가 없습니다</string>
-    <string name="stream_detail_recommended_placeholder">추천 정보는 추후 연동됩니다</string>
     <string name="stream_detail_review_placeholder">리뷰 정보는 추후 연동됩니다</string>
 
     <string name="movie_row_now_playing">Now Playing</string>

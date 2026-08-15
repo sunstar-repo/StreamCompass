@@ -135,7 +135,16 @@ fun MainScreen() {
             composable<MainDestination.DetailDestination> { backStackEntry ->
                 val destination: MainDestination.DetailDestination =
                     backStackEntry.toRoute()
-                DetailScreen(tmdbId = destination.tmdbId)
+                DetailScreen(
+                    tmdbId = destination.tmdbId,
+                    onStreamClick = { tmdbId ->
+                        navController.navigate(
+                            route = MainDestination.DetailDestination(
+                                tmdbId = tmdbId
+                            )
+                        )
+                    },
+                )
             }
             composable<MainDestination.SearchDestination> { SearchScreen() }
         }

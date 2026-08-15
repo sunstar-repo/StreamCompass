@@ -2,9 +2,11 @@ package com.sunstar.streamcompass.presentation.detail
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +16,9 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,7 +40,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.paging.PagingData
+import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.ImageLoader
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
@@ -43,13 +51,15 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import coil3.svg.SvgDecoder
 import com.sunstar.streamcompass.domain.model.Deeplink
+import com.sunstar.streamcompass.domain.model.Stream.MovieStream
 import com.sunstar.streamcompass.domain.model.StreamDetail.MovieStreamDetail
+import com.sunstar.streamcompass.presentation.core.PosterCard
+import kotlinx.coroutines.flow.Flow
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import streamcompass.architecture.presentation.generated.resources.Res
 import streamcompass.architecture.presentation.generated.resources.stream_detail_no_streaming_options
-import streamcompass.architecture.presentation.generated.resources.stream_detail_recommended_placeholder
 import streamcompass.architecture.presentation.generated.resources.stream_detail_review_placeholder
 import streamcompass.architecture.presentation.generated.resources.stream_detail_view_streaming_options
 
@@ -57,6 +67,7 @@ import streamcompass.architecture.presentation.generated.resources.stream_detail
 fun DetailScreen(
     tmdbId: Int,
     viewModel: DetailViewModel = koinViewModel(parameters = { parametersOf(tmdbId) }),
+    onStreamClick: (tmdbId: Int) -> Unit,
 ) {
     val state by viewModel.stateFlow.collectAsState()
 
@@ -72,6 +83,8 @@ fun DetailScreen(
                 streamDetail = current.streamDetail,
                 selectedTab = current.selectedTab,
                 onTabSelected = viewModel::onTabSelected,
+                recommendationsFlow = viewModel.recommendationsFlow,
+                onStreamClick = onStreamClick,
             )
         }
     }
@@ -82,6 +95,8 @@ private fun DetailContent(
     streamDetail: MovieStreamDetail,
     selectedTab: DetailViewModel.Tab,
     onTabSelected: (DetailViewModel.Tab) -> Unit,
+    recommendationsFlow: Flow<PagingData<MovieStream>>,
+    onStreamClick: (tmdbId: Int) -> Unit,
 ) {
     var isSheetShown by remember { mutableStateOf(false) }
     val tabs = DetailViewModel.Tab.values()
@@ -141,9 +156,10 @@ private fun DetailContent(
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
             )
 
-            DetailViewModel.Tab.Recommended -> Text(
-                text = stringResource(Res.string.stream_detail_recommended_placeholder),
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
+            DetailViewModel.Tab.Recommended -> RecommendationsGrid(
+                recommendationsFlow = recommendationsFlow,
+                onStreamClick = onStreamClick,
+                modifier = Modifier.weight(1f),
             )
 
             DetailViewModel.Tab.Review -> Text(
@@ -158,6 +174,37 @@ private fun DetailContent(
             deeplinks = streamDetail.deeplinks,
             onDismissRequest = { isSheetShown = false },
         )
+    }
+}
+
+@Composable
+private fun RecommendationsGrid(
+    recommendationsFlow: Flow<PagingData<MovieStream>>,
+    onStreamClick: (tmdbId: Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val pagingItems = recommendationsFlow.collectAsLazyPagingItems()
+
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(RECOMMENDATIONS_GRID_COLUMNS),
+        contentPadding = PaddingValues(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        items(
+            count = pagingItems.itemCount,
+            key = { index -> "${index}_${pagingItems[index]?.tmdbId}" },
+        ) { index ->
+            val stream = pagingItems[index]
+            if (null != stream) {
+                PosterCard(
+                    imageUrl = stream.posterPath,
+                    title = stream.title,
+                    onClick = { onStreamClick(stream.tmdbId) },
+                )
+            }
+        }
     }
 }
 
@@ -221,3 +268,5 @@ private fun StreamingOptionBottomSheet(deeplinks: List<Deeplink>, onDismissReque
 
 private val BACKDROP_HEIGHT = 220.dp
 private const val BACKDROP_BUTTON_POSITION_RATIO = 0.8f
+
+private const val RECOMMENDATIONS_GRID_COLUMNS = 3

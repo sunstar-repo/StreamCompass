@@ -2,11 +2,15 @@ package com.sunstar.streamcompass.presentation.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.sunstar.streamcompass.domain.model.Stream.MovieStream
 import com.sunstar.streamcompass.domain.model.StreamDetail.MovieStreamDetail
+import com.sunstar.streamcompass.domain.usecase.GetMovieRecommendationsUseCase
 import com.sunstar.streamcompass.domain.usecase.GetStreamDetailUseCase
 import com.sunstar.streamcompass.domain.usecase.RecordMovieHistoryUseCase
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.onStart
@@ -24,9 +28,13 @@ class DetailViewModel(
     private val tmdbId: Int,
     private val getStreamDetailUseCase: GetStreamDetailUseCase,
     private val recordMovieHistoryUseCase: RecordMovieHistoryUseCase,
+    getMovieRecommendationsUseCase: GetMovieRecommendationsUseCase,
 ) : ViewModel() {
 
     val stateFlow: StateFlow<State>
+
+    val recommendationsFlow: Flow<PagingData<MovieStream>> =
+        getMovieRecommendationsUseCase(tmdbId = tmdbId).cachedIn(viewModelScope)
 
     private val eventChannel: Channel<Event>
 

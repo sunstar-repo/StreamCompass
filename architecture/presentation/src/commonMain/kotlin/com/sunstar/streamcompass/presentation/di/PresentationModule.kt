@@ -34,6 +34,7 @@ val presentationModule =
                 tmdbId = tmdbId,
                 getStreamDetailUseCase = get(),
                 recordMovieHistoryUseCase = get(),
+                getMovieRecommendationsUseCase = get(),
             )
         }
     }

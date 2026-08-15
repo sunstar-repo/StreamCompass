@@ -18,6 +18,8 @@ interface StreamRepository {
 
     suspend fun getStreamDetail(tmdbId: Int, locale: String): MovieStreamDetail
 
+    fun getMovieRecommendationsStreamFlow(tmdbId: Int): Flow<PagingData<MovieStream>>
+
     suspend fun recordMovieHistory(movieStream: MovieStream)
 
     suspend fun recordTvHistory(tvStream: TvStream)

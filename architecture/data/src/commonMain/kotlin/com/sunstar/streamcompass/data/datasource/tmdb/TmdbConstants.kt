@@ -8,6 +8,7 @@ internal object TmdbConstants {
     const val SEGMENT_POPULAR = "popular"
     const val SEGMENT_TOP_RATED = "top_rated"
     const val SEGMENT_UPCOMING = "upcoming"
+    const val SEGMENT_RECOMMENDATIONS = "recommendations"
 
     const val PATH_TV = "tv"
     const val SEGMENT_AIRING_TODAY = "airing_today"

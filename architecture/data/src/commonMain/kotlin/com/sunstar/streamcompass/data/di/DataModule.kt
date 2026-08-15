@@ -30,6 +30,7 @@ import com.sunstar.streamcompass.domain.model.Stream.TvStream
 import com.sunstar.streamcompass.domain.model.StreamDetail.MovieStreamDetail
 import com.sunstar.streamcompass.domain.repository.StreamRepository
 import com.sunstar.streamcompass.domain.usecase.GetMovieHistoryStreamUseCase
+import com.sunstar.streamcompass.domain.usecase.GetMovieRecommendationsUseCase
 import com.sunstar.streamcompass.domain.usecase.GetStreamDetailUseCase
 import com.sunstar.streamcompass.domain.usecase.GetSuggestionStreamUseCase
 import com.sunstar.streamcompass.domain.usecase.GetTrendingStreamUseCase
@@ -121,6 +122,7 @@ fun dataModule(apiKey: ApiKey): Module =
         single { GetTvSuggestionStreamUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
         single { GetTrendingStreamUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
         single { GetStreamDetailUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
+        single { GetMovieRecommendationsUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
         single { RecordMovieHistoryUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
         single { RecordTvHistoryUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
         single { GetMovieHistoryStreamUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
