@@ -1,5 +1,6 @@
 package com.sunstar.streamcompass.presentation.detail
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -16,9 +17,10 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,9 +40,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathOperation
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -51,8 +64,11 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import coil3.svg.SvgDecoder
 import com.sunstar.streamcompass.domain.model.Deeplink
+import com.sunstar.streamcompass.domain.model.Review
 import com.sunstar.streamcompass.domain.model.Stream.MovieStream
 import com.sunstar.streamcompass.domain.model.StreamDetail.MovieStreamDetail
+import com.sunstar.streamcompass.presentation.core.AVATAR_SIZE
+import com.sunstar.streamcompass.presentation.core.AvatarCard
 import com.sunstar.streamcompass.presentation.core.PosterCard
 import kotlinx.coroutines.flow.Flow
 import org.jetbrains.compose.resources.stringResource
@@ -60,7 +76,6 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import streamcompass.architecture.presentation.generated.resources.Res
 import streamcompass.architecture.presentation.generated.resources.stream_detail_no_streaming_options
-import streamcompass.architecture.presentation.generated.resources.stream_detail_review_placeholder
 import streamcompass.architecture.presentation.generated.resources.stream_detail_view_streaming_options
 
 @Composable
@@ -84,6 +99,7 @@ fun DetailScreen(
                 selectedTab = current.selectedTab,
                 onTabSelected = viewModel::onTabSelected,
                 recommendationsFlow = viewModel.recommendationsFlow,
+                reviewsFlow = viewModel.reviewsFlow,
                 onStreamClick = onStreamClick,
             )
         }
@@ -96,6 +112,7 @@ private fun DetailContent(
     selectedTab: DetailViewModel.Tab,
     onTabSelected: (DetailViewModel.Tab) -> Unit,
     recommendationsFlow: Flow<PagingData<MovieStream>>,
+    reviewsFlow: Flow<PagingData<Review>>,
     onStreamClick: (tmdbId: Int) -> Unit,
 ) {
     var isSheetShown by remember { mutableStateOf(false) }
@@ -162,9 +179,9 @@ private fun DetailContent(
                 modifier = Modifier.weight(1f),
             )
 
-            DetailViewModel.Tab.Review -> Text(
-                text = stringResource(Res.string.stream_detail_review_placeholder),
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
+            DetailViewModel.Tab.Review -> ReviewsList(
+                reviewsFlow = reviewsFlow,
+                modifier = Modifier.weight(1f),
             )
         }
     }
@@ -205,6 +222,127 @@ private fun RecommendationsGrid(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun ReviewsList(reviewsFlow: Flow<PagingData<Review>>, modifier: Modifier = Modifier) {
+    val pagingItems = reviewsFlow.collectAsLazyPagingItems()
+
+    LazyColumn(
+        contentPadding = PaddingValues(vertical = 8.dp),
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        items(
+            count = pagingItems.itemCount,
+            key = { index -> "${index}_${pagingItems[index]?.id}" },
+        ) { index ->
+            val review = pagingItems[index]
+            if (null != review) {
+                ReviewRow(review = review)
+            }
+        }
+    }
+}
+
+@Composable
+private fun ReviewRow(review: Review) {
+    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
+        Column(
+            modifier = Modifier.width(AVATAR_SIZE),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            AvatarCard(imageUrl = review.avatarPath, contentDescription = review.authorName)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = review.authorName,
+                style = MaterialTheme.typography.labelSmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+            )
+        }
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            val bubbleShape = remember {
+                ReviewBubbleShape(
+                    cornerRadius = REVIEW_BUBBLE_CORNER_RADIUS,
+                    tailWidth = REVIEW_BUBBLE_TAIL_WIDTH,
+                    tailHeight = REVIEW_BUBBLE_TAIL_HEIGHT,
+                    tailTopOffset = REVIEW_BUBBLE_TAIL_TOP_OFFSET,
+                )
+            }
+            var isExpanded by remember { mutableStateOf(false) }
+            Box(
+                modifier = Modifier
+                    .clip(bubbleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .clickable { isExpanded = !isExpanded }
+                    .padding(
+                        start = REVIEW_BUBBLE_TAIL_WIDTH + 12.dp,
+                        top = 10.dp,
+                        end = 12.dp,
+                        bottom = 10.dp,
+                    ),
+            ) {
+                Text(
+                    text = review.content,
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = if (isExpanded) Int.MAX_VALUE else REVIEW_CONTENT_MAX_LINES,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = review.createdAt.substringBefore("T"),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.align(Alignment.End),
+            )
+        }
+    }
+}
+
+private class ReviewBubbleShape(
+    private val cornerRadius: Dp,
+    private val tailWidth: Dp,
+    private val tailHeight: Dp,
+    private val tailTopOffset: Dp,
+) : Shape {
+    override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline {
+        val cornerRadiusPx = with(density) { cornerRadius.toPx() }
+        val tailWidthPx = with(density) { tailWidth.toPx() }
+        val tailHeightPx = with(density) { tailHeight.toPx() }
+        val tailTopOffsetPx = with(density) { tailTopOffset.toPx() }
+
+        val bodyPath = Path().apply {
+            addRoundRect(
+                RoundRect(
+                    left = tailWidthPx,
+                    top = 0f,
+                    right = size.width,
+                    bottom = size.height,
+                    radiusX = cornerRadiusPx,
+                    radiusY = cornerRadiusPx,
+                )
+            )
+        }
+
+        val tailPath = Path().apply {
+            moveTo(tailWidthPx, tailTopOffsetPx)
+            lineTo(0f, tailTopOffsetPx + tailHeightPx / 2f)
+            lineTo(tailWidthPx, tailTopOffsetPx + tailHeightPx)
+            close()
+        }
+
+        val combinedPath = Path()
+        combinedPath.op(bodyPath, tailPath, PathOperation.Union)
+
+        return Outline.Generic(combinedPath)
     }
 }
 
@@ -270,3 +408,9 @@ private val BACKDROP_HEIGHT = 220.dp
 private const val BACKDROP_BUTTON_POSITION_RATIO = 0.8f
 
 private const val RECOMMENDATIONS_GRID_COLUMNS = 3
+
+private val REVIEW_BUBBLE_CORNER_RADIUS = 12.dp
+private val REVIEW_BUBBLE_TAIL_WIDTH = 8.dp
+private val REVIEW_BUBBLE_TAIL_HEIGHT = 12.dp
+private val REVIEW_BUBBLE_TAIL_TOP_OFFSET = 10.dp
+private const val REVIEW_CONTENT_MAX_LINES = 5

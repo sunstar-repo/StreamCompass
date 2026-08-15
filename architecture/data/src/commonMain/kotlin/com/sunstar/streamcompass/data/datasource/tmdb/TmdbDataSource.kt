@@ -2,6 +2,7 @@ package com.sunstar.streamcompass.data.datasource.tmdb
 
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMovieDetailDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMoviePageResponseDto
+import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbReviewPageResponseDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTrendingPageResponseDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTvPageResponseDto
 import io.ktor.client.HttpClient
@@ -127,6 +128,19 @@ internal class TmdbDataSource(
     ): TmdbMoviePageResponseDto =
         httpClient.get(
             "${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_MOVIE}/$tmdbId/${TmdbConstants.SEGMENT_RECOMMENDATIONS}"
+        ) {
+            parameter(TmdbConstants.PARAM_API_KEY, apiKey)
+            parameter(TmdbConstants.PARAM_LANGUAGE, language)
+            parameter(TmdbConstants.PARAM_PAGE, page)
+        }.body()
+
+    suspend fun getMovieReviews(
+        tmdbId: Int,
+        page: Int = 1,
+        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+    ): TmdbReviewPageResponseDto =
+        httpClient.get(
+            "${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_MOVIE}/$tmdbId/${TmdbConstants.SEGMENT_REVIEWS}"
         ) {
             parameter(TmdbConstants.PARAM_API_KEY, apiKey)
             parameter(TmdbConstants.PARAM_LANGUAGE, language)

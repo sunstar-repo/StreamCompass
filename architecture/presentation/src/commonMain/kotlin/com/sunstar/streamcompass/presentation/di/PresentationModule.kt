@@ -35,6 +35,7 @@ val presentationModule =
                 getStreamDetailUseCase = get(),
                 recordMovieHistoryUseCase = get(),
                 getMovieRecommendationsUseCase = get(),
+                getMovieReviewsUseCase = get(),
             )
         }
     }

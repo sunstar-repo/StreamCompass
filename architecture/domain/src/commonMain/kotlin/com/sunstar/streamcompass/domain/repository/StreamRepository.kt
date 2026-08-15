@@ -1,6 +1,7 @@
 package com.sunstar.streamcompass.domain.repository
 
 import androidx.paging.PagingData
+import com.sunstar.streamcompass.domain.model.Review
 import com.sunstar.streamcompass.domain.model.Stream
 import com.sunstar.streamcompass.domain.model.Stream.MovieStream
 import com.sunstar.streamcompass.domain.model.Stream.TvStream
@@ -19,6 +20,8 @@ interface StreamRepository {
     suspend fun getStreamDetail(tmdbId: Int, locale: String): MovieStreamDetail
 
     fun getMovieRecommendationsStreamFlow(tmdbId: Int): Flow<PagingData<MovieStream>>
+
+    fun getMovieReviewsStreamFlow(tmdbId: Int): Flow<PagingData<Review>>
 
     suspend fun recordMovieHistory(movieStream: MovieStream)
 

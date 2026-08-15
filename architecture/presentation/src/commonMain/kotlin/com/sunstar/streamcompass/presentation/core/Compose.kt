@@ -6,12 +6,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -112,5 +115,20 @@ fun BackdropCard(
         }
         Spacer(modifier = Modifier.height(MEDIA_TITLE_SPACING))
         Text(text = title, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+    }
+}
+
+@Composable
+fun AvatarCard(imageUrl: String, contentDescription: String?, size: Dp = AVATAR_SIZE) {
+    ElevatedCard(shape = CircleShape, modifier = Modifier.size(size)) {
+        val context = LocalPlatformContext.current
+        AsyncImage(
+            model = remember(imageUrl) {
+                ImageRequest.Builder(context).data(imageUrl).crossfade(true).build()
+            },
+            contentDescription = contentDescription,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize(),
+        )
     }
 }

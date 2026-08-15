@@ -9,6 +9,7 @@ internal object TmdbConstants {
     const val SEGMENT_TOP_RATED = "top_rated"
     const val SEGMENT_UPCOMING = "upcoming"
     const val SEGMENT_RECOMMENDATIONS = "recommendations"
+    const val SEGMENT_REVIEWS = "reviews"
 
     const val PATH_TV = "tv"
     const val SEGMENT_AIRING_TODAY = "airing_today"
@@ -31,4 +32,5 @@ internal object TmdbConstants {
     const val IMAGE_BASE_URL = "https://image.tmdb.org/t/p"
     const val POSTER_SIZE = "w342"
     const val BACKDROP_SIZE = "w780"
+    const val PROFILE_SIZE = "w185"
 }
