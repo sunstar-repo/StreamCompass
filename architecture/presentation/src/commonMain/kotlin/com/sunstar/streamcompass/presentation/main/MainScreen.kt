@@ -67,8 +67,14 @@ fun MainScreen() {
     }
 
     Scaffold(
-        modifier = Modifier.statusBarsPadding().navigationBarsPadding(),
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        modifier = if (!isTopBarUsed) {
+            Modifier.statusBarsPadding().navigationBarsPadding()
+        } else if (!isNavigationUsed) {
+            Modifier.navigationBarsPadding()
+        } else {
+            Modifier.navigationBarsPadding()
+        },
+        contentWindowInsets = WindowInsets(left = 0, top = 0, right = 0, bottom = 0),
         topBar = {
             AnimatedVisibility(
                 visible = isTopBarUsed && isScrolledToTop,
@@ -82,7 +88,7 @@ fun MainScreen() {
         },
         bottomBar = {
             AnimatedVisibility(
-                visible = isNavigationUsed,
+                visible = isNavigationUsed && isScrolledToTop,
                 enter = slideInVertically(initialOffsetY = { it }) + expandVertically(expandFrom = Alignment.Bottom),
                 exit = slideOutVertically(targetOffsetY = { it }) + shrinkVertically(shrinkTowards = Alignment.Bottom),
             ) {
