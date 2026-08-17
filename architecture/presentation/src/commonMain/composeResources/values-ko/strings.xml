@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_title">StreamCompass</string>
+
+    <string name="destination_home">홈</string>
+    <string name="destination_movie">영화</string>
+    <string name="destination_tv">TV</string>
+    <string name="destination_setting">설정</string>
+    <string name="destination_stream_detail">상세 정보</string>
+    <string name="destination_search">검색</string>
+
+    <string name="stream_detail_tab_about">정보</string>
+    <string name="stream_detail_tab_recommended">추천</string>
+    <string name="stream_detail_tab_review">리뷰</string>
+    <string name="stream_detail_view_streaming_options">시청 옵션 보기</string>
+    <string name="stream_detail_no_streaming_options">이용 가능한 스트리밍 서비스가 없습니다</string>
+
+    <string name="movie_row_now_playing">현재 상영작</string>
+    <string name="movie_row_popular">인기작</string>
+    <string name="movie_row_top_rated">평점 높은 작품</string>
+    <string name="movie_row_upcoming">개봉 예정작</string>
+
+    <string name="tv_row_airing_today">오늘 방영</string>
+    <string name="tv_row_on_the_air">방영 중</string>
+    <string name="tv_row_popular">인기</string>
+    <string name="tv_row_top_rated">평점 높은 작품</string>
+
+    <string name="home_row_movie_history">영화 시청 기록</string>
+    <string name="home_row_tv_history">TV 시청 기록</string>
+    <string name="home_row_movie_history_empty">최근 확인한 영화가 없습니다</string>
+    <string name="home_row_tv_history_empty">최근 확인한 TV 프로그램이 없습니다</string>
+    <string name="home_history_remove">이력에서 삭제</string>
+
+    <string name="setting_theme_title">테마</string>
+    <string name="setting_theme_mode_system">시스템 설정</string>
+    <string name="setting_theme_mode_light">라이트</string>
+    <string name="setting_theme_mode_dark">다크</string>
+</resources>

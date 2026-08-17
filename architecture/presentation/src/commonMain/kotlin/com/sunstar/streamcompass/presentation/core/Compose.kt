@@ -29,8 +29,15 @@ import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.sunstar.streamcompass.domain.model.StreamType
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+
+fun mediaRowItemKey(streamType: StreamType, rowId: String, tmdbId: Int?, index: Int): String =
+    "${streamType.rawValue}_${rowId}_${tmdbId}_${index}"
+
+fun posterSharedElementKey(streamType: StreamType, rowId: String, tmdbId: Int): String =
+    "poster_${streamType.rawValue}_${rowId}_${tmdbId}"
 
 @Composable
 fun MediaRow(
@@ -61,6 +68,7 @@ fun MediaRow(
 fun PosterCard(
     imageUrl: String,
     title: String,
+    imageModifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
 ) {
@@ -79,11 +87,16 @@ fun PosterCard(
                 model = imageRequest,
                 contentDescription = title,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.width(POSTER_WIDTH).height(POSTER_HEIGHT),
+                modifier = Modifier.width(POSTER_WIDTH).height(POSTER_HEIGHT).then(imageModifier),
             )
         }
         Spacer(modifier = Modifier.height(MEDIA_TITLE_SPACING))
-        Text(text = title, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodySmall,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
 
@@ -114,7 +127,12 @@ fun BackdropCard(
             )
         }
         Spacer(modifier = Modifier.height(MEDIA_TITLE_SPACING))
-        Text(text = title, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodySmall,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
 

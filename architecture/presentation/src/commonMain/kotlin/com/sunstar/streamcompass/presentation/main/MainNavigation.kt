@@ -56,7 +56,12 @@ sealed class MainDestination {
     }
 
     @Serializable
-    data class DetailDestination(val tmdbId: Int) : MainDestination() {
+    data class DetailDestination(
+        val tmdbId: Int,
+        val posterPath: String,
+        val rowId: String,
+        val recordHistory: Boolean,
+    ) : MainDestination() {
         override val label: StringResource get() = Res.string.destination_stream_detail
         override val icon: DrawableResource get() = Res.drawable.ic_movie
         override val isNavigationUsed: Boolean get() = false
@@ -76,6 +81,9 @@ sealed class MainDestination {
             listOf(HomeDestination, MovieDestination, TvDestination, SettingDestination)
 
         fun allValues(): List<MainDestination> =
-            values() + listOf(SearchDestination, DetailDestination(tmdbId = 0))
+            values() + listOf(
+                SearchDestination,
+                DetailDestination(tmdbId = 0, posterPath = "", rowId = "", recordHistory = false)
+            )
     }
 }

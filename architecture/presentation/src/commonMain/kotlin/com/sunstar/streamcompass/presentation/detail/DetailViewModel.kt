@@ -22,12 +22,13 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import streamcompass.architecture.presentation.generated.resources.Res
-import streamcompass.architecture.presentation.generated.resources.stream_detail_tab_detail
+import streamcompass.architecture.presentation.generated.resources.stream_detail_tab_about
 import streamcompass.architecture.presentation.generated.resources.stream_detail_tab_recommended
 import streamcompass.architecture.presentation.generated.resources.stream_detail_tab_review
 
 class DetailViewModel(
     private val tmdbId: Int,
+    private val recordHistory: Boolean,
     private val getStreamDetailUseCase: GetStreamDetailUseCase,
     private val recordMovieHistoryUseCase: RecordMovieHistoryUseCase,
     getMovieRecommendationsUseCase: GetMovieRecommendationsUseCase,
@@ -70,7 +71,9 @@ class DetailViewModel(
     private suspend fun handleEvent(current: State, event: Event): State = when (event) {
         is Event.Initialize -> {
             val streamDetail = getStreamDetailUseCase(tmdbId = tmdbId, locale = DEFAULT_LOCALE)
-            recordMovieHistoryUseCase(movieStream = streamDetail.toMovieStream())
+            if (recordHistory) {
+                recordMovieHistoryUseCase(movieStream = streamDetail.toMovieStream())
+            }
             State.Succeed(streamDetail = streamDetail)
         }
 
@@ -98,8 +101,8 @@ class DetailViewModel(
     sealed class Tab {
         abstract val label: StringResource
 
-        data object Detail : Tab() {
-            override val label: StringResource = Res.string.stream_detail_tab_detail
+        data object About : Tab() {
+            override val label: StringResource = Res.string.stream_detail_tab_about
         }
 
         data object Recommended : Tab() {
@@ -111,7 +114,7 @@ class DetailViewModel(
         }
 
         companion object {
-            fun values(): List<Tab> = listOf(Detail, Recommended, Review)
+            fun values(): List<Tab> = listOf(About, Recommended, Review)
         }
     }
 
@@ -124,7 +127,7 @@ class DetailViewModel(
         data object Loading : State
         data class Succeed(
             val streamDetail: MovieStreamDetail,
-            val selectedTab: Tab = Tab.Detail,
+            val selectedTab: Tab = Tab.About,
         ) : State
     }
 

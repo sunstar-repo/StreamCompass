@@ -22,11 +22,11 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
+    private val removeMovieHistoryUseCase: RemoveMovieHistoryUseCase,
+    private val removeTvHistoryUseCase: RemoveTvHistoryUseCase,
     private val getTrendingStreamUseCase: GetTrendingStreamUseCase,
     getMovieHistoryStreamUseCase: GetMovieHistoryStreamUseCase,
     getTvHistoryStreamUseCase: GetTvHistoryStreamUseCase,
-    private val removeMovieHistoryUseCase: RemoveMovieHistoryUseCase,
-    private val removeTvHistoryUseCase: RemoveTvHistoryUseCase,
 ) : ViewModel() {
 
     val stateFlow: StateFlow<State>
@@ -71,6 +71,7 @@ class HomeViewModel(
             removeMovieHistoryUseCase(tmdbId = event.tmdbId)
             current
         }
+
         is Event.RemoveTvHistory -> {
             removeTvHistoryUseCase(tmdbId = event.tmdbId)
             current
@@ -90,4 +91,20 @@ class HomeViewModel(
         val movieHistoryStreams: List<MovieStream> = emptyList(),
         val tvHistoryStreams: List<TvStream> = emptyList(),
     )
+
+    sealed interface RowType {
+        val id: String
+
+        data object Trending : RowType {
+            override val id: String = "trending"
+        }
+
+        data object MovieHistory : RowType {
+            override val id: String = "movie_history"
+        }
+
+        data object TvHistory : RowType {
+            override val id: String = "tv_history"
+        }
+    }
 }

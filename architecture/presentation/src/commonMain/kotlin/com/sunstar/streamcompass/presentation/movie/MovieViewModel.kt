@@ -61,25 +61,30 @@ class MovieViewModel(
     }
 
     sealed interface RowType {
+        val id: String
         val titleRes: StringResource
         val suggestionType: SuggestionType
 
         data object NowPlaying : RowType {
+            override val id: String = "now_playing"
             override val titleRes = Res.string.movie_row_now_playing
             override val suggestionType = SuggestionType.NowPlaying
         }
 
         data object Popular : RowType {
+            override val id: String = "popular"
             override val titleRes = Res.string.movie_row_popular
             override val suggestionType = SuggestionType.Popular
         }
 
         data object TopRated : RowType {
+            override val id: String = "top_rated"
             override val titleRes = Res.string.movie_row_top_rated
             override val suggestionType = SuggestionType.TopRated
         }
 
         data object Upcoming : RowType {
+            override val id: String = "upcoming"
             override val titleRes = Res.string.movie_row_upcoming
             override val suggestionType = SuggestionType.Upcoming
         }

@@ -59,7 +59,10 @@ private fun ThemeSettingRow(themeMode: ThemeMode, onClick: () -> Unit) {
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 16.dp),
     ) {
-        Text(text = stringResource(Res.string.setting_theme_title), style = MaterialTheme.typography.bodyLarge)
+        Text(
+            text = stringResource(Res.string.setting_theme_title),
+            style = MaterialTheme.typography.bodyLarge
+        )
         Text(
             text = stringResource(themeMode.labelRes()),
             style = MaterialTheme.typography.bodyMedium,
@@ -89,8 +92,13 @@ private fun ThemeModeBottomSheet(
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        RadioButton(selected = mode == selectedMode, onClick = { onModeSelected(mode) })
-                        Text(text = stringResource(mode.labelRes()), style = MaterialTheme.typography.bodyLarge)
+                        RadioButton(
+                            selected = mode == selectedMode,
+                            onClick = { onModeSelected(mode) })
+                        Text(
+                            text = stringResource(mode.labelRes()),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
                     }
                 }
             }

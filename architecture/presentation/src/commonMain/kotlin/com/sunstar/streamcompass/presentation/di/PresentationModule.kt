@@ -13,11 +13,11 @@ val presentationModule =
     module {
         viewModel {
             HomeViewModel(
+                removeMovieHistoryUseCase = get(),
+                removeTvHistoryUseCase = get(),
                 getTrendingStreamUseCase = get(),
                 getMovieHistoryStreamUseCase = get(),
                 getTvHistoryStreamUseCase = get(),
-                removeMovieHistoryUseCase = get(),
-                removeTvHistoryUseCase = get(),
             )
         }
         viewModel { MovieViewModel(getSuggestionUseCase = get()) }
@@ -29,9 +29,10 @@ val presentationModule =
                 getThemeModeUseCase = get(),
             )
         }
-        viewModel { (tmdbId: Int) ->
+        viewModel { (tmdbId: Int, recordHistory: Boolean) ->
             DetailViewModel(
                 tmdbId = tmdbId,
+                recordHistory = recordHistory,
                 getStreamDetailUseCase = get(),
                 recordMovieHistoryUseCase = get(),
                 getMovieRecommendationsUseCase = get(),

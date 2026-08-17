@@ -1,15 +1,17 @@
 package com.sunstar.streamcompass.presentation.main
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
@@ -32,6 +34,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.sunstar.streamcompass.presentation.detail.DetailScreen
 import com.sunstar.streamcompass.presentation.home.HomeScreen
+import com.sunstar.streamcompass.presentation.home.HomeViewModel
 import com.sunstar.streamcompass.presentation.movie.MovieScreen
 import com.sunstar.streamcompass.presentation.search.SearchScreen
 import com.sunstar.streamcompass.presentation.setting.SettingScreen
@@ -42,6 +45,7 @@ import streamcompass.architecture.presentation.generated.resources.Res
 import streamcompass.architecture.presentation.generated.resources.app_title
 import streamcompass.architecture.presentation.generated.resources.ic_search
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
@@ -67,13 +71,7 @@ fun MainScreen() {
     }
 
     Scaffold(
-        modifier = if (!isTopBarUsed) {
-            Modifier.statusBarsPadding().navigationBarsPadding()
-        } else if (!isNavigationUsed) {
-            Modifier.navigationBarsPadding()
-        } else {
-            Modifier.navigationBarsPadding()
-        },
+        modifier = Modifier.navigationBarsPadding(),
         contentWindowInsets = WindowInsets(left = 0, top = 0, right = 0, bottom = 0),
         topBar = {
             AnimatedVisibility(
@@ -107,52 +105,72 @@ fun MainScreen() {
             }
         },
     ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = MainDestination.HomeDestination,
-            modifier = Modifier.padding(innerPadding),
-        ) {
-            composable<MainDestination.HomeDestination> {
-                HomeScreen(
-                    scrollState = homeScrollState,
-                    onStreamClick = { tmdbId ->
-                        navController.navigate(
-                            route = MainDestination.DetailDestination(
-                                tmdbId = tmdbId
+        SharedTransitionLayout {
+            NavHost(
+                navController = navController,
+                startDestination = MainDestination.HomeDestination,
+                modifier = Modifier.padding(innerPadding),
+            ) {
+                composable<MainDestination.HomeDestination> {
+                    HomeScreen(
+                        scrollState = homeScrollState,
+                        sharedTransitionScope = this@SharedTransitionLayout,
+                        animatedContentScope = this,
+                        onStreamClick = { tmdbId, posterPath, rowId ->
+                            navController.navigate(
+                                route = MainDestination.DetailDestination(
+                                    tmdbId = tmdbId,
+                                    posterPath = posterPath,
+                                    rowId = rowId,
+                                    recordHistory = rowId != HomeViewModel.RowType.MovieHistory.id,
+                                )
                             )
-                        )
-                    },
-                )
-            }
-            composable<MainDestination.MovieDestination> {
-                MovieScreen(
-                    scrollState = movieScrollState,
-                    onStreamClick = { tmdbId ->
-                        navController.navigate(
-                            route = MainDestination.DetailDestination(
-                                tmdbId = tmdbId
+                        },
+                    )
+                }
+                composable<MainDestination.MovieDestination> {
+                    MovieScreen(
+                        scrollState = movieScrollState,
+                        sharedTransitionScope = this@SharedTransitionLayout,
+                        animatedContentScope = this,
+                        onStreamClick = { tmdbId, posterPath, rowId ->
+                            navController.navigate(
+                                route = MainDestination.DetailDestination(
+                                    tmdbId = tmdbId,
+                                    posterPath = posterPath,
+                                    rowId = rowId,
+                                    recordHistory = rowId != HomeViewModel.RowType.MovieHistory.id,
+                                )
                             )
-                        )
-                    },
-                )
-            }
-            composable<MainDestination.TvDestination> { TvScreen(scrollState = tvScrollState) }
-            composable<MainDestination.SettingDestination> { SettingScreen() }
-            composable<MainDestination.DetailDestination> { backStackEntry ->
-                val destination: MainDestination.DetailDestination =
-                    backStackEntry.toRoute()
-                DetailScreen(
-                    tmdbId = destination.tmdbId,
-                    onStreamClick = { tmdbId ->
-                        navController.navigate(
-                            route = MainDestination.DetailDestination(
-                                tmdbId = tmdbId
+                        },
+                    )
+                }
+                composable<MainDestination.TvDestination> { TvScreen(scrollState = tvScrollState) }
+                composable<MainDestination.SettingDestination> { SettingScreen() }
+                composable<MainDestination.DetailDestination> { backStackEntry ->
+                    val destination: MainDestination.DetailDestination =
+                        backStackEntry.toRoute()
+                    DetailScreen(
+                        tmdbId = destination.tmdbId,
+                        posterPath = destination.posterPath,
+                        rowId = destination.rowId,
+                        recordHistory = destination.recordHistory,
+                        sharedTransitionScope = this@SharedTransitionLayout,
+                        animatedContentScope = this,
+                        onStreamClick = { tmdbId, posterPath, rowId ->
+                            navController.navigate(
+                                route = MainDestination.DetailDestination(
+                                    tmdbId = tmdbId,
+                                    posterPath = posterPath,
+                                    rowId = rowId,
+                                    recordHistory = rowId != HomeViewModel.RowType.MovieHistory.id,
+                                )
                             )
-                        )
-                    },
-                )
+                        },
+                    )
+                }
+                composable<MainDestination.SearchDestination> { SearchScreen() }
             }
-            composable<MainDestination.SearchDestination> { SearchScreen() }
         }
     }
 }

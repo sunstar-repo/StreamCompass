@@ -11,9 +11,11 @@ import androidx.compose.ui.Modifier
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.sunstar.streamcompass.domain.model.Stream.TvStream
-import com.sunstar.streamcompass.presentation.core.BACKDROP_ROW_MIN_HEIGHT
-import com.sunstar.streamcompass.presentation.core.BackdropCard
+import com.sunstar.streamcompass.domain.model.StreamType
 import com.sunstar.streamcompass.presentation.core.MediaRow
+import com.sunstar.streamcompass.presentation.core.POSTER_ROW_MIN_HEIGHT
+import com.sunstar.streamcompass.presentation.core.PosterCard
+import com.sunstar.streamcompass.presentation.core.mediaRowItemKey
 import kotlinx.coroutines.flow.Flow
 import org.jetbrains.compose.resources.StringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -27,25 +29,38 @@ fun TvScreen(
 
     Column(modifier = Modifier.verticalScroll(scrollState)) {
         state.rows.forEach { (rowType, contentsFlow) ->
-            SuggestionRow(titleRes = rowType.titleRes, contentsFlow = contentsFlow)
+            SuggestionRow(
+                titleRes = rowType.titleRes,
+                rowId = rowType.id,
+                contentsFlow = contentsFlow
+            )
         }
     }
 }
 
 @Composable
-private fun SuggestionRow(titleRes: StringResource, contentsFlow: Flow<PagingData<TvStream>>) {
+private fun SuggestionRow(
+    titleRes: StringResource,
+    rowId: String,
+    contentsFlow: Flow<PagingData<TvStream>>
+) {
     val pagingItems = contentsFlow.collectAsLazyPagingItems()
 
-    MediaRow(titleRes = titleRes, minHeight = BACKDROP_ROW_MIN_HEIGHT) {
+    MediaRow(titleRes = titleRes, minHeight = POSTER_ROW_MIN_HEIGHT) {
         items(
             count = pagingItems.itemCount,
             key = { index ->
-                "${index}_${pagingItems[index]?.tmdbId}"
+                mediaRowItemKey(
+                    streamType = StreamType.Tv,
+                    rowId = rowId,
+                    tmdbId = pagingItems[index]?.tmdbId,
+                    index = index
+                )
             },
         ) { index ->
             val stream = pagingItems[index]
             if (null != stream) {
-                BackdropCard(imageUrl = stream.backdropPath, title = stream.name)
+                PosterCard(imageUrl = stream.posterPath, title = stream.name)
             }
         }
     }

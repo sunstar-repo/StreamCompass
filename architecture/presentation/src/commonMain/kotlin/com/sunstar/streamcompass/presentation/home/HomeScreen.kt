@@ -1,5 +1,8 @@
 package com.sunstar.streamcompass.presentation.home
 
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,11 +14,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -48,11 +52,14 @@ import coil3.request.crossfade
 import com.sunstar.streamcompass.domain.model.Stream
 import com.sunstar.streamcompass.domain.model.Stream.MovieStream
 import com.sunstar.streamcompass.domain.model.Stream.TvStream
+import com.sunstar.streamcompass.domain.model.StreamType
 import com.sunstar.streamcompass.presentation.core.BACKDROP_ROW_MIN_HEIGHT
 import com.sunstar.streamcompass.presentation.core.BackdropCard
 import com.sunstar.streamcompass.presentation.core.MediaRow
 import com.sunstar.streamcompass.presentation.core.POSTER_ROW_MIN_HEIGHT
 import com.sunstar.streamcompass.presentation.core.PosterCard
+import com.sunstar.streamcompass.presentation.core.mediaRowItemKey
+import com.sunstar.streamcompass.presentation.core.posterSharedElementKey
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -65,12 +72,14 @@ import streamcompass.architecture.presentation.generated.resources.home_row_movi
 import streamcompass.architecture.presentation.generated.resources.home_row_tv_history
 import streamcompass.architecture.presentation.generated.resources.home_row_tv_history_empty
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = koinViewModel(),
     scrollState: ScrollState = rememberScrollState(),
-    onStreamClick: (tmdbId: Int) -> Unit,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedContentScope: AnimatedContentScope,
+    onStreamClick: (tmdbId: Int, posterPath: String, rowId: String) -> Unit,
 ) {
     val state by viewModel.stateFlow.collectAsState()
     var selectedHistoryItem by remember { mutableStateOf<HistoryItem?>(null) }
@@ -91,8 +100,13 @@ fun HomeScreen(
         } else {
             MovieHistoryRow(
                 items = state.movieHistoryStreams,
+                rowId = HomeViewModel.RowType.MovieHistory.id,
+                sharedTransitionScope = sharedTransitionScope,
+                animatedContentScope = animatedContentScope,
                 onClick = onStreamClick,
-                onLongClick = { stream -> selectedHistoryItem = HistoryItem.Movie(stream = stream) },
+                onLongClick = { stream ->
+                    selectedHistoryItem = HistoryItem.Movie(stream = stream)
+                },
             )
         }
 
@@ -106,6 +120,7 @@ fun HomeScreen(
             TvHistoryRow(
                 items = state.tvHistoryStreams,
                 onLongClick = { stream -> selectedHistoryItem = HistoryItem.Tv(stream = stream) },
+                rowId = HomeViewModel.RowType.TvHistory.id,
             )
         }
     }
@@ -124,6 +139,13 @@ fun HomeScreen(
         )
     }
 }
+
+private data class TrendingItem(
+    val tmdbId: Int,
+    val backdropPath: String,
+    val posterPath: String,
+    val title: String,
+)
 
 private sealed interface HistoryItem {
     data class Movie(val stream: MovieStream) : HistoryItem
@@ -171,7 +193,8 @@ private fun HistoryEmptyRow(titleRes: StringResource, minHeight: Dp, messageRes:
         Spacer(modifier = Modifier.height(8.dp))
 
         Box(
-            modifier = Modifier.fillMaxWidth().heightIn(min = minHeight).padding(horizontal = 16.dp),
+            modifier = Modifier.fillMaxWidth().heightIn(min = minHeight)
+                .padding(horizontal = 16.dp),
             contentAlignment = Alignment.Center,
         ) {
             Text(
@@ -185,7 +208,10 @@ private fun HistoryEmptyRow(titleRes: StringResource, minHeight: Dp, messageRes:
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TrendingCarousel(items: List<Stream>, onClick: (tmdbId: Int) -> Unit) {
+private fun TrendingCarousel(
+    items: List<Stream>,
+    onClick: (tmdbId: Int, posterPath: String, rowId: String) -> Unit,
+) {
     // for modulo indexing
     val virtualItemCount = items.size * VIRTUAL_LOOP_COUNT
     val initialItem = virtualItemCount / 2
@@ -222,7 +248,10 @@ private fun TrendingCarousel(items: List<Stream>, onClick: (tmdbId: Int) -> Unit
 }
 
 @Composable
-private fun CarouselItemScope.TrendingCarouselItem(stream: Stream, onClick: (tmdbId: Int) -> Unit) {
+private fun CarouselItemScope.TrendingCarouselItem(
+    stream: Stream,
+    onClick: (tmdbId: Int, posterPath: String, rowId: String) -> Unit,
+) {
     val drawInfo = carouselItemDrawInfo
     val focusFraction = if (drawInfo.maxSize > drawInfo.minSize) {
         ((drawInfo.size - drawInfo.minSize) / (drawInfo.maxSize - drawInfo.minSize)).coerceIn(
@@ -233,63 +262,105 @@ private fun CarouselItemScope.TrendingCarouselItem(stream: Stream, onClick: (tmd
         1f
     }
 
-    val (tmdbId, backdropPath, title) = when (stream) {
-        is Stream.MovieStream -> Triple(stream.tmdbId, stream.backdropPath, stream.title)
-        is Stream.TvStream -> Triple(stream.tmdbId, stream.backdropPath, stream.name)
+    val (tmdbId, backdropPath, posterPath, title) = when (stream) {
+        is Stream.MovieStream -> TrendingItem(
+            stream.tmdbId,
+            stream.backdropPath,
+            stream.posterPath,
+            stream.title
+        )
+
+        is Stream.TvStream -> TrendingItem(
+            stream.tmdbId,
+            stream.backdropPath,
+            stream.posterPath,
+            stream.name
+        )
     }
     val typeLabelRes = when (stream) {
         is Stream.MovieStream -> Res.string.destination_movie
         is Stream.TvStream -> Res.string.destination_tv
     }
 
-    Box(
+    ElevatedCard(
+        shape = RoundedCornerShape(CAROUSEL_ITEM_CORNER_RADIUS),
         modifier = Modifier
             .height(CAROUSEL_ITEM_HEIGHT)
             .maskClip(RoundedCornerShape(CAROUSEL_ITEM_CORNER_RADIUS))
-            .clickable(enabled = stream is Stream.MovieStream) { onClick(tmdbId) }
+            .clickable(enabled = stream is Stream.MovieStream) {
+                onClick(tmdbId, posterPath, HomeViewModel.RowType.Trending.id)
+            }
             .graphicsLayer {
                 alpha = lerp(start = DIM_ALPHA, stop = 1f, fraction = focusFraction)
             },
     ) {
-        val context = LocalPlatformContext.current
-        AsyncImage(
-            model = remember(backdropPath) {
-                ImageRequest.Builder(context)
-                    .data(backdropPath)
-                    .crossfade(true)
-                    .build()
-            },
-            contentDescription = title,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize(),
-        )
+        Box {
+            val context = LocalPlatformContext.current
+            AsyncImage(
+                model = remember(backdropPath) {
+                    ImageRequest.Builder(context)
+                        .data(backdropPath)
+                        .crossfade(true)
+                        .build()
+                },
+                contentDescription = title,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize(),
+            )
 
-        Text(
-            text = stringResource(typeLabelRes),
-            style = MaterialTheme.typography.labelSmall,
-            color = Color.White,
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(12.dp)
-                .clip(RoundedCornerShape(TYPE_BADGE_CORNER_RADIUS))
-                .background(MaterialTheme.colorScheme.scrim.copy(alpha = TYPE_BADGE_BACKGROUND_ALPHA))
-                .padding(horizontal = 8.dp, vertical = 4.dp),
-        )
+            Text(
+                text = stringResource(typeLabelRes),
+                style = MaterialTheme.typography.labelSmall,
+                color = Color.White,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(12.dp)
+                    .clip(RoundedCornerShape(TYPE_BADGE_CORNER_RADIUS))
+                    .background(MaterialTheme.colorScheme.scrim.copy(alpha = TYPE_BADGE_BACKGROUND_ALPHA))
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+            )
+        }
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun MovieHistoryRow(
     items: List<MovieStream>,
-    onClick: (tmdbId: Int) -> Unit,
+    rowId: String,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedContentScope: AnimatedContentScope,
+    onClick: (tmdbId: Int, posterPath: String, rowId: String) -> Unit,
     onLongClick: (MovieStream) -> Unit,
 ) {
     MediaRow(titleRes = Res.string.home_row_movie_history, minHeight = POSTER_ROW_MIN_HEIGHT) {
-        items(items = items, key = { it.tmdbId }) { stream ->
+        itemsIndexed(
+            items = items,
+            key = { index, stream ->
+                mediaRowItemKey(
+                    streamType = StreamType.Movie,
+                    rowId = rowId,
+                    tmdbId = stream.tmdbId,
+                    index = index
+                )
+            },
+        ) { _, stream ->
             PosterCard(
                 imageUrl = stream.posterPath,
                 title = stream.title,
-                onClick = { onClick(stream.tmdbId) },
+                imageModifier = with(sharedTransitionScope) {
+                    Modifier.sharedElement(
+                        sharedContentState = rememberSharedContentState(
+                            key = posterSharedElementKey(
+                                streamType = StreamType.Movie,
+                                rowId = rowId,
+                                tmdbId = stream.tmdbId
+                            ),
+                        ),
+                        animatedVisibilityScope = animatedContentScope,
+                    )
+                },
+                onClick = { onClick(stream.tmdbId, stream.posterPath, rowId) },
                 onLongClick = { onLongClick(stream) },
             )
         }
@@ -297,9 +368,19 @@ private fun MovieHistoryRow(
 }
 
 @Composable
-private fun TvHistoryRow(items: List<TvStream>, onLongClick: (TvStream) -> Unit) {
+private fun TvHistoryRow(items: List<TvStream>, rowId: String, onLongClick: (TvStream) -> Unit) {
     MediaRow(titleRes = Res.string.home_row_tv_history, minHeight = BACKDROP_ROW_MIN_HEIGHT) {
-        items(items = items, key = { it.tmdbId }) { stream ->
+        itemsIndexed(
+            items = items,
+            key = { index, stream ->
+                mediaRowItemKey(
+                    streamType = StreamType.Tv,
+                    rowId = rowId,
+                    tmdbId = stream.tmdbId,
+                    index = index
+                )
+            },
+        ) { _, stream ->
             BackdropCard(
                 imageUrl = stream.backdropPath,
                 title = stream.name,

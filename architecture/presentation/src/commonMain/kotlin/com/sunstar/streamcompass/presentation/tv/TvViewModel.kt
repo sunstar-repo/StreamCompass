@@ -61,25 +61,30 @@ class TvViewModel(
     }
 
     sealed interface RowType {
+        val id: String
         val titleRes: StringResource
         val suggestionType: TvSuggestionType
 
         data object AiringToday : RowType {
+            override val id: String = "airing_today"
             override val titleRes = Res.string.tv_row_airing_today
             override val suggestionType = TvSuggestionType.AiringToday
         }
 
         data object OnTheAir : RowType {
+            override val id: String = "on_the_air"
             override val titleRes = Res.string.tv_row_on_the_air
             override val suggestionType = TvSuggestionType.OnTheAir
         }
 
         data object Popular : RowType {
+            override val id: String = "popular"
             override val titleRes = Res.string.tv_row_popular
             override val suggestionType = TvSuggestionType.Popular
         }
 
         data object TopRated : RowType {
+            override val id: String = "top_rated"
             override val titleRes = Res.string.tv_row_top_rated
             override val suggestionType = TvSuggestionType.TopRated
         }

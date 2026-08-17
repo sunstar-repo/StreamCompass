@@ -1,5 +1,8 @@
 package com.sunstar.streamcompass.presentation.movie
 
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
@@ -11,18 +14,24 @@ import androidx.compose.ui.Modifier
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.sunstar.streamcompass.domain.model.Stream.MovieStream
+import com.sunstar.streamcompass.domain.model.StreamType
 import com.sunstar.streamcompass.presentation.core.MediaRow
 import com.sunstar.streamcompass.presentation.core.POSTER_ROW_MIN_HEIGHT
 import com.sunstar.streamcompass.presentation.core.PosterCard
+import com.sunstar.streamcompass.presentation.core.mediaRowItemKey
+import com.sunstar.streamcompass.presentation.core.posterSharedElementKey
 import kotlinx.coroutines.flow.Flow
 import org.jetbrains.compose.resources.StringResource
 import org.koin.compose.viewmodel.koinViewModel
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun MovieScreen(
     viewModel: MovieViewModel = koinViewModel(),
     scrollState: ScrollState = rememberScrollState(),
-    onStreamClick: (tmdbId: Int) -> Unit,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedContentScope: AnimatedContentScope,
+    onStreamClick: (tmdbId: Int, posterPath: String, rowId: String) -> Unit,
 ) {
     val state by viewModel.stateFlow.collectAsState()
 
@@ -30,18 +39,25 @@ fun MovieScreen(
         state.rows.forEach { (rowType, contentsFlow) ->
             SuggestionRow(
                 titleRes = rowType.titleRes,
+                rowId = rowType.id,
                 contentsFlow = contentsFlow,
+                sharedTransitionScope = sharedTransitionScope,
+                animatedContentScope = animatedContentScope,
                 onStreamClick = onStreamClick,
             )
         }
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun SuggestionRow(
     titleRes: StringResource,
+    rowId: String,
     contentsFlow: Flow<PagingData<MovieStream>>,
-    onStreamClick: (tmdbId: Int) -> Unit,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedContentScope: AnimatedContentScope,
+    onStreamClick: (tmdbId: Int, posterPath: String, rowId: String) -> Unit,
 ) {
     val pagingItems = contentsFlow.collectAsLazyPagingItems()
 
@@ -49,7 +65,12 @@ private fun SuggestionRow(
         items(
             count = pagingItems.itemCount,
             key = { index ->
-                "${index}_${pagingItems[index]?.tmdbId}"
+                mediaRowItemKey(
+                    streamType = StreamType.Movie,
+                    rowId = rowId,
+                    tmdbId = pagingItems[index]?.tmdbId,
+                    index = index
+                )
             },
         ) { index ->
             val stream = pagingItems[index]
@@ -57,7 +78,19 @@ private fun SuggestionRow(
                 PosterCard(
                     imageUrl = stream.posterPath,
                     title = stream.title,
-                    onClick = { onStreamClick(stream.tmdbId) },
+                    imageModifier = with(sharedTransitionScope) {
+                        Modifier.sharedElement(
+                            sharedContentState = rememberSharedContentState(
+                                key = posterSharedElementKey(
+                                    streamType = StreamType.Movie,
+                                    rowId = rowId,
+                                    tmdbId = stream.tmdbId
+                                ),
+                            ),
+                            animatedVisibilityScope = animatedContentScope,
+                        )
+                    },
+                    onClick = { onStreamClick(stream.tmdbId, stream.posterPath, rowId) },
                 )
             }
         }
