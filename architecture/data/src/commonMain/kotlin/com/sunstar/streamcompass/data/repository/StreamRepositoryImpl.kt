@@ -18,12 +18,12 @@ import com.sunstar.streamcompass.data.datasource.local.entity.LocalTvHistoryEnti
 import com.sunstar.streamcompass.data.datasource.streamingavailability.SaDataSource
 import com.sunstar.streamcompass.data.datasource.tmdb.TmdbConstants
 import com.sunstar.streamcompass.data.datasource.tmdb.TmdbDataSource
+import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbEpisodeDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMovieSummaryDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbReviewDto
+import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbSeasonSummaryDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTrendingItemDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTvSummaryDto
-import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbEpisodeDto
-import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbSeasonSummaryDto
 import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbEpisodesPagingSource
 import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbMovieRecommendationsPagingSource
 import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbMovieReviewsPagingSource
@@ -130,7 +130,10 @@ internal class StreamRepositoryImpl(
             StreamType.Tv -> localDataSource.deleteTvHistory(tmdbId = tmdbId)
         }
 
-    override fun getRecommendationsStreamFlow(tmdbId: Int, streamType: StreamType): Flow<PagingData<Stream>> =
+    override fun getRecommendationsStreamFlow(
+        tmdbId: Int,
+        streamType: StreamType
+    ): Flow<PagingData<Stream>> =
         when (streamType) {
             StreamType.Movie -> Pager(
                 config = PagingConfig(pageSize = TmdbConstants.PAGE_SIZE),
@@ -155,7 +158,10 @@ internal class StreamRepositoryImpl(
             ).flow.map { pagingData -> pagingData.map { it } }
         }
 
-    override fun getReviewsStreamFlow(tmdbId: Int, streamType: StreamType): Flow<PagingData<Review>> =
+    override fun getReviewsStreamFlow(
+        tmdbId: Int,
+        streamType: StreamType
+    ): Flow<PagingData<Review>> =
         when (streamType) {
             StreamType.Movie -> Pager(
                 config = PagingConfig(pageSize = TmdbConstants.PAGE_SIZE),
@@ -194,7 +200,11 @@ internal class StreamRepositoryImpl(
             },
         ).flow
 
-    override fun getEpisodesStreamFlow(tmdbId: Int, seasonNumber: Int, locale: String): Flow<PagingData<Episode>> =
+    override fun getEpisodesStreamFlow(
+        tmdbId: Int,
+        seasonNumber: Int,
+        locale: String
+    ): Flow<PagingData<Episode>> =
         Pager(
             config = PagingConfig(pageSize = TmdbConstants.PAGE_SIZE),
             pagingSourceFactory = {

@@ -29,7 +29,12 @@ internal class LocalTvDetailEntityMapper : Mapper<LocalTvDetailEntity, TvStreamD
             inProduction = source.inProduction,
             logo = source.logo,
             backdrops = source.backdrops,
+            posters = source.posters,
             certification = source.certification,
+            networkLogo = source.networkLogo,
+            trailerKeys = source.trailerKeys,
+            cast = source.cast.map { it.toPerson() },
+            crew = source.crew.map { it.toPerson() },
             deeplinks = emptyList(),
         )
 }

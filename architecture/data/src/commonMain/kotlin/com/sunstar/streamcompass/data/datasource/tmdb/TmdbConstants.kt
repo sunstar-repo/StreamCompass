@@ -30,6 +30,11 @@ internal object TmdbConstants {
     const val APPEND_IMAGES = "images"
     const val APPEND_RELEASE_DATES = "release_dates"
     const val APPEND_CONTENT_RATINGS = "content_ratings"
+    const val APPEND_VIDEOS = "videos"
+    const val APPEND_CREDITS = "credits"
+
+    const val VIDEO_SITE_YOUTUBE = "YouTube"
+    const val VIDEO_TYPE_TRAILER = "Trailer"
 
     const val DEFAULT_LANGUAGE = "en-US"
 

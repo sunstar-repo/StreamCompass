@@ -18,6 +18,18 @@
     <string name="stream_detail_overview_runtime_format">%1$d분</string>
     <string name="stream_detail_overview_runtime_hour_minute_format">%1$d시간 %2$d분</string>
 
+    <string name="stream_detail_about_information_header">정보</string>
+    <string name="stream_detail_about_original_title_label">원제</string>
+    <string name="stream_detail_about_release_date_label">개봉일</string>
+    <string name="stream_detail_about_network_label">방송사</string>
+    <string name="stream_detail_about_budget_label">제작비</string>
+    <string name="stream_detail_about_revenue_label">수익</string>
+    <string name="stream_detail_about_trailers">예고편</string>
+    <string name="stream_detail_about_gallery">갤러리</string>
+    <string name="stream_detail_about_posters">포스터</string>
+    <string name="stream_detail_about_cast">출연진</string>
+    <string name="stream_detail_about_crew">제작진</string>
+
     <string name="stream_detail_series_season_number">시즌 %1$d</string>
     <string name="stream_detail_series_episode_count">에피소드 %1$d개</string>
     <string name="stream_detail_series_episode_badge">Ep.%1$d</string>

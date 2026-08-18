@@ -30,6 +30,9 @@ internal data class TmdbMovieDetailDto(
     val video: Boolean,
     val images: TmdbImagesDto = TmdbImagesDto(),
     val releaseDates: TmdbReleaseDatesDto = TmdbReleaseDatesDto(),
+    val productionCompanies: List<TmdbCompanyDto> = emptyList(),
+    val videos: TmdbVideosDto = TmdbVideosDto(),
+    val credits: TmdbCreditsDto = TmdbCreditsDto(),
 ) {
     val posterPath: String
         get() = if (_posterPath.isEmpty()) {

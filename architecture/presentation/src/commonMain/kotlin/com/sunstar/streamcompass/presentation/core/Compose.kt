@@ -3,6 +3,8 @@ package com.sunstar.streamcompass.presentation.core
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -43,9 +45,11 @@ fun posterSharedElementKey(streamType: StreamType, rowId: String, tmdbId: Int): 
 fun MediaRow(
     titleRes: StringResource,
     minHeight: Dp,
+    topPadding: Dp = 16.dp,
+    bottomPadding: Dp = 16.dp,
     content: LazyListScope.() -> Unit,
 ) {
-    Column(modifier = Modifier.padding(vertical = 16.dp)) {
+    Column(modifier = Modifier.padding(top = topPadding, bottom = bottomPadding)) {
         Text(
             text = stringResource(titleRes),
             style = MaterialTheme.typography.titleMedium,
@@ -67,7 +71,7 @@ fun MediaRow(
 @Composable
 fun PosterCard(
     imageUrl: String,
-    title: String,
+    title: String? = null,
     imageModifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
@@ -90,13 +94,15 @@ fun PosterCard(
                 modifier = Modifier.width(POSTER_WIDTH).height(POSTER_HEIGHT).then(imageModifier),
             )
         }
-        Spacer(modifier = Modifier.height(MEDIA_TITLE_SPACING))
-        Text(
-            text = title,
-            style = MaterialTheme.typography.bodySmall,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+        if (null != title) {
+            Spacer(modifier = Modifier.height(MEDIA_TITLE_SPACING))
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodySmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     }
 }
 
@@ -104,35 +110,30 @@ fun PosterCard(
 @Composable
 fun BackdropCard(
     imageUrl: String,
-    title: String,
+    contentDescription: String?,
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
+    overlay: @Composable BoxScope.() -> Unit = {},
 ) {
-    Column(modifier = Modifier.width(BACKDROP_WIDTH)) {
-        val context = LocalPlatformContext.current
-        val imageRequest = remember(imageUrl) {
-            ImageRequest.Builder(context).data(imageUrl).crossfade(true).build()
-        }
-        val cardModifier = if (null != onClick || null != onLongClick) {
-            Modifier.combinedClickable(onClick = onClick ?: {}, onLongClick = onLongClick)
-        } else {
-            Modifier
-        }
-        ElevatedCard(modifier = cardModifier) {
+    val context = LocalPlatformContext.current
+    val imageRequest = remember(imageUrl) {
+        ImageRequest.Builder(context).data(imageUrl).crossfade(true).build()
+    }
+    val cardModifier = if (null != onClick || null != onLongClick) {
+        Modifier.combinedClickable(onClick = onClick ?: {}, onLongClick = onLongClick)
+    } else {
+        Modifier
+    }
+    ElevatedCard(modifier = cardModifier.width(BACKDROP_WIDTH)) {
+        Box(modifier = Modifier.width(BACKDROP_WIDTH).height(BACKDROP_HEIGHT)) {
             AsyncImage(
                 model = imageRequest,
-                contentDescription = title,
+                contentDescription = contentDescription,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.width(BACKDROP_WIDTH).height(BACKDROP_HEIGHT),
+                modifier = Modifier.fillMaxSize(),
             )
+            overlay()
         }
-        Spacer(modifier = Modifier.height(MEDIA_TITLE_SPACING))
-        Text(
-            text = title,
-            style = MaterialTheme.typography.bodySmall,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
     }
 }
 

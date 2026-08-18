@@ -27,5 +27,10 @@ internal data class LocalTvDetailEntity(
     val inProduction: Boolean,
     val logo: String,
     val backdrops: List<String>,
+    val posters: List<String>,
     val certification: String,
+    val networkLogo: String,
+    val trailerKeys: List<String>,
+    val cast: List<LocalPerson>,
+    val crew: List<LocalPerson>,
 )

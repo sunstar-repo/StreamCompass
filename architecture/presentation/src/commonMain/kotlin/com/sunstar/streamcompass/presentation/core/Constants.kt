@@ -2,6 +2,7 @@ package com.sunstar.streamcompass.presentation.core
 
 import androidx.compose.ui.unit.dp
 import com.sunstar.streamcompass.domain.model.Deeplink
+import com.sunstar.streamcompass.domain.model.Person
 import com.sunstar.streamcompass.domain.model.Stream
 import com.sunstar.streamcompass.domain.model.Stream.MovieStream
 import com.sunstar.streamcompass.domain.model.Stream.TvStream
@@ -111,4 +112,59 @@ val StreamDetail.certification: String
     get() = when (this) {
         is MovieStreamDetail -> certification
         is TvStreamDetail -> certification
+    }
+
+val StreamDetail.originalTitle: String
+    get() = when (this) {
+        is MovieStreamDetail -> originalTitle
+        is TvStreamDetail -> originalName
+    }
+
+val StreamDetail.networkLogo: String
+    get() = when (this) {
+        is MovieStreamDetail -> productionCompanyLogo
+        is TvStreamDetail -> networkLogo
+    }
+
+val StreamDetail.trailerKeys: List<String>
+    get() = when (this) {
+        is MovieStreamDetail -> trailerKeys
+        is TvStreamDetail -> trailerKeys
+    }
+
+val StreamDetail.backdrops: List<String>
+    get() = when (this) {
+        is MovieStreamDetail -> backdrops
+        is TvStreamDetail -> backdrops
+    }
+
+val StreamDetail.posters: List<String>
+    get() = when (this) {
+        is MovieStreamDetail -> posters
+        is TvStreamDetail -> posters
+    }
+
+// TMDB에 tv budget/revenue가 없어 Tv는 항상 0 — UI에서 0이면 배지를 숨긴다.
+val StreamDetail.budget: Long
+    get() = when (this) {
+        is MovieStreamDetail -> budget
+        is TvStreamDetail -> 0L
+    }
+
+val StreamDetail.revenue: Long
+    get() = when (this) {
+        is MovieStreamDetail -> revenue
+        is TvStreamDetail -> 0L
+    }
+
+val StreamDetail.cast: List<Person>
+    get() = when (this) {
+        is MovieStreamDetail -> cast
+        is TvStreamDetail -> cast
+    }
+
+val StreamDetail.crew: List<Person>
+    get() = when (this) {
+        is MovieStreamDetail -> crew
+        is TvStreamDetail -> crew
     }

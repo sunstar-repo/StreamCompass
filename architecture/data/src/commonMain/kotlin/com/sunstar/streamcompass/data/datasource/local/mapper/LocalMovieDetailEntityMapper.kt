@@ -30,7 +30,12 @@ internal class LocalMovieDetailEntityMapper : Mapper<LocalMovieDetailEntity, Mov
             video = source.video,
             logo = source.logo,
             backdrops = source.backdrops,
+            posters = source.posters,
             certification = source.certification,
+            productionCompanyLogo = source.productionCompanyLogo,
+            trailerKeys = source.trailerKeys,
+            cast = source.cast.map { it.toPerson() },
+            crew = source.crew.map { it.toPerson() },
             deeplinks = emptyList(),
         )
 }

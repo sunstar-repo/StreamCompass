@@ -119,7 +119,8 @@ fun DetailOverview(
                     imageLoader = svgImageLoader,
                     contentDescription = title,
                     contentScale = ContentScale.Fit,
-                    modifier = Modifier.heightIn(max = LOGO_MAX_HEIGHT).widthIn(max = LOGO_MAX_WIDTH),
+                    modifier = Modifier.heightIn(max = LOGO_MAX_HEIGHT)
+                        .widthIn(max = LOGO_MAX_WIDTH),
                 )
             }
 
@@ -166,7 +167,11 @@ fun DetailOverview(
                 val hours = runtimeMinutes / MINUTES_PER_HOUR
                 val minutes = runtimeMinutes % MINUTES_PER_HOUR
                 if (hours > 0) {
-                    stringResource(Res.string.stream_detail_overview_runtime_hour_minute_format, hours, minutes)
+                    stringResource(
+                        Res.string.stream_detail_overview_runtime_hour_minute_format,
+                        hours,
+                        minutes
+                    )
                 } else {
                     stringResource(Res.string.stream_detail_overview_runtime_format, minutes)
                 }
@@ -192,7 +197,10 @@ fun DetailOverview(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(BADGE_CORNER_RADIUS))
                                 .background(MaterialTheme.colorScheme.scrim.copy(alpha = BADGE_BACKGROUND_ALPHA))
-                                .padding(horizontal = BADGE_HORIZONTAL_PADDING, vertical = BADGE_VERTICAL_PADDING),
+                                .padding(
+                                    horizontal = BADGE_HORIZONTAL_PADDING,
+                                    vertical = BADGE_VERTICAL_PADDING
+                                ),
                         )
                         if (index != metadataItems.lastIndex) {
                             Text(
@@ -232,7 +240,8 @@ private fun DetailDescriptionText(
 ) {
     val density = LocalDensity.current
     val textMeasurer = rememberTextMeasurer()
-    val textStyle = MaterialTheme.typography.bodyMedium.copy(color = Color.White, textAlign = TextAlign.Center)
+    val textStyle =
+        MaterialTheme.typography.bodyMedium.copy(color = Color.White, textAlign = TextAlign.Center)
     val badgeStyle = MaterialTheme.typography.labelSmall.copy(color = Color.White)
     val moreLabel = stringResource(Res.string.stream_detail_overview_more)
 
@@ -300,7 +309,8 @@ private fun DetailDescriptionText(
             low
         }
 
-        val annotatedText = remember(description, cutLength) { buildDescriptionWithBadge(cutLength) }
+        val annotatedText =
+            remember(description, cutLength) { buildDescriptionWithBadge(cutLength) }
 
         Text(
             text = annotatedText,
@@ -344,7 +354,10 @@ private fun DetailDescriptionBottomSheet(description: String, onDismissRequest: 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DetailStreamingOptionBottomSheet(deeplinks: List<Deeplink>, onDismissRequest: () -> Unit) {
+private fun DetailStreamingOptionBottomSheet(
+    deeplinks: List<Deeplink>,
+    onDismissRequest: () -> Unit
+) {
     val sheetState = rememberModalBottomSheetState()
 
     val uriHandler = LocalUriHandler.current

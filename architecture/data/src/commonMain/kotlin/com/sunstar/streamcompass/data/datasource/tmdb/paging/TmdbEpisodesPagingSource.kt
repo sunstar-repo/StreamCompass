@@ -22,7 +22,8 @@ internal class TmdbEpisodesPagingSource(
                 language = locale,
             )
             LoadResult.Page(
-                data = response.episodes.map { episodeMapper.map(it) }.sortedByDescending { it.episodeNumber },
+                data = response.episodes.map { episodeMapper.map(it) }
+                    .sortedByDescending { it.episodeNumber },
                 prevKey = null,
                 nextKey = null,
             )

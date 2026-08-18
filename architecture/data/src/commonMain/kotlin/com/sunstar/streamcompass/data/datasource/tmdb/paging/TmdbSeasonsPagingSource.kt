@@ -17,7 +17,8 @@ internal class TmdbSeasonsPagingSource(
         try {
             val response = tmdbDataSource.getTvDetail(tmdbId = tmdbId, language = locale)
             LoadResult.Page(
-                data = response.seasons.map { seasonSummaryMapper.map(it) }.sortedByDescending { it.seasonNumber },
+                data = response.seasons.map { seasonSummaryMapper.map(it) }
+                    .sortedByDescending { it.seasonNumber },
                 prevKey = null,
                 nextKey = null,
             )

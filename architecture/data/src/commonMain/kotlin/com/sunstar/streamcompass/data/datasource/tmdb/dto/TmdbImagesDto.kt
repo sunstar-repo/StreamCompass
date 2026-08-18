@@ -6,4 +6,5 @@ import kotlinx.serialization.Serializable
 internal data class TmdbImagesDto(
     val backdrops: List<TmdbImageDto> = emptyList(),
     val logos: List<TmdbImageDto> = emptyList(),
+    val posters: List<TmdbImageDto> = emptyList(),
 )

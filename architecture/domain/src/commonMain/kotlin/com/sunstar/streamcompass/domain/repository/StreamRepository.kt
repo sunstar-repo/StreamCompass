@@ -24,7 +24,11 @@ interface StreamRepository {
     // 항상 최신 정보를 불러온다 — Room/Firestore 어디에도 캐싱하지 않음(TvStreamDetail에도 포함 안 함).
     fun getSeasonsStreamFlow(tmdbId: Int, locale: String): Flow<PagingData<Season>>
 
-    fun getEpisodesStreamFlow(tmdbId: Int, seasonNumber: Int, locale: String): Flow<PagingData<Episode>>
+    fun getEpisodesStreamFlow(
+        tmdbId: Int,
+        seasonNumber: Int,
+        locale: String
+    ): Flow<PagingData<Episode>>
 
     suspend fun recordHistory(stream: Stream)
 

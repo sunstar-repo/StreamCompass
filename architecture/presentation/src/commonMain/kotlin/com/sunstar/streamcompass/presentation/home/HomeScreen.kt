@@ -53,8 +53,6 @@ import com.sunstar.streamcompass.domain.model.Stream
 import com.sunstar.streamcompass.domain.model.Stream.MovieStream
 import com.sunstar.streamcompass.domain.model.Stream.TvStream
 import com.sunstar.streamcompass.domain.model.StreamType
-import com.sunstar.streamcompass.presentation.core.BACKDROP_ROW_MIN_HEIGHT
-import com.sunstar.streamcompass.presentation.core.BackdropCard
 import com.sunstar.streamcompass.presentation.core.MediaRow
 import com.sunstar.streamcompass.presentation.core.POSTER_ROW_MIN_HEIGHT
 import com.sunstar.streamcompass.presentation.core.PosterCard
@@ -117,13 +115,15 @@ fun HomeScreen(
         if (state.tvHistoryStreams.isEmpty()) {
             HistoryEmptyRow(
                 titleRes = Res.string.home_row_tv_history,
-                minHeight = BACKDROP_ROW_MIN_HEIGHT,
+                minHeight = POSTER_ROW_MIN_HEIGHT,
                 messageRes = Res.string.home_row_tv_history_empty,
             )
         } else {
             TvHistoryRow(
                 items = state.tvHistoryStreams,
                 rowId = HomeViewModel.RowType.TvHistory.id,
+                sharedTransitionScope = sharedTransitionScope,
+                animatedContentScope = animatedContentScope,
                 onClick = onStreamClick,
                 onLongClick = { stream -> selectedHistoryItem = HistoryItem.Tv(stream = stream) },
             )
@@ -346,14 +346,17 @@ private fun MovieHistoryRow(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun TvHistoryRow(
     items: List<TvStream>,
     rowId: String,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedContentScope: AnimatedContentScope,
     onClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
     onLongClick: (TvStream) -> Unit,
 ) {
-    MediaRow(titleRes = Res.string.home_row_tv_history, minHeight = BACKDROP_ROW_MIN_HEIGHT) {
+    MediaRow(titleRes = Res.string.home_row_tv_history, minHeight = POSTER_ROW_MIN_HEIGHT) {
         itemsIndexed(
             items = items,
             key = { index, stream ->
@@ -365,9 +368,21 @@ private fun TvHistoryRow(
                 )
             },
         ) { _, stream ->
-            BackdropCard(
-                imageUrl = stream.backdropPath,
+            PosterCard(
+                imageUrl = stream.posterPath,
                 title = stream.name,
+                imageModifier = with(sharedTransitionScope) {
+                    Modifier.sharedElement(
+                        sharedContentState = rememberSharedContentState(
+                            key = posterSharedElementKey(
+                                streamType = StreamType.Tv,
+                                rowId = rowId,
+                                tmdbId = stream.tmdbId
+                            ),
+                        ),
+                        animatedVisibilityScope = animatedContentScope,
+                    )
+                },
                 onClick = { onClick(stream.tmdbId, stream.posterPath, rowId, StreamType.Tv) },
                 onLongClick = { onLongClick(stream) },
             )

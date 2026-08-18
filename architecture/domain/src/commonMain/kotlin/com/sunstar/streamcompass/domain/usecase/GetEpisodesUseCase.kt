@@ -9,5 +9,9 @@ class GetEpisodesUseCase(
     private val streamRepository: StreamRepository,
 ) {
     operator fun invoke(tmdbId: Int, seasonNumber: Int, locale: String): Flow<PagingData<Episode>> =
-        streamRepository.getEpisodesStreamFlow(tmdbId = tmdbId, seasonNumber = seasonNumber, locale = locale)
+        streamRepository.getEpisodesStreamFlow(
+            tmdbId = tmdbId,
+            seasonNumber = seasonNumber,
+            locale = locale
+        )
 }

@@ -25,7 +25,12 @@ sealed interface StreamDetail {
         val video: Boolean,
         val logo: String,
         val backdrops: List<String>,
+        val posters: List<String>,
         val certification: String,
+        val productionCompanyLogo: String,
+        val trailerKeys: List<String>,
+        val cast: List<Person>,
+        val crew: List<Person>,
         val deeplinks: List<Deeplink>,
     ) : StreamDetail
 
@@ -52,7 +57,12 @@ sealed interface StreamDetail {
         val inProduction: Boolean,
         val logo: String,
         val backdrops: List<String>,
+        val posters: List<String>,
         val certification: String,
+        val networkLogo: String,
+        val trailerKeys: List<String>,
+        val cast: List<Person>,
+        val crew: List<Person>,
         val deeplinks: List<Deeplink>,
     ) : StreamDetail
 }

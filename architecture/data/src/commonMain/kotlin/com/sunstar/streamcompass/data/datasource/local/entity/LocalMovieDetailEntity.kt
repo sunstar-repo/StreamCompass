@@ -28,5 +28,10 @@ internal data class LocalMovieDetailEntity(
     val video: Boolean,
     val logo: String,
     val backdrops: List<String>,
+    val posters: List<String>,
     val certification: String,
+    val productionCompanyLogo: String,
+    val trailerKeys: List<String>,
+    val cast: List<LocalPerson>,
+    val crew: List<LocalPerson>,
 )

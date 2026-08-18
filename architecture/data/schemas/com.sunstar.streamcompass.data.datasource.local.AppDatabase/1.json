@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "4a0988851e155e52cc1351b7f52ed2c7",
+    "identityHash": "a342488dcaea16952719b3bcd5159daa",
     "entities": [
       {
         "tableName": "movie_detail",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tmdbId` INTEGER NOT NULL, `locale` TEXT NOT NULL, `title` TEXT NOT NULL, `overview` TEXT NOT NULL, `posterPath` TEXT NOT NULL, `backdropPath` TEXT NOT NULL, `releaseDate` TEXT NOT NULL, `voteAverage` REAL NOT NULL, `voteCount` INTEGER NOT NULL, `popularity` REAL NOT NULL, `originalLanguage` TEXT NOT NULL, `originalTitle` TEXT NOT NULL, `genres` TEXT NOT NULL, `runtime` INTEGER NOT NULL, `status` TEXT NOT NULL, `tagline` TEXT NOT NULL, `homepage` TEXT NOT NULL, `imdbId` TEXT NOT NULL, `budget` INTEGER NOT NULL, `revenue` INTEGER NOT NULL, `adult` INTEGER NOT NULL, `video` INTEGER NOT NULL, `logo` TEXT NOT NULL, `backdrops` TEXT NOT NULL, `certification` TEXT NOT NULL, PRIMARY KEY(`tmdbId`, `locale`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tmdbId` INTEGER NOT NULL, `locale` TEXT NOT NULL, `title` TEXT NOT NULL, `overview` TEXT NOT NULL, `posterPath` TEXT NOT NULL, `backdropPath` TEXT NOT NULL, `releaseDate` TEXT NOT NULL, `voteAverage` REAL NOT NULL, `voteCount` INTEGER NOT NULL, `popularity` REAL NOT NULL, `originalLanguage` TEXT NOT NULL, `originalTitle` TEXT NOT NULL, `genres` TEXT NOT NULL, `runtime` INTEGER NOT NULL, `status` TEXT NOT NULL, `tagline` TEXT NOT NULL, `homepage` TEXT NOT NULL, `imdbId` TEXT NOT NULL, `budget` INTEGER NOT NULL, `revenue` INTEGER NOT NULL, `adult` INTEGER NOT NULL, `video` INTEGER NOT NULL, `logo` TEXT NOT NULL, `backdrops` TEXT NOT NULL, `posters` TEXT NOT NULL, `certification` TEXT NOT NULL, `productionCompanyLogo` TEXT NOT NULL, `trailerKeys` TEXT NOT NULL, `cast` TEXT NOT NULL, `crew` TEXT NOT NULL, PRIMARY KEY(`tmdbId`, `locale`))",
         "fields": [
           {
             "fieldPath": "tmdbId",
@@ -153,8 +153,38 @@
             "notNull": true
           },
           {
+            "fieldPath": "posters",
+            "columnName": "posters",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
             "fieldPath": "certification",
             "columnName": "certification",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "productionCompanyLogo",
+            "columnName": "productionCompanyLogo",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "trailerKeys",
+            "columnName": "trailerKeys",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cast",
+            "columnName": "cast",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "crew",
+            "columnName": "crew",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -169,7 +199,7 @@
       },
       {
         "tableName": "tv_detail",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tmdbId` INTEGER NOT NULL, `locale` TEXT NOT NULL, `name` TEXT NOT NULL, `overview` TEXT NOT NULL, `posterPath` TEXT NOT NULL, `backdropPath` TEXT NOT NULL, `firstAirDate` TEXT NOT NULL, `lastAirDate` TEXT NOT NULL, `voteAverage` REAL NOT NULL, `voteCount` INTEGER NOT NULL, `popularity` REAL NOT NULL, `originalLanguage` TEXT NOT NULL, `originalName` TEXT NOT NULL, `genres` TEXT NOT NULL, `numberOfSeasons` INTEGER NOT NULL, `numberOfEpisodes` INTEGER NOT NULL, `episodeRunTime` TEXT NOT NULL, `status` TEXT NOT NULL, `tagline` TEXT NOT NULL, `homepage` TEXT NOT NULL, `inProduction` INTEGER NOT NULL, `logo` TEXT NOT NULL, `backdrops` TEXT NOT NULL, `certification` TEXT NOT NULL, PRIMARY KEY(`tmdbId`, `locale`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tmdbId` INTEGER NOT NULL, `locale` TEXT NOT NULL, `name` TEXT NOT NULL, `overview` TEXT NOT NULL, `posterPath` TEXT NOT NULL, `backdropPath` TEXT NOT NULL, `firstAirDate` TEXT NOT NULL, `lastAirDate` TEXT NOT NULL, `voteAverage` REAL NOT NULL, `voteCount` INTEGER NOT NULL, `popularity` REAL NOT NULL, `originalLanguage` TEXT NOT NULL, `originalName` TEXT NOT NULL, `genres` TEXT NOT NULL, `numberOfSeasons` INTEGER NOT NULL, `numberOfEpisodes` INTEGER NOT NULL, `episodeRunTime` TEXT NOT NULL, `status` TEXT NOT NULL, `tagline` TEXT NOT NULL, `homepage` TEXT NOT NULL, `inProduction` INTEGER NOT NULL, `logo` TEXT NOT NULL, `backdrops` TEXT NOT NULL, `posters` TEXT NOT NULL, `certification` TEXT NOT NULL, `networkLogo` TEXT NOT NULL, `trailerKeys` TEXT NOT NULL, `cast` TEXT NOT NULL, `crew` TEXT NOT NULL, PRIMARY KEY(`tmdbId`, `locale`))",
         "fields": [
           {
             "fieldPath": "tmdbId",
@@ -310,8 +340,38 @@
             "notNull": true
           },
           {
+            "fieldPath": "posters",
+            "columnName": "posters",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
             "fieldPath": "certification",
             "columnName": "certification",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "networkLogo",
+            "columnName": "networkLogo",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "trailerKeys",
+            "columnName": "trailerKeys",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cast",
+            "columnName": "cast",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "crew",
+            "columnName": "crew",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -558,7 +618,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4a0988851e155e52cc1351b7f52ed2c7')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a342488dcaea16952719b3bcd5159daa')"
     ]
   }
 }

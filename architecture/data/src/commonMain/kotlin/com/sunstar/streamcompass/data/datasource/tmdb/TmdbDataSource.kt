@@ -123,7 +123,8 @@ internal class TmdbDataSource(
             parameter(TmdbConstants.PARAM_LANGUAGE, language)
             parameter(
                 TmdbConstants.PARAM_APPEND_TO_RESPONSE,
-                "${TmdbConstants.APPEND_IMAGES},${TmdbConstants.APPEND_RELEASE_DATES}"
+                "${TmdbConstants.APPEND_IMAGES},${TmdbConstants.APPEND_RELEASE_DATES}," +
+                        "${TmdbConstants.APPEND_VIDEOS},${TmdbConstants.APPEND_CREDITS}"
             )
         }.body()
 
@@ -136,7 +137,8 @@ internal class TmdbDataSource(
             parameter(TmdbConstants.PARAM_LANGUAGE, language)
             parameter(
                 TmdbConstants.PARAM_APPEND_TO_RESPONSE,
-                "${TmdbConstants.APPEND_IMAGES},${TmdbConstants.APPEND_CONTENT_RATINGS}"
+                "${TmdbConstants.APPEND_IMAGES},${TmdbConstants.APPEND_CONTENT_RATINGS}," +
+                        "${TmdbConstants.APPEND_VIDEOS},${TmdbConstants.APPEND_CREDITS}"
             )
         }.body()
 

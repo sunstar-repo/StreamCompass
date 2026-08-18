@@ -6,6 +6,7 @@ import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 import androidx.room.TypeConverters
 import com.sunstar.streamcompass.data.datasource.local.converter.IntListConverter
+import com.sunstar.streamcompass.data.datasource.local.converter.PersonListConverter
 import com.sunstar.streamcompass.data.datasource.local.converter.StringListConverter
 import com.sunstar.streamcompass.data.datasource.local.dao.DeeplinkDao
 import com.sunstar.streamcompass.data.datasource.local.dao.MovieDetailDao
@@ -28,7 +29,7 @@ import com.sunstar.streamcompass.data.datasource.local.entity.LocalTvHistoryEnti
     ],
     version = 1,
 )
-@TypeConverters(StringListConverter::class, IntListConverter::class)
+@TypeConverters(StringListConverter::class, IntListConverter::class, PersonListConverter::class)
 @ConstructedBy(AppDatabaseConstructor::class)
 internal abstract class AppDatabase : RoomDatabase() {
     abstract fun movieDetailDao(): MovieDetailDao

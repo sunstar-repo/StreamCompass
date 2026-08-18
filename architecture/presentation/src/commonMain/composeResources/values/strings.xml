@@ -18,6 +18,18 @@
     <string name="stream_detail_overview_runtime_format">%1$d min</string>
     <string name="stream_detail_overview_runtime_hour_minute_format">%1$dh %2$dm</string>
 
+    <string name="stream_detail_about_information_header">Information</string>
+    <string name="stream_detail_about_original_title_label">Original</string>
+    <string name="stream_detail_about_release_date_label">Release Date</string>
+    <string name="stream_detail_about_network_label">Network</string>
+    <string name="stream_detail_about_budget_label">Budget</string>
+    <string name="stream_detail_about_revenue_label">Revenue</string>
+    <string name="stream_detail_about_trailers">Trailers</string>
+    <string name="stream_detail_about_gallery">Gallery</string>
+    <string name="stream_detail_about_posters">Posters</string>
+    <string name="stream_detail_about_cast">Cast</string>
+    <string name="stream_detail_about_crew">Crew</string>
+
     <string name="stream_detail_series_season_number">Season %1$d</string>
     <string name="stream_detail_series_episode_count">%1$d episodes</string>
     <string name="stream_detail_series_episode_badge">Ep.%1$d</string>
