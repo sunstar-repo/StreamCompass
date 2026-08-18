@@ -7,10 +7,12 @@ import androidx.paging.cachedIn
 import com.sunstar.streamcompass.domain.model.Stream.MovieStream
 import com.sunstar.streamcompass.domain.model.SuggestionType
 import com.sunstar.streamcompass.domain.usecase.GetSuggestionStreamUseCase
+import com.sunstar.streamcompass.presentation.core.filterIsInstance
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.runningFold
@@ -50,7 +52,9 @@ class MovieViewModel(
     private fun handleEvent(current: State, event: Event): State = when (event) {
         is Event.Initialize -> current.copy(
             rows = RowType.entries.associateWith { rowType ->
-                getSuggestionUseCase(type = rowType.suggestionType).cachedIn(viewModelScope)
+                getSuggestionUseCase(type = rowType.suggestionType)
+                    .map { pagingData -> pagingData.filterIsInstance<MovieStream>() }
+                    .cachedIn(viewModelScope)
             }
         )
     }
@@ -63,30 +67,30 @@ class MovieViewModel(
     sealed interface RowType {
         val id: String
         val titleRes: StringResource
-        val suggestionType: SuggestionType
+        val suggestionType: SuggestionType.Movie
 
         data object NowPlaying : RowType {
             override val id: String = "now_playing"
             override val titleRes = Res.string.movie_row_now_playing
-            override val suggestionType = SuggestionType.NowPlaying
+            override val suggestionType = SuggestionType.Movie.NowPlaying
         }
 
         data object Popular : RowType {
             override val id: String = "popular"
             override val titleRes = Res.string.movie_row_popular
-            override val suggestionType = SuggestionType.Popular
+            override val suggestionType = SuggestionType.Movie.Popular
         }
 
         data object TopRated : RowType {
             override val id: String = "top_rated"
             override val titleRes = Res.string.movie_row_top_rated
-            override val suggestionType = SuggestionType.TopRated
+            override val suggestionType = SuggestionType.Movie.TopRated
         }
 
         data object Upcoming : RowType {
             override val id: String = "upcoming"
             override val titleRes = Res.string.movie_row_upcoming
-            override val suggestionType = SuggestionType.Upcoming
+            override val suggestionType = SuggestionType.Movie.Upcoming
         }
 
         companion object {

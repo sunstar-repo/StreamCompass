@@ -6,22 +6,22 @@ import com.sunstar.streamcompass.data.datasource.tmdb.TmdbDataSource
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTvSummaryDto
 import com.sunstar.streamcompass.domain.mapper.Mapper
 import com.sunstar.streamcompass.domain.model.Stream.TvStream
-import com.sunstar.streamcompass.domain.model.TvSuggestionType
+import com.sunstar.streamcompass.domain.model.SuggestionType
 
 internal class TmdbTvSuggestionPagingSource(
     private val tmdbDataSource: TmdbDataSource,
     private val summaryMapper: Mapper<TmdbTvSummaryDto, TvStream>,
-    private val type: TvSuggestionType,
+    private val type: SuggestionType.Tv,
 ) : PagingSource<Int, TvStream>() {
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, TvStream> {
         val page = params.key ?: 1
         return try {
             val response =
                 when (type) {
-                    TvSuggestionType.AiringToday -> tmdbDataSource.getAiringToday(page = page)
-                    TvSuggestionType.OnTheAir -> tmdbDataSource.getOnTheAir(page = page)
-                    TvSuggestionType.Popular -> tmdbDataSource.getTvPopular(page = page)
-                    TvSuggestionType.TopRated -> tmdbDataSource.getTvTopRated(page = page)
+                    SuggestionType.Tv.AiringToday -> tmdbDataSource.getAiringToday(page = page)
+                    SuggestionType.Tv.OnTheAir -> tmdbDataSource.getOnTheAir(page = page)
+                    SuggestionType.Tv.Popular -> tmdbDataSource.getTvPopular(page = page)
+                    SuggestionType.Tv.TopRated -> tmdbDataSource.getTvTopRated(page = page)
                 }
             LoadResult.Page(
                 data = response.results.map { summaryMapper.map(it) },

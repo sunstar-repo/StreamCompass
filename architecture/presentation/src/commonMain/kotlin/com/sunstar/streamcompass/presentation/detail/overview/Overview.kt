@@ -45,7 +45,10 @@ fun Overview(
                 .fillMaxSize()
                 .background(
                     Brush.verticalGradient(
-                        colors = listOf(Color.Transparent, Color.Black.copy(alpha = OVERVIEW_GRADIENT_BOTTOM_ALPHA)),
+                        colors = listOf(
+                            Color.Transparent,
+                            Color.Black.copy(alpha = OVERVIEW_GRADIENT_BOTTOM_ALPHA)
+                        ),
                     )
                 ),
             contentAlignment = Alignment.BottomCenter,

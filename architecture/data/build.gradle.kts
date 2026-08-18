@@ -1,4 +1,3 @@
-import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -46,9 +45,6 @@ kotlin {
             implementation(libs.androidx.datastore.preferencesCore)
             implementation(libs.firebase.firestore)
             implementation(libs.firebase.config)
-        }
-        commonTest.dependencies {
-            implementation(libs.kotlin.test)
         }
         androidMain.dependencies {
             implementation(libs.ktor.clientOkhttp)

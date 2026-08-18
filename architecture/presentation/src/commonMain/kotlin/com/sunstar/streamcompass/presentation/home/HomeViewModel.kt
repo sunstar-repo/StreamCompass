@@ -5,11 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.sunstar.streamcompass.domain.model.Stream
 import com.sunstar.streamcompass.domain.model.Stream.MovieStream
 import com.sunstar.streamcompass.domain.model.Stream.TvStream
-import com.sunstar.streamcompass.domain.usecase.GetMovieHistoryStreamUseCase
+import com.sunstar.streamcompass.domain.model.StreamType
+import com.sunstar.streamcompass.domain.usecase.GetHistoryStreamUseCase
 import com.sunstar.streamcompass.domain.usecase.GetTrendingStreamUseCase
-import com.sunstar.streamcompass.domain.usecase.GetTvHistoryStreamUseCase
-import com.sunstar.streamcompass.domain.usecase.RemoveMovieHistoryUseCase
-import com.sunstar.streamcompass.domain.usecase.RemoveTvHistoryUseCase
+import com.sunstar.streamcompass.domain.usecase.RemoveHistoryUseCase
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -22,11 +21,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
-    private val removeMovieHistoryUseCase: RemoveMovieHistoryUseCase,
-    private val removeTvHistoryUseCase: RemoveTvHistoryUseCase,
+    private val removeHistoryUseCase: RemoveHistoryUseCase,
     private val getTrendingStreamUseCase: GetTrendingStreamUseCase,
-    getMovieHistoryStreamUseCase: GetMovieHistoryStreamUseCase,
-    getTvHistoryStreamUseCase: GetTvHistoryStreamUseCase,
+    getHistoryStreamUseCase: GetHistoryStreamUseCase,
 ) : ViewModel() {
 
     val stateFlow: StateFlow<State>
@@ -37,8 +34,10 @@ class HomeViewModel(
         eventChannel = Channel()
         stateFlow = merge(
             eventChannel.receiveAsFlow().onStart { emit(Event.Initialize) },
-            getMovieHistoryStreamUseCase().map { Event.MovieHistoryChanged(items = it) },
-            getTvHistoryStreamUseCase().map { Event.TvHistoryChanged(items = it) },
+            getHistoryStreamUseCase(streamType = StreamType.Movie)
+                .map { Event.MovieHistoryChanged(items = it.filterIsInstance<MovieStream>()) },
+            getHistoryStreamUseCase(streamType = StreamType.Tv)
+                .map { Event.TvHistoryChanged(items = it.filterIsInstance<TvStream>()) },
         )
             .runningFold(
                 initial = State(),
@@ -68,12 +67,12 @@ class HomeViewModel(
         is Event.MovieHistoryChanged -> current.copy(movieHistoryStreams = event.items)
         is Event.TvHistoryChanged -> current.copy(tvHistoryStreams = event.items)
         is Event.RemoveMovieHistory -> {
-            removeMovieHistoryUseCase(tmdbId = event.tmdbId)
+            removeHistoryUseCase(tmdbId = event.tmdbId, streamType = StreamType.Movie)
             current
         }
 
         is Event.RemoveTvHistory -> {
-            removeTvHistoryUseCase(tmdbId = event.tmdbId)
+            removeHistoryUseCase(tmdbId = event.tmdbId, streamType = StreamType.Tv)
             current
         }
     }

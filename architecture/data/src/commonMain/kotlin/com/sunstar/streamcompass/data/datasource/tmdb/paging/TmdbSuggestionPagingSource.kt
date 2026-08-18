@@ -11,17 +11,17 @@ import com.sunstar.streamcompass.domain.model.SuggestionType
 internal class TmdbSuggestionPagingSource(
     private val tmdbDataSource: TmdbDataSource,
     private val summaryMapper: Mapper<TmdbMovieSummaryDto, MovieStream>,
-    private val type: SuggestionType,
+    private val type: SuggestionType.Movie,
 ) : PagingSource<Int, MovieStream>() {
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, MovieStream> {
         val page = params.key ?: 1
         return try {
             val response =
                 when (type) {
-                    SuggestionType.NowPlaying -> tmdbDataSource.getNowPlaying(page = page)
-                    SuggestionType.Popular -> tmdbDataSource.getPopular(page = page)
-                    SuggestionType.TopRated -> tmdbDataSource.getTopRated(page = page)
-                    SuggestionType.Upcoming -> tmdbDataSource.getUpcoming(page = page)
+                    SuggestionType.Movie.NowPlaying -> tmdbDataSource.getNowPlaying(page = page)
+                    SuggestionType.Movie.Popular -> tmdbDataSource.getPopular(page = page)
+                    SuggestionType.Movie.TopRated -> tmdbDataSource.getTopRated(page = page)
+                    SuggestionType.Movie.Upcoming -> tmdbDataSource.getUpcoming(page = page)
                 }
             LoadResult.Page(
                 data = response.results.map { summaryMapper.map(it) },

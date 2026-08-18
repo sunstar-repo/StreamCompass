@@ -4,34 +4,25 @@ import androidx.paging.PagingData
 import com.sunstar.streamcompass.domain.model.Review
 import com.sunstar.streamcompass.domain.model.Stream
 import com.sunstar.streamcompass.domain.model.Stream.MovieStream
-import com.sunstar.streamcompass.domain.model.Stream.TvStream
-import com.sunstar.streamcompass.domain.model.StreamDetail.MovieStreamDetail
+import com.sunstar.streamcompass.domain.model.StreamDetail
+import com.sunstar.streamcompass.domain.model.StreamType
 import com.sunstar.streamcompass.domain.model.SuggestionType
-import com.sunstar.streamcompass.domain.model.TvSuggestionType
 import kotlinx.coroutines.flow.Flow
 
 interface StreamRepository {
-    fun getSuggestionStreamFlow(type: SuggestionType): Flow<PagingData<MovieStream>>
-
-    fun getTvSuggestionStreamFlow(type: TvSuggestionType): Flow<PagingData<TvStream>>
+    fun getSuggestionStreamFlow(type: SuggestionType): Flow<PagingData<Stream>>
 
     suspend fun getTrendingStream(): List<Stream>
 
-    suspend fun getStreamDetail(tmdbId: Int, locale: String): MovieStreamDetail
+    suspend fun getStreamDetail(tmdbId: Int, locale: String, streamType: StreamType): StreamDetail
 
     fun getMovieRecommendationsStreamFlow(tmdbId: Int): Flow<PagingData<MovieStream>>
 
     fun getMovieReviewsStreamFlow(tmdbId: Int): Flow<PagingData<Review>>
 
-    suspend fun recordMovieHistory(movieStream: MovieStream)
+    suspend fun recordHistory(stream: Stream)
 
-    suspend fun recordTvHistory(tvStream: TvStream)
+    fun getHistoryStreamFlow(streamType: StreamType): Flow<List<Stream>>
 
-    fun getMovieHistoryStreamFlow(): Flow<List<MovieStream>>
-
-    fun getTvHistoryStreamFlow(): Flow<List<TvStream>>
-
-    suspend fun removeMovieHistory(tmdbId: Int)
-
-    suspend fun removeTvHistory(tmdbId: Int)
+    suspend fun removeHistory(tmdbId: Int, streamType: StreamType)
 }

@@ -1,11 +1,11 @@
 package com.sunstar.streamcompass.data.datasource.local.entity
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 
-@Entity(tableName = "tv_detail")
+@Entity(tableName = "tv_detail", primaryKeys = ["tmdbId", "locale"])
 internal data class LocalTvDetailEntity(
-    @PrimaryKey val tmdbId: Int,
+    val tmdbId: Int,
+    val locale: String,
     val name: String,
     val overview: String,
     val posterPath: String,

@@ -47,7 +47,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import coil3.ImageLoader
@@ -81,7 +80,12 @@ fun DetailScreen(
     posterPath: String,
     rowId: String,
     recordHistory: Boolean,
-    viewModel: DetailViewModel = koinViewModel(parameters = { parametersOf(tmdbId, recordHistory) }),
+    viewModel: DetailViewModel = koinViewModel(parameters = {
+        parametersOf(
+            tmdbId,
+            recordHistory
+        )
+    }),
     sharedTransitionScope: SharedTransitionScope,
     animatedContentScope: AnimatedContentScope,
     onStreamClick: (tmdbId: Int, posterPath: String, rowId: String) -> Unit,

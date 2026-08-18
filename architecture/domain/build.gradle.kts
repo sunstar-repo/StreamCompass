@@ -25,8 +25,5 @@ kotlin {
             implementation(libs.paging.common)
             implementation(projects.core)
         }
-        commonTest.dependencies {
-            implementation(libs.kotlin.test)
-        }
     }
 }

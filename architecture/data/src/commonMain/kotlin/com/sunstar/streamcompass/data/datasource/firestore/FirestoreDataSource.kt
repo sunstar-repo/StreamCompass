@@ -44,7 +44,11 @@ internal class FirestoreDataSource(
                     .document(country)
                     .collection(FirestoreConstants.DOCUMENT_SERVICE)
                     .document(service)
-            batch.set(documentRef = documentRef, strategy = FirestoreDeeplinkDto.serializer(), data = dto)
+            batch.set(
+                documentRef = documentRef,
+                strategy = FirestoreDeeplinkDto.serializer(),
+                data = dto
+            )
         }
         batch.commit()
     }

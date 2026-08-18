@@ -7,10 +7,12 @@ import androidx.paging.cachedIn
 import com.sunstar.streamcompass.domain.model.Review
 import com.sunstar.streamcompass.domain.model.Stream.MovieStream
 import com.sunstar.streamcompass.domain.model.StreamDetail.MovieStreamDetail
+import com.sunstar.streamcompass.domain.model.StreamDetail.TvStreamDetail
+import com.sunstar.streamcompass.domain.model.StreamType
 import com.sunstar.streamcompass.domain.usecase.GetMovieRecommendationsUseCase
 import com.sunstar.streamcompass.domain.usecase.GetMovieReviewsUseCase
 import com.sunstar.streamcompass.domain.usecase.GetStreamDetailUseCase
-import com.sunstar.streamcompass.domain.usecase.RecordMovieHistoryUseCase
+import com.sunstar.streamcompass.domain.usecase.RecordHistoryUseCase
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -30,7 +32,7 @@ class DetailViewModel(
     private val tmdbId: Int,
     private val recordHistory: Boolean,
     private val getStreamDetailUseCase: GetStreamDetailUseCase,
-    private val recordMovieHistoryUseCase: RecordMovieHistoryUseCase,
+    private val recordHistoryUseCase: RecordHistoryUseCase,
     getMovieRecommendationsUseCase: GetMovieRecommendationsUseCase,
     getMovieReviewsUseCase: GetMovieReviewsUseCase,
 ) : ViewModel() {
@@ -70,9 +72,18 @@ class DetailViewModel(
 
     private suspend fun handleEvent(current: State, event: Event): State = when (event) {
         is Event.Initialize -> {
-            val streamDetail = getStreamDetailUseCase(tmdbId = tmdbId, locale = DEFAULT_LOCALE)
+            val streamDetail = when (
+                val detail = getStreamDetailUseCase(
+                    tmdbId = tmdbId,
+                    locale = DEFAULT_LOCALE,
+                    streamType = StreamType.Movie,
+                )
+            ) {
+                is MovieStreamDetail -> detail
+                is TvStreamDetail -> error("Expected MovieStreamDetail but got TvStreamDetail")
+            }
             if (recordHistory) {
-                recordMovieHistoryUseCase(movieStream = streamDetail.toMovieStream())
+                recordHistoryUseCase(stream = streamDetail.toMovieStream())
             }
             State.Succeed(streamDetail = streamDetail)
         }

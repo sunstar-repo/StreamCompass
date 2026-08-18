@@ -1,8 +1,8 @@
 package com.sunstar.streamcompass.data.datasource.preference
 
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
 import okio.Path.Companion.toPath
 
 internal expect fun getPreferencesDataStorePath(): String

@@ -55,14 +55,14 @@ fun ReviewsList(reviewsFlow: Flow<PagingData<Review>>, modifier: Modifier = Modi
         ) { index ->
             val review = pagingItems[index]
             if (null != review) {
-                ReviewRow(review = review)
+                ReviewItem(review = review)
             }
         }
     }
 }
 
 @Composable
-private fun ReviewRow(review: Review) {
+private fun ReviewItem(review: Review) {
     Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
         Column(
             modifier = Modifier.width(AVATAR_SIZE),

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "21cdd9558a7d88137fffa0c3b174eec8",
+    "identityHash": "6b10c92d35b065284662afb23127861c",
     "entities": [
       {
         "tableName": "movie_detail",
@@ -151,12 +151,18 @@
       },
       {
         "tableName": "tv_detail",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tmdbId` INTEGER NOT NULL, `name` TEXT NOT NULL, `overview` TEXT NOT NULL, `posterPath` TEXT NOT NULL, `backdropPath` TEXT NOT NULL, `firstAirDate` TEXT NOT NULL, `lastAirDate` TEXT NOT NULL, `voteAverage` REAL NOT NULL, `voteCount` INTEGER NOT NULL, `popularity` REAL NOT NULL, `originalLanguage` TEXT NOT NULL, `originalName` TEXT NOT NULL, `genres` TEXT NOT NULL, `numberOfSeasons` INTEGER NOT NULL, `numberOfEpisodes` INTEGER NOT NULL, `episodeRunTime` TEXT NOT NULL, `status` TEXT NOT NULL, `tagline` TEXT NOT NULL, `homepage` TEXT NOT NULL, `inProduction` INTEGER NOT NULL, PRIMARY KEY(`tmdbId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tmdbId` INTEGER NOT NULL, `locale` TEXT NOT NULL, `name` TEXT NOT NULL, `overview` TEXT NOT NULL, `posterPath` TEXT NOT NULL, `backdropPath` TEXT NOT NULL, `firstAirDate` TEXT NOT NULL, `lastAirDate` TEXT NOT NULL, `voteAverage` REAL NOT NULL, `voteCount` INTEGER NOT NULL, `popularity` REAL NOT NULL, `originalLanguage` TEXT NOT NULL, `originalName` TEXT NOT NULL, `genres` TEXT NOT NULL, `numberOfSeasons` INTEGER NOT NULL, `numberOfEpisodes` INTEGER NOT NULL, `episodeRunTime` TEXT NOT NULL, `status` TEXT NOT NULL, `tagline` TEXT NOT NULL, `homepage` TEXT NOT NULL, `inProduction` INTEGER NOT NULL, PRIMARY KEY(`tmdbId`, `locale`))",
         "fields": [
           {
             "fieldPath": "tmdbId",
             "columnName": "tmdbId",
             "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "locale",
+            "columnName": "locale",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -277,7 +283,8 @@
         "primaryKey": {
           "autoGenerate": false,
           "columnNames": [
-            "tmdbId"
+            "tmdbId",
+            "locale"
           ]
         }
       },
@@ -515,7 +522,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '21cdd9558a7d88137fffa0c3b174eec8')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6b10c92d35b065284662afb23127861c')"
     ]
   }
 }

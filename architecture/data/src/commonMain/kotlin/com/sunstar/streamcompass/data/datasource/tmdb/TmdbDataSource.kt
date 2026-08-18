@@ -4,6 +4,7 @@ import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMovieDetailDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMoviePageResponseDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbReviewPageResponseDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTrendingPageResponseDto
+import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTvDetailDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTvPageResponseDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -105,7 +106,7 @@ internal class TmdbDataSource(
     ): TmdbTrendingPageResponseDto =
         httpClient.get(
             "${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_TRENDING}" +
-                "/${TmdbConstants.MEDIA_TYPE_ALL}/${TmdbConstants.TIME_WINDOW_DAY}"
+                    "/${TmdbConstants.MEDIA_TYPE_ALL}/${TmdbConstants.TIME_WINDOW_DAY}"
         ) {
             parameter(TmdbConstants.PARAM_API_KEY, apiKey)
             parameter(TmdbConstants.PARAM_LANGUAGE, language)
@@ -117,6 +118,15 @@ internal class TmdbDataSource(
         language: String = TmdbConstants.DEFAULT_LANGUAGE,
     ): TmdbMovieDetailDto =
         httpClient.get("${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_MOVIE}/$tmdbId") {
+            parameter(TmdbConstants.PARAM_API_KEY, apiKey)
+            parameter(TmdbConstants.PARAM_LANGUAGE, language)
+        }.body()
+
+    suspend fun getTvDetail(
+        tmdbId: Int,
+        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+    ): TmdbTvDetailDto =
+        httpClient.get("${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_TV}/$tmdbId") {
             parameter(TmdbConstants.PARAM_API_KEY, apiKey)
             parameter(TmdbConstants.PARAM_LANGUAGE, language)
         }.body()

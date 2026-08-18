@@ -13,15 +13,13 @@ val presentationModule =
     module {
         viewModel {
             HomeViewModel(
-                removeMovieHistoryUseCase = get(),
-                removeTvHistoryUseCase = get(),
+                removeHistoryUseCase = get(),
                 getTrendingStreamUseCase = get(),
-                getMovieHistoryStreamUseCase = get(),
-                getTvHistoryStreamUseCase = get(),
+                getHistoryStreamUseCase = get(),
             )
         }
         viewModel { MovieViewModel(getSuggestionUseCase = get()) }
-        viewModel { TvViewModel(getTvSuggestionUseCase = get()) }
+        viewModel { TvViewModel(getSuggestionUseCase = get()) }
         viewModel { SettingViewModel(setThemeModeUseCase = get(), getThemeModeUseCase = get()) }
         viewModel {
             StreamCompassAppViewModel(
@@ -34,7 +32,7 @@ val presentationModule =
                 tmdbId = tmdbId,
                 recordHistory = recordHistory,
                 getStreamDetailUseCase = get(),
-                recordMovieHistoryUseCase = get(),
+                recordHistoryUseCase = get(),
                 getMovieRecommendationsUseCase = get(),
                 getMovieReviewsUseCase = get(),
             )

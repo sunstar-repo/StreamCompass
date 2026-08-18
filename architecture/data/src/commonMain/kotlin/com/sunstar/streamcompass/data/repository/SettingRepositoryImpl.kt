@@ -11,7 +11,8 @@ internal class SettingRepositoryImpl(
 ) : SettingRepository {
 
     override fun getThemeModeFlow(): Flow<ThemeMode> =
-        dataStoreDataSource.getThemeModeId().map { id -> ThemeMode.from(id = id ?: ThemeMode.System.id) }
+        dataStoreDataSource.getThemeModeId()
+            .map { id -> ThemeMode.from(id = id ?: ThemeMode.System.id) }
 
     override suspend fun setThemeMode(mode: ThemeMode) {
         dataStoreDataSource.setThemeModeId(id = mode.id)

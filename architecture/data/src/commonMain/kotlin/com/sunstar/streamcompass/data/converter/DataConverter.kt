@@ -4,11 +4,13 @@ import com.sunstar.streamcompass.data.datasource.firestore.dto.FirestoreDeeplink
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalDeeplinkEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieDetailEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieHistoryEntity
+import com.sunstar.streamcompass.data.datasource.local.entity.LocalTvDetailEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalTvHistoryEntity
 import com.sunstar.streamcompass.data.datasource.streamingavailability.SaConstants
 import com.sunstar.streamcompass.data.datasource.streamingavailability.dto.SaShowDto
 import com.sunstar.streamcompass.data.datasource.streamingavailability.dto.SaStreamingOptionDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMovieDetailDto
+import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTvDetailDto
 import com.sunstar.streamcompass.domain.model.Deeplink
 import com.sunstar.streamcompass.domain.model.Logo
 import com.sunstar.streamcompass.domain.model.Stream.MovieStream
@@ -39,6 +41,31 @@ internal fun TmdbMovieDetailDto.toEntity(locale: String): LocalMovieDetailEntity
         revenue = revenue,
         adult = adult,
         video = video,
+    )
+
+internal fun TmdbTvDetailDto.toEntity(locale: String): LocalTvDetailEntity =
+    LocalTvDetailEntity(
+        tmdbId = tmdbId,
+        locale = locale,
+        name = name,
+        overview = overview,
+        posterPath = posterPath,
+        backdropPath = backdropPath,
+        firstAirDate = firstAirDate,
+        lastAirDate = lastAirDate,
+        voteAverage = voteAverage,
+        voteCount = voteCount,
+        popularity = popularity,
+        originalLanguage = originalLanguage,
+        originalName = originalName,
+        genres = genres.map { it.name },
+        numberOfSeasons = numberOfSeasons,
+        numberOfEpisodes = numberOfEpisodes,
+        episodeRunTime = episodeRunTime,
+        status = status,
+        tagline = tagline,
+        homepage = homepage,
+        inProduction = inProduction,
     )
 
 internal fun MovieStream.toEntity(visitedAt: Long): LocalMovieHistoryEntity =

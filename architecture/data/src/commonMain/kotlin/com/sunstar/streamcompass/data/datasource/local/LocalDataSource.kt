@@ -3,15 +3,18 @@ package com.sunstar.streamcompass.data.datasource.local
 import com.sunstar.streamcompass.data.datasource.local.dao.DeeplinkDao
 import com.sunstar.streamcompass.data.datasource.local.dao.MovieDetailDao
 import com.sunstar.streamcompass.data.datasource.local.dao.MovieHistoryDao
+import com.sunstar.streamcompass.data.datasource.local.dao.TvDetailDao
 import com.sunstar.streamcompass.data.datasource.local.dao.TvHistoryDao
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalDeeplinkEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieDetailEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieHistoryEntity
+import com.sunstar.streamcompass.data.datasource.local.entity.LocalTvDetailEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalTvHistoryEntity
 import kotlinx.coroutines.flow.Flow
 
 internal class LocalDataSource(
     private val movieDetailDao: MovieDetailDao,
+    private val tvDetailDao: TvDetailDao,
     private val deeplinkDao: DeeplinkDao,
     private val movieHistoryDao: MovieHistoryDao,
     private val tvHistoryDao: TvHistoryDao,
@@ -21,6 +24,12 @@ internal class LocalDataSource(
 
     suspend fun upsertMovieDetail(entity: LocalMovieDetailEntity) =
         movieDetailDao.upsert(entity = entity)
+
+    suspend fun getTvDetail(tmdbId: Int, locale: String): LocalTvDetailEntity? =
+        tvDetailDao.get(tmdbId = tmdbId, locale = locale)
+
+    suspend fun upsertTvDetail(entity: LocalTvDetailEntity) =
+        tvDetailDao.upsert(entity = entity)
 
     suspend fun getDeeplinks(
         tmdbId: Int,
@@ -43,7 +52,8 @@ internal class LocalDataSource(
 
     fun observeMovieHistory(): Flow<List<LocalMovieHistoryEntity>> = movieHistoryDao.observeRecent()
 
-    suspend fun upsertMovieHistory(entity: LocalMovieHistoryEntity) = movieHistoryDao.upsert(entity = entity)
+    suspend fun upsertMovieHistory(entity: LocalMovieHistoryEntity) =
+        movieHistoryDao.upsert(entity = entity)
 
     fun observeTvHistory(): Flow<List<LocalTvHistoryEntity>> = tvHistoryDao.observeRecent()
 

@@ -1,9 +1,9 @@
 package com.sunstar.streamcompass.data.repository
 
-import android.util.Log
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.map
 import com.sunstar.streamcompass.data.converter.toDeeplink
 import com.sunstar.streamcompass.data.converter.toEntities
 import com.sunstar.streamcompass.data.converter.toEntity
@@ -13,8 +13,8 @@ import com.sunstar.streamcompass.data.datasource.local.LocalDataSource
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalDeeplinkEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieDetailEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieHistoryEntity
+import com.sunstar.streamcompass.data.datasource.local.entity.LocalTvDetailEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalTvHistoryEntity
-import com.sunstar.streamcompass.data.datasource.streamingavailability.SaConstants
 import com.sunstar.streamcompass.data.datasource.streamingavailability.SaDataSource
 import com.sunstar.streamcompass.data.datasource.tmdb.TmdbConstants
 import com.sunstar.streamcompass.data.datasource.tmdb.TmdbDataSource
@@ -32,14 +32,14 @@ import com.sunstar.streamcompass.domain.model.Review
 import com.sunstar.streamcompass.domain.model.Stream
 import com.sunstar.streamcompass.domain.model.Stream.MovieStream
 import com.sunstar.streamcompass.domain.model.Stream.TvStream
+import com.sunstar.streamcompass.domain.model.StreamDetail
 import com.sunstar.streamcompass.domain.model.StreamDetail.MovieStreamDetail
+import com.sunstar.streamcompass.domain.model.StreamDetail.TvStreamDetail
 import com.sunstar.streamcompass.domain.model.StreamType
 import com.sunstar.streamcompass.domain.model.SuggestionType
-import com.sunstar.streamcompass.domain.model.TvSuggestionType
 import com.sunstar.streamcompass.domain.repository.StreamRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import java.util.Locale
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -48,75 +48,77 @@ internal class StreamRepositoryImpl(
     private val saDataSource: SaDataSource,
     private val localDataSource: LocalDataSource,
     private val firestoreDataSource: FirestoreDataSource,
-    private val summaryMapper: Mapper<TmdbMovieSummaryDto, MovieStream>,
+    private val movieSummaryMapper: Mapper<TmdbMovieSummaryDto, MovieStream>,
     private val tvSummaryMapper: Mapper<TmdbTvSummaryDto, TvStream>,
     private val trendingMapper: Mapper<TmdbTrendingItemDto, Stream>,
     private val detailEntityMapper: Mapper<LocalMovieDetailEntity, MovieStreamDetail>,
+    private val tvDetailEntityMapper: Mapper<LocalTvDetailEntity, TvStreamDetail>,
     private val deeplinkEntityMapper: Mapper<LocalDeeplinkEntity, Deeplink>,
     private val movieHistoryEntityMapper: Mapper<LocalMovieHistoryEntity, MovieStream>,
     private val tvHistoryEntityMapper: Mapper<LocalTvHistoryEntity, TvStream>,
     private val reviewMapper: Mapper<TmdbReviewDto, Review>,
 ) : StreamRepository {
 
-    override fun getSuggestionStreamFlow(type: SuggestionType): Flow<PagingData<MovieStream>> =
-        Pager(
-            config = PagingConfig(pageSize = TmdbConstants.PAGE_SIZE),
-            pagingSourceFactory = {
-                TmdbSuggestionPagingSource(
-                    tmdbDataSource = tmdbDataSource,
-                    summaryMapper = summaryMapper,
-                    type = type,
-                )
-            },
-        ).flow
+    override fun getSuggestionStreamFlow(type: SuggestionType): Flow<PagingData<Stream>> =
+        when (type) {
+            is SuggestionType.Movie -> Pager(
+                config = PagingConfig(pageSize = TmdbConstants.PAGE_SIZE),
+                pagingSourceFactory = {
+                    TmdbSuggestionPagingSource(
+                        tmdbDataSource = tmdbDataSource,
+                        summaryMapper = movieSummaryMapper,
+                        type = type,
+                    )
+                },
+            ).flow.map { pagingData -> pagingData.map { it } }
 
-    override fun getTvSuggestionStreamFlow(type: TvSuggestionType): Flow<PagingData<TvStream>> =
-        Pager(
-            config = PagingConfig(pageSize = TmdbConstants.PAGE_SIZE),
-            pagingSourceFactory = {
-                TmdbTvSuggestionPagingSource(
-                    tmdbDataSource = tmdbDataSource,
-                    summaryMapper = tvSummaryMapper,
-                    type = type,
-                )
-            },
-        ).flow
+            is SuggestionType.Tv -> Pager(
+                config = PagingConfig(pageSize = TmdbConstants.PAGE_SIZE),
+                pagingSourceFactory = {
+                    TmdbTvSuggestionPagingSource(
+                        tmdbDataSource = tmdbDataSource,
+                        summaryMapper = tvSummaryMapper,
+                        type = type,
+                    )
+                },
+            ).flow.map { pagingData -> pagingData.map { it } }
+        }
 
     override suspend fun getTrendingStream(): List<Stream> {
         val response = tmdbDataSource.getTrendingAllDay(page = 1)
         return response.results
-            .filter { it.mediaType == TmdbConstants.MEDIA_TYPE_MOVIE || it.mediaType == TmdbConstants.MEDIA_TYPE_TV }
-            .map { trendingMapper.map(source = it) }
-            .take(TmdbConstants.PAGE_SIZE)
+            .filter {
+                it.mediaType == TmdbConstants.MEDIA_TYPE_MOVIE || it.mediaType == TmdbConstants.MEDIA_TYPE_TV
+            }.map {
+                trendingMapper.map(source = it)
+            }.take(TmdbConstants.PAGE_SIZE)
     }
 
     @OptIn(ExperimentalTime::class)
-    override suspend fun recordMovieHistory(movieStream: MovieStream) {
-        localDataSource.upsertMovieHistory(
-            entity = movieStream.toEntity(visitedAt = Clock.System.now().toEpochMilliseconds()),
-        )
+    override suspend fun recordHistory(stream: Stream) {
+        val visitedAt = Clock.System.now().toEpochMilliseconds()
+        when (stream) {
+            is MovieStream -> localDataSource.upsertMovieHistory(entity = stream.toEntity(visitedAt = visitedAt))
+            is TvStream -> localDataSource.upsertTvHistory(entity = stream.toEntity(visitedAt = visitedAt))
+        }
     }
 
-    @OptIn(ExperimentalTime::class)
-    override suspend fun recordTvHistory(tvStream: TvStream) {
-        localDataSource.upsertTvHistory(
-            entity = tvStream.toEntity(visitedAt = Clock.System.now().toEpochMilliseconds()),
-        )
-    }
+    override fun getHistoryStreamFlow(streamType: StreamType): Flow<List<Stream>> =
+        when (streamType) {
+            StreamType.Movie -> localDataSource.observeMovieHistory().map { entities ->
+                entities.map { movieHistoryEntityMapper.map(source = it) }
+            }
 
-    override fun getMovieHistoryStreamFlow(): Flow<List<MovieStream>> =
-        localDataSource.observeMovieHistory().map { entities ->
-            entities.map { movieHistoryEntityMapper.map(source = it) }
+            StreamType.Tv -> localDataSource.observeTvHistory().map { entities ->
+                entities.map { tvHistoryEntityMapper.map(source = it) }
+            }
         }
 
-    override fun getTvHistoryStreamFlow(): Flow<List<TvStream>> =
-        localDataSource.observeTvHistory().map { entities ->
-            entities.map { tvHistoryEntityMapper.map(source = it) }
+    override suspend fun removeHistory(tmdbId: Int, streamType: StreamType) =
+        when (streamType) {
+            StreamType.Movie -> localDataSource.deleteMovieHistory(tmdbId = tmdbId)
+            StreamType.Tv -> localDataSource.deleteTvHistory(tmdbId = tmdbId)
         }
-
-    override suspend fun removeMovieHistory(tmdbId: Int) = localDataSource.deleteMovieHistory(tmdbId = tmdbId)
-
-    override suspend fun removeTvHistory(tmdbId: Int) = localDataSource.deleteTvHistory(tmdbId = tmdbId)
 
     override fun getMovieRecommendationsStreamFlow(tmdbId: Int): Flow<PagingData<MovieStream>> =
         Pager(
@@ -124,7 +126,7 @@ internal class StreamRepositoryImpl(
             pagingSourceFactory = {
                 TmdbMovieRecommendationsPagingSource(
                     tmdbDataSource = tmdbDataSource,
-                    summaryMapper = summaryMapper,
+                    summaryMapper = movieSummaryMapper,
                     tmdbId = tmdbId,
                 )
             },
@@ -142,46 +144,82 @@ internal class StreamRepositoryImpl(
             },
         ).flow
 
-    override suspend fun getStreamDetail(tmdbId: Int, locale: String): MovieStreamDetail {
-        val detailEntity = localDataSource.getMovieDetail(tmdbId = tmdbId, locale = locale)
-            ?: fetchAndCacheDetail(tmdbId = tmdbId, locale = locale)
-        val country = locale.split("-").lastOrNull()
-
-        val deeplinks = if (null != country) {
-            localDataSource.getDeeplinks(
-                tmdbId = tmdbId,
-                streamType = SaConstants.PATH_MOVIE,
-                country = country
-            ).map {
-                deeplinkEntityMapper.map(source = it)
-            }.ifEmpty {
-                fetchAndCacheDeeplinks(tmdbId = tmdbId, country = country)
+    override suspend fun getStreamDetail(
+        tmdbId: Int,
+        locale: String,
+        streamType: StreamType
+    ): StreamDetail {
+        val deeplinks = getDeeplinks(tmdbId = tmdbId, locale = locale, streamType = streamType)
+        return when (streamType) {
+            StreamType.Movie -> {
+                val detailEntity = localDataSource.getMovieDetail(tmdbId = tmdbId, locale = locale)
+                    ?: fetchAndCacheMovieDetail(tmdbId = tmdbId, locale = locale)
+                detailEntityMapper.map(source = detailEntity).copy(deeplinks = deeplinks)
             }
-        } else listOf()
 
-        return detailEntityMapper.map(source = detailEntity).copy(deeplinks = deeplinks)
+            StreamType.Tv -> {
+                val detailEntity = localDataSource.getTvDetail(tmdbId = tmdbId, locale = locale)
+                    ?: fetchAndCacheTvDetail(tmdbId = tmdbId, locale = locale)
+                tvDetailEntityMapper.map(source = detailEntity).copy(deeplinks = deeplinks)
+            }
+        }
     }
 
-    private suspend fun fetchAndCacheDetail(tmdbId: Int, locale: String): LocalMovieDetailEntity {
+    private suspend fun fetchAndCacheMovieDetail(
+        tmdbId: Int,
+        locale: String
+    ): LocalMovieDetailEntity {
         val dto = tmdbDataSource.getMovieDetail(tmdbId = tmdbId, language = locale)
         val entity = dto.toEntity(locale = locale)
         localDataSource.upsertMovieDetail(entity = entity)
         return entity
     }
 
-    private suspend fun fetchAndCacheDeeplinks(tmdbId: Int, country: String): List<Deeplink> {
+    private suspend fun fetchAndCacheTvDetail(tmdbId: Int, locale: String): LocalTvDetailEntity {
+        val dto = tmdbDataSource.getTvDetail(tmdbId = tmdbId, language = locale)
+        val entity = dto.toEntity(locale = locale)
+        localDataSource.upsertTvDetail(entity = entity)
+        return entity
+    }
+
+    private suspend fun getDeeplinks(
+        tmdbId: Int,
+        locale: String,
+        streamType: StreamType
+    ): List<Deeplink> {
+        val country = locale.split("-").lastOrNull() ?: return emptyList()
+
+        return localDataSource.getDeeplinks(
+            tmdbId = tmdbId,
+            streamType = streamType.rawValue,
+            country = country
+        ).map {
+            deeplinkEntityMapper.map(source = it)
+        }.ifEmpty {
+            fetchAndCacheDeeplinks(tmdbId = tmdbId, country = country, streamType = streamType)
+        }
+    }
+
+    private suspend fun fetchAndCacheDeeplinks(
+        tmdbId: Int,
+        country: String,
+        streamType: StreamType
+    ): List<Deeplink> {
         val cachedDeeplinks =
             firestoreDataSource.getDeeplinks(
                 tmdbId = tmdbId,
-                streamType = StreamType.Movie,
+                streamType = streamType,
                 country = country
             )
         if (cachedDeeplinks.isNotEmpty()) return cachedDeeplinks
 
-        val dto = saDataSource.getMovie(tmdbId = tmdbId, country = country)
+        val dto = when (streamType) {
+            StreamType.Movie -> saDataSource.getMovie(tmdbId = tmdbId, country = country)
+            StreamType.Tv -> saDataSource.getTvShow(tmdbId = tmdbId, country = country)
+        }
         localDataSource.replaceDeeplinks(
             tmdbId = tmdbId,
-            streamType = SaConstants.PATH_MOVIE,
+            streamType = streamType.rawValue,
             country = country,
             entities = dto.toEntities(),
         )
@@ -189,7 +227,7 @@ internal class StreamRepositoryImpl(
         val firestoreDtos = dto.toFirestoreDeeplinkDtos()
         firestoreDataSource.setDeeplinks(
             tmdbId = tmdbId,
-            streamType = StreamType.Movie,
+            streamType = streamType,
             country = country,
             dtos = firestoreDtos
         )
@@ -197,7 +235,7 @@ internal class StreamRepositoryImpl(
         return firestoreDtos.map { (service, firestoreDto) ->
             firestoreDto.toDeeplink(
                 tmdbId = tmdbId,
-                streamType = StreamType.Movie,
+                streamType = streamType,
                 country = country,
                 service = service
             )

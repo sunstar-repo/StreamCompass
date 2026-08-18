@@ -1,11 +1,11 @@
-package com.sunstar.streamcompass.data.datasource.tmdb.mapper
+package com.sunstar.streamcompass.data.datasource.local.mapper
 
-import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTvDetailDto
+import com.sunstar.streamcompass.data.datasource.local.entity.LocalTvDetailEntity
 import com.sunstar.streamcompass.domain.mapper.Mapper
 import com.sunstar.streamcompass.domain.model.StreamDetail.TvStreamDetail
 
-internal class TmdbTvDetailMapper : Mapper<TmdbTvDetailDto, TvStreamDetail> {
-    override fun map(source: TmdbTvDetailDto): TvStreamDetail =
+internal class LocalTvDetailEntityMapper : Mapper<LocalTvDetailEntity, TvStreamDetail> {
+    override fun map(source: LocalTvDetailEntity): TvStreamDetail =
         TvStreamDetail(
             tmdbId = source.tmdbId,
             name = source.name,
@@ -19,7 +19,7 @@ internal class TmdbTvDetailMapper : Mapper<TmdbTvDetailDto, TvStreamDetail> {
             popularity = source.popularity,
             originalLanguage = source.originalLanguage,
             originalName = source.originalName,
-            genres = source.genres.map { it.name },
+            genres = source.genres,
             numberOfSeasons = source.numberOfSeasons,
             numberOfEpisodes = source.numberOfEpisodes,
             episodeRunTime = source.episodeRunTime,
