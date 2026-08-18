@@ -11,9 +11,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.sunstar.streamcompass.domain.model.Stream
 import com.sunstar.streamcompass.domain.model.StreamType
 import com.sunstar.streamcompass.presentation.core.PosterCard
 import com.sunstar.streamcompass.presentation.core.displayTitle
@@ -21,18 +19,18 @@ import com.sunstar.streamcompass.presentation.core.posterPath
 import com.sunstar.streamcompass.presentation.core.posterSharedElementKey
 import com.sunstar.streamcompass.presentation.core.streamType
 import com.sunstar.streamcompass.presentation.core.tmdbId
-import kotlinx.coroutines.flow.Flow
+import com.sunstar.streamcompass.presentation.detail.DetailViewModel
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun RecommendationsGrid(
-    recommendationsFlow: Flow<PagingData<Stream>>,
+fun DetailRecommendationsGrid(
+    state: DetailViewModel.State.Succeed,
     sharedTransitionScope: SharedTransitionScope,
     animatedContentScope: AnimatedContentScope,
     onStreamClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val pagingItems = recommendationsFlow.collectAsLazyPagingItems()
+    val pagingItems = state.recommendationsFlow.collectAsLazyPagingItems()
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(RECOMMENDATIONS_GRID_COLUMNS),

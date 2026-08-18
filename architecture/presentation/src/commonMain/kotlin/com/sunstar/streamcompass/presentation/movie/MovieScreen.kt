@@ -90,7 +90,14 @@ private fun SuggestionRow(
                             animatedVisibilityScope = animatedContentScope,
                         )
                     },
-                    onClick = { onStreamClick(stream.tmdbId, stream.posterPath, rowId, StreamType.Movie) },
+                    onClick = {
+                        onStreamClick(
+                            stream.tmdbId,
+                            stream.posterPath,
+                            rowId,
+                            StreamType.Movie
+                        )
+                    },
                 )
             }
         }

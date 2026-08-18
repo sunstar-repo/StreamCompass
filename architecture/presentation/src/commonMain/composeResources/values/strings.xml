@@ -9,10 +9,15 @@
     <string name="destination_search">Search</string>
 
     <string name="stream_detail_tab_about">About</string>
+    <string name="stream_detail_tab_series">Series</string>
     <string name="stream_detail_tab_recommended">Recommended</string>
     <string name="stream_detail_tab_review">Review</string>
     <string name="stream_detail_view_streaming_options">View Streaming Options</string>
     <string name="stream_detail_no_streaming_options">No streaming services available</string>
+
+    <string name="stream_detail_series_season_number">Season %1$d</string>
+    <string name="stream_detail_series_episode_count">%1$d episodes</string>
+    <string name="stream_detail_series_episode_badge">Ep.%1$d</string>
 
     <string name="movie_row_now_playing">Now Playing</string>
     <string name="movie_row_popular">Popular</string>

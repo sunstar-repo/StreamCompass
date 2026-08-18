@@ -3,6 +3,7 @@ package com.sunstar.streamcompass.data.datasource.tmdb
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMovieDetailDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMoviePageResponseDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbReviewPageResponseDto
+import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbSeasonDetailDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTrendingPageResponseDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTvDetailDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTvPageResponseDto
@@ -155,6 +156,18 @@ internal class TmdbDataSource(
             parameter(TmdbConstants.PARAM_API_KEY, apiKey)
             parameter(TmdbConstants.PARAM_LANGUAGE, language)
             parameter(TmdbConstants.PARAM_PAGE, page)
+        }.body()
+
+    suspend fun getSeasonDetail(
+        tmdbId: Int,
+        seasonNumber: Int,
+        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+    ): TmdbSeasonDetailDto =
+        httpClient.get(
+            "${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_TV}/$tmdbId/${TmdbConstants.SEGMENT_SEASON}/$seasonNumber"
+        ) {
+            parameter(TmdbConstants.PARAM_API_KEY, apiKey)
+            parameter(TmdbConstants.PARAM_LANGUAGE, language)
         }.body()
 
     suspend fun getTvRecommendations(

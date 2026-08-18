@@ -66,7 +66,14 @@ private fun SuggestionRow(
                 PosterCard(
                     imageUrl = stream.posterPath,
                     title = stream.name,
-                    onClick = { onStreamClick(stream.tmdbId, stream.posterPath, rowId, StreamType.Tv) },
+                    onClick = {
+                        onStreamClick(
+                            stream.tmdbId,
+                            stream.posterPath,
+                            rowId,
+                            StreamType.Tv
+                        )
+                    },
                 )
             }
         }

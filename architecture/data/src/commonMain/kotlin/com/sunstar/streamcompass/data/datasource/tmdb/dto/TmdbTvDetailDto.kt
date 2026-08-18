@@ -27,6 +27,7 @@ internal data class TmdbTvDetailDto(
     val tagline: String = Constants.EMPTY_STRING,
     val homepage: String = Constants.EMPTY_STRING,
     val inProduction: Boolean,
+    val seasons: List<TmdbSeasonSummaryDto> = emptyList(),
 ) {
     val posterPath: String
         get() = if (_posterPath.isEmpty()) {

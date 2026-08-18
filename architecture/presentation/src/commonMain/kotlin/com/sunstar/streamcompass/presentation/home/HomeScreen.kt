@@ -262,7 +262,12 @@ private fun CarouselItemScope.TrendingCarouselItem(
             .height(CAROUSEL_ITEM_HEIGHT)
             .maskClip(RoundedCornerShape(CAROUSEL_ITEM_CORNER_RADIUS))
             .clickable {
-                onClick(stream.tmdbId, stream.posterPath, HomeViewModel.RowType.Trending.id, stream.streamType)
+                onClick(
+                    stream.tmdbId,
+                    stream.posterPath,
+                    HomeViewModel.RowType.Trending.id,
+                    stream.streamType
+                )
             }
             .graphicsLayer {
                 alpha = lerp(start = DIM_ALPHA, stop = 1f, fraction = focusFraction)

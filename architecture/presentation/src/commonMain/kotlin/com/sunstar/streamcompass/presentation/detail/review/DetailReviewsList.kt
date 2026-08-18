@@ -34,16 +34,15 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.sunstar.streamcompass.domain.model.Review
 import com.sunstar.streamcompass.presentation.core.AVATAR_SIZE
 import com.sunstar.streamcompass.presentation.core.AvatarCard
-import kotlinx.coroutines.flow.Flow
+import com.sunstar.streamcompass.presentation.detail.DetailViewModel
 
 @Composable
-fun ReviewsList(reviewsFlow: Flow<PagingData<Review>>, modifier: Modifier = Modifier) {
-    val pagingItems = reviewsFlow.collectAsLazyPagingItems()
+fun DetailReviewsList(state: DetailViewModel.State.Succeed, modifier: Modifier = Modifier) {
+    val pagingItems = state.reviewsFlow.collectAsLazyPagingItems()
 
     LazyColumn(
         contentPadding = PaddingValues(vertical = 8.dp),

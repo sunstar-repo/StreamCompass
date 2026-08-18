@@ -1,79 +1,59 @@
 package com.sunstar.streamcompass.presentation.detail
 
 import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.foundation.clickable
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.unit.dp
-import androidx.paging.PagingData
-import coil3.ImageLoader
+import androidx.compose.ui.unit.Dp
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import coil3.svg.SvgDecoder
-import com.sunstar.streamcompass.domain.model.Deeplink
-import com.sunstar.streamcompass.domain.model.Review
-import com.sunstar.streamcompass.domain.model.Stream
 import com.sunstar.streamcompass.domain.model.StreamDetail
 import com.sunstar.streamcompass.domain.model.StreamType
+import com.sunstar.streamcompass.presentation.core.CollapsingHeaderState
 import com.sunstar.streamcompass.presentation.core.deeplinks
 import com.sunstar.streamcompass.presentation.core.displayTitle
 import com.sunstar.streamcompass.presentation.core.posterSharedElementKey
+import com.sunstar.streamcompass.presentation.core.rememberCollapsingHeaderState
 import com.sunstar.streamcompass.presentation.core.statusBarProtectionHeight
-import com.sunstar.streamcompass.presentation.detail.about.About
-import com.sunstar.streamcompass.presentation.detail.overview.Overview
-import com.sunstar.streamcompass.presentation.detail.recommended.RecommendationsGrid
-import com.sunstar.streamcompass.presentation.detail.review.ReviewsList
-import kotlinx.coroutines.flow.Flow
+import com.sunstar.streamcompass.presentation.detail.about.DetailAbout
+import com.sunstar.streamcompass.presentation.detail.overview.DetailOverview
+import com.sunstar.streamcompass.presentation.detail.recommended.DetailRecommendationsGrid
+import com.sunstar.streamcompass.presentation.detail.review.DetailReviewsList
+import com.sunstar.streamcompass.presentation.detail.series.DetailSeries
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import streamcompass.architecture.presentation.generated.resources.Res
-import streamcompass.architecture.presentation.generated.resources.stream_detail_no_streaming_options
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -95,7 +75,6 @@ fun DetailScreen(
     onStreamClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
 ) {
     val state by viewModel.stateFlow.collectAsState()
-    var isSheetShown by remember { mutableStateOf(false) }
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val density = LocalDensity.current
@@ -107,68 +86,22 @@ fun DetailScreen(
         val statusBarProtectionHeightPx = with(density) { statusBarProtectionHeight().toPx() }
         val maxCollapsePx = (posterHeightPx - statusBarProtectionHeightPx).coerceAtLeast(0f)
 
-        var posterOffsetPx by remember { mutableFloatStateOf(0f) }
-        val posterScrollableState = rememberScrollableState { delta ->
-            val newOffset = (posterOffsetPx + delta).coerceIn(-maxCollapsePx, 0f)
-            val consumed = newOffset - posterOffsetPx
-            posterOffsetPx = newOffset
-            consumed
-        }
-        val nestedScrollConnection = remember(maxCollapsePx) {
-            object : NestedScrollConnection {
-                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                    if (available.y >= 0f) return Offset.Zero
-                    val newOffset = (posterOffsetPx + available.y).coerceIn(-maxCollapsePx, 0f)
-                    val consumed = newOffset - posterOffsetPx
-                    posterOffsetPx = newOffset
-                    return Offset(0f, consumed)
-                }
-
-                override fun onPostScroll(
-                    consumed: Offset,
-                    available: Offset,
-                    source: NestedScrollSource,
-                ): Offset {
-                    if (available.y <= 0f) return Offset.Zero
-                    val newOffset = (posterOffsetPx + available.y).coerceIn(-maxCollapsePx, 0f)
-                    val consumedByPoster = newOffset - posterOffsetPx
-                    posterOffsetPx = newOffset
-                    return Offset(0f, consumedByPoster)
-                }
-            }
-        }
+        val headerState = rememberCollapsingHeaderState(maxCollapsePx = maxCollapsePx)
 
         Column(modifier = Modifier.fillMaxSize()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(with(density) { (posterHeightPx + posterOffsetPx).toDp() })
-                    .clipToBounds()
-                    .scrollable(state = posterScrollableState, orientation = Orientation.Vertical),
-                contentAlignment = Alignment.TopCenter,
-            ) {
-                Box(modifier = Modifier.width(posterWidth).height(posterHeight)) {
-                    DetailPoster(
-                        tmdbId = tmdbId,
-                        posterPath = posterPath,
-                        rowId = rowId,
-                        streamType = streamType,
-                        sharedTransitionScope = sharedTransitionScope,
-                        animatedContentScope = animatedContentScope,
-                    )
-
-                    val succeededDetail = (state as? DetailViewModel.State.Succeed)?.streamDetail
-                    Overview(
-                        title = succeededDetail?.displayTitle,
-                        deeplinks = succeededDetail?.deeplinks.orEmpty(),
-                        onViewStreamingOptionsClick = { isSheetShown = true },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight(POSTER_GRADIENT_HEIGHT_FRACTION)
-                            .align(Alignment.BottomCenter),
-                    )
-                }
-            }
+            DetailHeader(
+                tmdbId = tmdbId,
+                posterPath = posterPath,
+                rowId = rowId,
+                streamType = streamType,
+                streamDetail = (state as? DetailViewModel.State.Succeed)?.streamDetail,
+                posterWidth = posterWidth,
+                posterHeight = posterHeight,
+                posterHeightPx = posterHeightPx,
+                headerState = headerState,
+                sharedTransitionScope = sharedTransitionScope,
+                animatedContentScope = animatedContentScope,
+            )
 
             when (val current = state) {
                 DetailViewModel.State.Loading -> {
@@ -181,29 +114,77 @@ fun DetailScreen(
                 }
 
                 is DetailViewModel.State.Succeed -> {
-                    DetailBody(
-                        streamDetail = current.streamDetail,
-                        selectedTab = current.selectedTab,
+                    DetailContent(
+                        state = current,
+                        streamType = streamType,
                         onTabSelected = viewModel::onTabSelected,
-                        recommendationsFlow = viewModel.recommendationsFlow,
-                        reviewsFlow = viewModel.reviewsFlow,
+                        onSeasonSelected = viewModel::onSeasonSelected,
                         sharedTransitionScope = sharedTransitionScope,
                         animatedContentScope = animatedContentScope,
                         onStreamClick = onStreamClick,
-                        nestedScrollConnection = nestedScrollConnection,
+                        nestedScrollConnection = headerState.nestedScrollConnection,
                         modifier = Modifier.weight(1f),
                     )
                 }
             }
         }
     }
+}
 
-    val current = state
-    if (isSheetShown && current is DetailViewModel.State.Succeed) {
-        StreamingOptionBottomSheet(
-            deeplinks = current.streamDetail.deeplinks,
-            onDismissRequest = { isSheetShown = false },
-        )
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Composable
+private fun DetailHeader(
+    tmdbId: Int,
+    posterPath: String,
+    rowId: String,
+    streamType: StreamType,
+    streamDetail: StreamDetail?,
+    posterWidth: Dp,
+    posterHeight: Dp,
+    posterHeightPx: Float,
+    headerState: CollapsingHeaderState,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedContentScope: AnimatedContentScope,
+) {
+    val density = LocalDensity.current
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(with(density) { (posterHeightPx + headerState.offsetPx).toDp() })
+            .clipToBounds()
+            .scrollable(state = headerState.scrollableState, orientation = Orientation.Vertical),
+        contentAlignment = Alignment.TopCenter,
+    ) {
+        Box(modifier = Modifier.width(posterWidth).height(posterHeight)) {
+            DetailPoster(
+                tmdbId = tmdbId,
+                posterPath = posterPath,
+                rowId = rowId,
+                streamType = streamType,
+                sharedTransitionScope = sharedTransitionScope,
+                animatedContentScope = animatedContentScope,
+            )
+
+            AnimatedVisibility(
+                visible = null != streamDetail,
+                enter = fadeIn(),
+                exit = fadeOut(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(POSTER_GRADIENT_HEIGHT_FRACTION)
+                    .align(Alignment.BottomCenter),
+            ) {
+                val detail = streamDetail
+                if (null != detail) {
+                    DetailOverview(
+                        title = detail.displayTitle,
+                        deeplinks = detail.deeplinks,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -245,19 +226,19 @@ private fun DetailPoster(
 }
 
 @Composable
-private fun DetailBody(
-    streamDetail: StreamDetail,
-    selectedTab: DetailViewModel.Tab,
+private fun DetailContent(
+    state: DetailViewModel.State.Succeed,
+    streamType: StreamType,
     onTabSelected: (DetailViewModel.Tab) -> Unit,
-    recommendationsFlow: Flow<PagingData<Stream>>,
-    reviewsFlow: Flow<PagingData<Review>>,
+    onSeasonSelected: (seasonNumber: Int) -> Unit,
     sharedTransitionScope: SharedTransitionScope,
     animatedContentScope: AnimatedContentScope,
     onStreamClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
     nestedScrollConnection: NestedScrollConnection,
     modifier: Modifier = Modifier,
 ) {
-    val tabs = DetailViewModel.Tab.values()
+    val tabs = DetailViewModel.Tab.values(streamType = streamType)
+    val selectedTab = state.selectedTab
 
     Column(modifier = modifier.fillMaxSize().nestedScroll(nestedScrollConnection)) {
         val selectedTabIndex = tabs.indexOf(selectedTab)
@@ -285,81 +266,29 @@ private fun DetailBody(
         }
 
         when (selectedTab) {
-            DetailViewModel.Tab.About -> About(
-                streamDetail = streamDetail,
+            DetailViewModel.Tab.About -> DetailAbout(
+                state = state,
                 modifier = Modifier.weight(1f),
             )
 
-            DetailViewModel.Tab.Recommended -> RecommendationsGrid(
-                recommendationsFlow = recommendationsFlow,
+            DetailViewModel.Tab.Series -> DetailSeries(
+                state = state,
+                onSeasonSelected = onSeasonSelected,
+                modifier = Modifier.weight(1f),
+            )
+
+            DetailViewModel.Tab.Recommended -> DetailRecommendationsGrid(
+                state = state,
                 sharedTransitionScope = sharedTransitionScope,
                 animatedContentScope = animatedContentScope,
                 onStreamClick = onStreamClick,
                 modifier = Modifier.weight(1f),
             )
 
-            DetailViewModel.Tab.Review -> ReviewsList(
-                reviewsFlow = reviewsFlow,
+            DetailViewModel.Tab.Review -> DetailReviewsList(
+                state = state,
                 modifier = Modifier.weight(1f),
             )
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun StreamingOptionBottomSheet(deeplinks: List<Deeplink>, onDismissRequest: () -> Unit) {
-    val sheetState = rememberModalBottomSheetState()
-
-    val uriHandler = LocalUriHandler.current
-    val isDarkTheme = isSystemInDarkTheme()
-
-    ModalBottomSheet(onDismissRequest = onDismissRequest, sheetState = sheetState) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            if (deeplinks.isEmpty()) {
-                Text(text = stringResource(Res.string.stream_detail_no_streaming_options))
-            } else {
-                deeplinks.forEach { deeplink ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                uriHandler.openUri(uri = deeplink.link)
-                                onDismissRequest()
-                            }
-                            .padding(vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        val context = LocalPlatformContext.current
-                        val svgImageLoader = remember(context) {
-                            ImageLoader.Builder(context)
-                                .components { add(SvgDecoder.Factory()) }
-                                .build()
-                        }
-                        val logoImage = if (isDarkTheme) {
-                            deeplink.logo.darkThemeImage
-                        } else {
-                            deeplink.logo.lightThemeImage
-                        }
-                        AsyncImage(
-                            model = remember(logoImage) {
-                                ImageRequest.Builder(context)
-                                    .data(logoImage)
-                                    .crossfade(true)
-                                    .build()
-                            },
-                            imageLoader = svgImageLoader,
-                            contentDescription = deeplink.service,
-                            contentScale = ContentScale.Fit,
-                            modifier = Modifier.size(32.dp),
-                        )
-
-                        Spacer(modifier = Modifier.width(12.dp))
-
-                        Text(text = deeplink.service, style = MaterialTheme.typography.bodyLarge)
-                    }
-                }
-            }
         }
     }
 }

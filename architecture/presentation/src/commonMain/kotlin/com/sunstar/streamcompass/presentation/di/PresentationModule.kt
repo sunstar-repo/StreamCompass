@@ -37,6 +37,8 @@ val presentationModule =
                 recordHistoryUseCase = get(),
                 getRecommendationsUseCase = get(),
                 getReviewsUseCase = get(),
+                getSeasonsUseCase = get(),
+                getEpisodesUseCase = get(),
             )
         }
     }

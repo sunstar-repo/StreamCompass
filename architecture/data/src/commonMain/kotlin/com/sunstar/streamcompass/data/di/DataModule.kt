@@ -16,28 +16,36 @@ import com.sunstar.streamcompass.data.datasource.local.mapper.LocalTvDetailEntit
 import com.sunstar.streamcompass.data.datasource.local.mapper.LocalTvHistoryEntityMapper
 import com.sunstar.streamcompass.data.datasource.streamingavailability.SaDataSource
 import com.sunstar.streamcompass.data.datasource.tmdb.TmdbDataSource
+import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbEpisodeDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMovieSummaryDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbReviewDto
+import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbSeasonSummaryDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTrendingItemDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTvSummaryDto
+import com.sunstar.streamcompass.data.datasource.tmdb.mapper.TmdbEpisodeMapper
 import com.sunstar.streamcompass.data.datasource.tmdb.mapper.TmdbMovieSummaryMapper
 import com.sunstar.streamcompass.data.datasource.tmdb.mapper.TmdbReviewMapper
+import com.sunstar.streamcompass.data.datasource.tmdb.mapper.TmdbSeasonSummaryMapper
 import com.sunstar.streamcompass.data.datasource.tmdb.mapper.TmdbTrendingItemMapper
 import com.sunstar.streamcompass.data.datasource.tmdb.mapper.TmdbTvSummaryMapper
 import com.sunstar.streamcompass.data.repository.StreamRepositoryImpl
 import com.sunstar.streamcompass.domain.mapper.Mapper
 import com.sunstar.streamcompass.domain.model.ApiKey
 import com.sunstar.streamcompass.domain.model.Deeplink
+import com.sunstar.streamcompass.domain.model.Episode
 import com.sunstar.streamcompass.domain.model.Review
+import com.sunstar.streamcompass.domain.model.Season
 import com.sunstar.streamcompass.domain.model.Stream
 import com.sunstar.streamcompass.domain.model.Stream.MovieStream
 import com.sunstar.streamcompass.domain.model.Stream.TvStream
 import com.sunstar.streamcompass.domain.model.StreamDetail.MovieStreamDetail
 import com.sunstar.streamcompass.domain.model.StreamDetail.TvStreamDetail
 import com.sunstar.streamcompass.domain.repository.StreamRepository
+import com.sunstar.streamcompass.domain.usecase.GetEpisodesUseCase
 import com.sunstar.streamcompass.domain.usecase.GetHistoryStreamUseCase
 import com.sunstar.streamcompass.domain.usecase.GetRecommendationsUseCase
 import com.sunstar.streamcompass.domain.usecase.GetReviewsUseCase
+import com.sunstar.streamcompass.domain.usecase.GetSeasonsUseCase
 import com.sunstar.streamcompass.domain.usecase.GetStreamDetailUseCase
 import com.sunstar.streamcompass.domain.usecase.GetSuggestionStreamUseCase
 import com.sunstar.streamcompass.domain.usecase.GetTrendingStreamUseCase
@@ -56,6 +64,8 @@ private val TMDB_MOVIE_SUMMARY_MAPPER = named("tmdbMovieSummaryMapper")
 private val TMDB_TV_SUMMARY_MAPPER = named("tmdbTvSummaryMapper")
 private val TMDB_TRENDING_MAPPER = named("tmdbTrendingMapper")
 private val TMDB_REVIEW_MAPPER = named("tmdbReviewMapper")
+private val TMDB_SEASON_SUMMARY_MAPPER = named("tmdbSeasonSummaryMapper")
+private val TMDB_EPISODE_MAPPER = named("tmdbEpisodeMapper")
 private val STREAM_REPOSITORY = named("streamRepository")
 private val APP_DATABASE = named("appDatabase")
 private val MOVIE_DETAIL_DAO = named("movieDetailDao")
@@ -81,6 +91,8 @@ fun dataModule(apiKey: ApiKey): Module =
         single<Mapper<TmdbTvSummaryDto, TvStream>>(TMDB_TV_SUMMARY_MAPPER) { TmdbTvSummaryMapper() }
         single<Mapper<TmdbTrendingItemDto, Stream>>(TMDB_TRENDING_MAPPER) { TmdbTrendingItemMapper() }
         single<Mapper<TmdbReviewDto, Review>>(TMDB_REVIEW_MAPPER) { TmdbReviewMapper() }
+        single<Mapper<TmdbSeasonSummaryDto, Season>>(TMDB_SEASON_SUMMARY_MAPPER) { TmdbSeasonSummaryMapper() }
+        single<Mapper<TmdbEpisodeDto, Episode>>(TMDB_EPISODE_MAPPER) { TmdbEpisodeMapper() }
         single<Mapper<LocalMovieDetailEntity, MovieStreamDetail>>(MOVIE_DETAIL_ENTITY_MAPPER) {
             LocalMovieDetailEntityMapper()
         }
@@ -129,6 +141,8 @@ fun dataModule(apiKey: ApiKey): Module =
                 movieHistoryEntityMapper = get(qualifier = MOVIE_HISTORY_ENTITY_MAPPER),
                 tvHistoryEntityMapper = get(qualifier = TV_HISTORY_ENTITY_MAPPER),
                 reviewMapper = get(qualifier = TMDB_REVIEW_MAPPER),
+                seasonSummaryMapper = get(qualifier = TMDB_SEASON_SUMMARY_MAPPER),
+                episodeMapper = get(qualifier = TMDB_EPISODE_MAPPER),
             )
         }
 
@@ -140,4 +154,6 @@ fun dataModule(apiKey: ApiKey): Module =
         single { RecordHistoryUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
         single { GetHistoryStreamUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
         single { RemoveHistoryUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
+        single { GetSeasonsUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
+        single { GetEpisodesUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
     }

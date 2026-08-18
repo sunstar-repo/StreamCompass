@@ -22,15 +22,21 @@ import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbMovieSummaryDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbReviewDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTrendingItemDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTvSummaryDto
+import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbEpisodeDto
+import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbSeasonSummaryDto
+import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbEpisodesPagingSource
 import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbMovieRecommendationsPagingSource
 import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbMovieReviewsPagingSource
+import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbSeasonsPagingSource
 import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbSuggestionPagingSource
 import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbTvRecommendationsPagingSource
 import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbTvReviewsPagingSource
 import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbTvSuggestionPagingSource
 import com.sunstar.streamcompass.domain.mapper.Mapper
 import com.sunstar.streamcompass.domain.model.Deeplink
+import com.sunstar.streamcompass.domain.model.Episode
 import com.sunstar.streamcompass.domain.model.Review
+import com.sunstar.streamcompass.domain.model.Season
 import com.sunstar.streamcompass.domain.model.Stream
 import com.sunstar.streamcompass.domain.model.Stream.MovieStream
 import com.sunstar.streamcompass.domain.model.Stream.TvStream
@@ -59,6 +65,8 @@ internal class StreamRepositoryImpl(
     private val movieHistoryEntityMapper: Mapper<LocalMovieHistoryEntity, MovieStream>,
     private val tvHistoryEntityMapper: Mapper<LocalTvHistoryEntity, TvStream>,
     private val reviewMapper: Mapper<TmdbReviewDto, Review>,
+    private val seasonSummaryMapper: Mapper<TmdbSeasonSummaryDto, Season>,
+    private val episodeMapper: Mapper<TmdbEpisodeDto, Episode>,
 ) : StreamRepository {
 
     override fun getSuggestionStreamFlow(type: SuggestionType): Flow<PagingData<Stream>> =
@@ -171,6 +179,34 @@ internal class StreamRepositoryImpl(
                 },
             ).flow
         }
+
+    // 항상 최신 정보를 불러온다 — Room/Firestore 어디에도 캐싱하지 않고 tmdbDataSource를 직접 호출한다.
+    override fun getSeasonsStreamFlow(tmdbId: Int, locale: String): Flow<PagingData<Season>> =
+        Pager(
+            config = PagingConfig(pageSize = TmdbConstants.PAGE_SIZE),
+            pagingSourceFactory = {
+                TmdbSeasonsPagingSource(
+                    tmdbDataSource = tmdbDataSource,
+                    seasonSummaryMapper = seasonSummaryMapper,
+                    tmdbId = tmdbId,
+                    locale = locale,
+                )
+            },
+        ).flow
+
+    override fun getEpisodesStreamFlow(tmdbId: Int, seasonNumber: Int, locale: String): Flow<PagingData<Episode>> =
+        Pager(
+            config = PagingConfig(pageSize = TmdbConstants.PAGE_SIZE),
+            pagingSourceFactory = {
+                TmdbEpisodesPagingSource(
+                    tmdbDataSource = tmdbDataSource,
+                    episodeMapper = episodeMapper,
+                    tmdbId = tmdbId,
+                    seasonNumber = seasonNumber,
+                    locale = locale,
+                )
+            },
+        ).flow
 
     override suspend fun getStreamDetail(
         tmdbId: Int,

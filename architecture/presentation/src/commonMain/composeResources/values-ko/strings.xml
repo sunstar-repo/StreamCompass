@@ -9,10 +9,15 @@
     <string name="destination_search">검색</string>
 
     <string name="stream_detail_tab_about">정보</string>
+    <string name="stream_detail_tab_series">시리즈</string>
     <string name="stream_detail_tab_recommended">추천</string>
     <string name="stream_detail_tab_review">리뷰</string>
     <string name="stream_detail_view_streaming_options">시청 옵션 보기</string>
     <string name="stream_detail_no_streaming_options">이용 가능한 스트리밍 서비스가 없습니다</string>
+
+    <string name="stream_detail_series_season_number">시즌 %1$d</string>
+    <string name="stream_detail_series_episode_count">에피소드 %1$d개</string>
+    <string name="stream_detail_series_episode_badge">Ep.%1$d</string>
 
     <string name="movie_row_now_playing">현재 상영작</string>
     <string name="movie_row_popular">인기작</string>

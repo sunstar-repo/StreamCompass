@@ -14,6 +14,7 @@ internal object TmdbConstants {
     const val PATH_TV = "tv"
     const val SEGMENT_AIRING_TODAY = "airing_today"
     const val SEGMENT_ON_THE_AIR = "on_the_air"
+    const val SEGMENT_SEASON = "season"
 
     const val PATH_TRENDING = "trending"
     const val MEDIA_TYPE_ALL = "all"
