@@ -31,6 +31,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.sunstar.streamcompass.domain.model.StreamType
 import com.sunstar.streamcompass.presentation.detail.DetailScreen
 import com.sunstar.streamcompass.presentation.home.HomeScreen
 import com.sunstar.streamcompass.presentation.home.HomeViewModel
@@ -115,13 +116,14 @@ fun MainScreen() {
                         scrollState = homeScrollState,
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedContentScope = this,
-                        onStreamClick = { tmdbId, posterPath, rowId ->
+                        onStreamClick = { tmdbId, posterPath, rowId, streamType ->
                             navController.navigate(
                                 route = MainDestination.DetailDestination(
                                     tmdbId = tmdbId,
                                     posterPath = posterPath,
                                     rowId = rowId,
                                     recordHistory = rowId != HomeViewModel.RowType.MovieHistory.id,
+                                    streamType = streamType.rawValue,
                                 )
                             )
                         },
@@ -132,19 +134,35 @@ fun MainScreen() {
                         scrollState = movieScrollState,
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedContentScope = this,
-                        onStreamClick = { tmdbId, posterPath, rowId ->
+                        onStreamClick = { tmdbId, posterPath, rowId, streamType ->
                             navController.navigate(
                                 route = MainDestination.DetailDestination(
                                     tmdbId = tmdbId,
                                     posterPath = posterPath,
                                     rowId = rowId,
                                     recordHistory = rowId != HomeViewModel.RowType.MovieHistory.id,
+                                    streamType = streamType.rawValue,
                                 )
                             )
                         },
                     )
                 }
-                composable<MainDestination.TvDestination> { TvScreen(scrollState = tvScrollState) }
+                composable<MainDestination.TvDestination> {
+                    TvScreen(
+                        scrollState = tvScrollState,
+                        onStreamClick = { tmdbId, posterPath, rowId, streamType ->
+                            navController.navigate(
+                                route = MainDestination.DetailDestination(
+                                    tmdbId = tmdbId,
+                                    posterPath = posterPath,
+                                    rowId = rowId,
+                                    recordHistory = rowId != HomeViewModel.RowType.MovieHistory.id,
+                                    streamType = streamType.rawValue,
+                                )
+                            )
+                        },
+                    )
+                }
                 composable<MainDestination.SettingDestination> { SettingScreen() }
                 composable<MainDestination.DetailDestination> { backStackEntry ->
                     val destination: MainDestination.DetailDestination =
@@ -154,15 +172,17 @@ fun MainScreen() {
                         posterPath = destination.posterPath,
                         rowId = destination.rowId,
                         recordHistory = destination.recordHistory,
+                        streamType = StreamType.from(rawValue = destination.streamType),
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedContentScope = this,
-                        onStreamClick = { tmdbId, posterPath, rowId ->
+                        onStreamClick = { tmdbId, posterPath, rowId, streamType ->
                             navController.navigate(
                                 route = MainDestination.DetailDestination(
                                     tmdbId = tmdbId,
                                     posterPath = posterPath,
                                     rowId = rowId,
                                     recordHistory = rowId != HomeViewModel.RowType.MovieHistory.id,
+                                    streamType = streamType.rawValue,
                                 )
                             )
                         },

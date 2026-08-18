@@ -24,6 +24,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun TvScreen(
     viewModel: TvViewModel = koinViewModel(),
     scrollState: ScrollState = rememberScrollState(),
+    onStreamClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
 ) {
     val state by viewModel.stateFlow.collectAsState()
 
@@ -32,7 +33,8 @@ fun TvScreen(
             SuggestionRow(
                 titleRes = rowType.titleRes,
                 rowId = rowType.id,
-                contentsFlow = contentsFlow
+                contentsFlow = contentsFlow,
+                onStreamClick = onStreamClick,
             )
         }
     }
@@ -42,7 +44,8 @@ fun TvScreen(
 private fun SuggestionRow(
     titleRes: StringResource,
     rowId: String,
-    contentsFlow: Flow<PagingData<TvStream>>
+    contentsFlow: Flow<PagingData<TvStream>>,
+    onStreamClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
 ) {
     val pagingItems = contentsFlow.collectAsLazyPagingItems()
 
@@ -60,7 +63,11 @@ private fun SuggestionRow(
         ) { index ->
             val stream = pagingItems[index]
             if (null != stream) {
-                PosterCard(imageUrl = stream.posterPath, title = stream.name)
+                PosterCard(
+                    imageUrl = stream.posterPath,
+                    title = stream.name,
+                    onClick = { onStreamClick(stream.tmdbId, stream.posterPath, rowId, StreamType.Tv) },
+                )
             }
         }
     }

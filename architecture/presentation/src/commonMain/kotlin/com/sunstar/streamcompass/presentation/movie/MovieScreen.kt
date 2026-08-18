@@ -31,7 +31,7 @@ fun MovieScreen(
     scrollState: ScrollState = rememberScrollState(),
     sharedTransitionScope: SharedTransitionScope,
     animatedContentScope: AnimatedContentScope,
-    onStreamClick: (tmdbId: Int, posterPath: String, rowId: String) -> Unit,
+    onStreamClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
 ) {
     val state by viewModel.stateFlow.collectAsState()
 
@@ -57,7 +57,7 @@ private fun SuggestionRow(
     contentsFlow: Flow<PagingData<MovieStream>>,
     sharedTransitionScope: SharedTransitionScope,
     animatedContentScope: AnimatedContentScope,
-    onStreamClick: (tmdbId: Int, posterPath: String, rowId: String) -> Unit,
+    onStreamClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
 ) {
     val pagingItems = contentsFlow.collectAsLazyPagingItems()
 
@@ -90,7 +90,7 @@ private fun SuggestionRow(
                             animatedVisibilityScope = animatedContentScope,
                         )
                     },
-                    onClick = { onStreamClick(stream.tmdbId, stream.posterPath, rowId) },
+                    onClick = { onStreamClick(stream.tmdbId, stream.posterPath, rowId, StreamType.Movie) },
                 )
             }
         }

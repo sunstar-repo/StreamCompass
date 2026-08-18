@@ -36,8 +36,8 @@ import com.sunstar.streamcompass.domain.model.StreamDetail.MovieStreamDetail
 import com.sunstar.streamcompass.domain.model.StreamDetail.TvStreamDetail
 import com.sunstar.streamcompass.domain.repository.StreamRepository
 import com.sunstar.streamcompass.domain.usecase.GetHistoryStreamUseCase
-import com.sunstar.streamcompass.domain.usecase.GetMovieRecommendationsUseCase
-import com.sunstar.streamcompass.domain.usecase.GetMovieReviewsUseCase
+import com.sunstar.streamcompass.domain.usecase.GetRecommendationsUseCase
+import com.sunstar.streamcompass.domain.usecase.GetReviewsUseCase
 import com.sunstar.streamcompass.domain.usecase.GetStreamDetailUseCase
 import com.sunstar.streamcompass.domain.usecase.GetSuggestionStreamUseCase
 import com.sunstar.streamcompass.domain.usecase.GetTrendingStreamUseCase
@@ -135,8 +135,8 @@ fun dataModule(apiKey: ApiKey): Module =
         single { GetSuggestionStreamUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
         single { GetTrendingStreamUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
         single { GetStreamDetailUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
-        single { GetMovieRecommendationsUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
-        single { GetMovieReviewsUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
+        single { GetRecommendationsUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
+        single { GetReviewsUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
         single { RecordHistoryUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
         single { GetHistoryStreamUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
         single { RemoveHistoryUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }

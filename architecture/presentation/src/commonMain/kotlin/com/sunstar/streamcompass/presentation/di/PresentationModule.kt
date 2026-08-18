@@ -1,5 +1,6 @@
 package com.sunstar.streamcompass.presentation.di
 
+import com.sunstar.streamcompass.domain.model.StreamType
 import com.sunstar.streamcompass.presentation.StreamCompassAppViewModel
 import com.sunstar.streamcompass.presentation.detail.DetailViewModel
 import com.sunstar.streamcompass.presentation.home.HomeViewModel
@@ -27,14 +28,15 @@ val presentationModule =
                 getThemeModeUseCase = get(),
             )
         }
-        viewModel { (tmdbId: Int, recordHistory: Boolean) ->
+        viewModel { (tmdbId: Int, streamType: StreamType, recordHistory: Boolean) ->
             DetailViewModel(
                 tmdbId = tmdbId,
+                streamType = streamType,
                 recordHistory = recordHistory,
                 getStreamDetailUseCase = get(),
                 recordHistoryUseCase = get(),
-                getMovieRecommendationsUseCase = get(),
-                getMovieReviewsUseCase = get(),
+                getRecommendationsUseCase = get(),
+                getReviewsUseCase = get(),
             )
         }
     }

@@ -5,12 +5,15 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.sunstar.streamcompass.domain.model.Review
+import com.sunstar.streamcompass.domain.model.Stream
 import com.sunstar.streamcompass.domain.model.Stream.MovieStream
+import com.sunstar.streamcompass.domain.model.Stream.TvStream
+import com.sunstar.streamcompass.domain.model.StreamDetail
 import com.sunstar.streamcompass.domain.model.StreamDetail.MovieStreamDetail
 import com.sunstar.streamcompass.domain.model.StreamDetail.TvStreamDetail
 import com.sunstar.streamcompass.domain.model.StreamType
-import com.sunstar.streamcompass.domain.usecase.GetMovieRecommendationsUseCase
-import com.sunstar.streamcompass.domain.usecase.GetMovieReviewsUseCase
+import com.sunstar.streamcompass.domain.usecase.GetRecommendationsUseCase
+import com.sunstar.streamcompass.domain.usecase.GetReviewsUseCase
 import com.sunstar.streamcompass.domain.usecase.GetStreamDetailUseCase
 import com.sunstar.streamcompass.domain.usecase.RecordHistoryUseCase
 import kotlinx.coroutines.channels.Channel
@@ -30,20 +33,21 @@ import streamcompass.architecture.presentation.generated.resources.stream_detail
 
 class DetailViewModel(
     private val tmdbId: Int,
+    private val streamType: StreamType,
     private val recordHistory: Boolean,
     private val getStreamDetailUseCase: GetStreamDetailUseCase,
     private val recordHistoryUseCase: RecordHistoryUseCase,
-    getMovieRecommendationsUseCase: GetMovieRecommendationsUseCase,
-    getMovieReviewsUseCase: GetMovieReviewsUseCase,
+    getRecommendationsUseCase: GetRecommendationsUseCase,
+    getReviewsUseCase: GetReviewsUseCase,
 ) : ViewModel() {
 
     val stateFlow: StateFlow<State>
 
-    val recommendationsFlow: Flow<PagingData<MovieStream>> =
-        getMovieRecommendationsUseCase(tmdbId = tmdbId).cachedIn(viewModelScope)
+    val recommendationsFlow: Flow<PagingData<Stream>> =
+        getRecommendationsUseCase(tmdbId = tmdbId, streamType = streamType).cachedIn(viewModelScope)
 
     val reviewsFlow: Flow<PagingData<Review>> =
-        getMovieReviewsUseCase(tmdbId = tmdbId).cachedIn(viewModelScope)
+        getReviewsUseCase(tmdbId = tmdbId, streamType = streamType).cachedIn(viewModelScope)
 
     private val eventChannel: Channel<Event>
 
@@ -72,18 +76,13 @@ class DetailViewModel(
 
     private suspend fun handleEvent(current: State, event: Event): State = when (event) {
         is Event.Initialize -> {
-            val streamDetail = when (
-                val detail = getStreamDetailUseCase(
-                    tmdbId = tmdbId,
-                    locale = DEFAULT_LOCALE,
-                    streamType = StreamType.Movie,
-                )
-            ) {
-                is MovieStreamDetail -> detail
-                is TvStreamDetail -> error("Expected MovieStreamDetail but got TvStreamDetail")
-            }
+            val streamDetail = getStreamDetailUseCase(
+                tmdbId = tmdbId,
+                locale = DEFAULT_LOCALE,
+                streamType = streamType,
+            )
             if (recordHistory) {
-                recordHistoryUseCase(stream = streamDetail.toMovieStream())
+                recordHistoryUseCase(stream = streamDetail.toStream())
             }
             State.Succeed(streamDetail = streamDetail)
         }
@@ -94,8 +93,8 @@ class DetailViewModel(
         }
     }
 
-    private fun MovieStreamDetail.toMovieStream(): MovieStream =
-        MovieStream(
+    private fun StreamDetail.toStream(): Stream = when (this) {
+        is MovieStreamDetail -> MovieStream(
             tmdbId = tmdbId,
             title = title,
             overview = overview,
@@ -108,6 +107,21 @@ class DetailViewModel(
             originalLanguage = originalLanguage,
             originalTitle = originalTitle,
         )
+
+        is TvStreamDetail -> TvStream(
+            tmdbId = tmdbId,
+            name = name,
+            overview = overview,
+            posterPath = posterPath,
+            backdropPath = backdropPath,
+            firstAirDate = firstAirDate,
+            voteAverage = voteAverage,
+            voteCount = voteCount,
+            popularity = popularity,
+            originalLanguage = originalLanguage,
+            originalName = originalName,
+        )
+    }
 
     sealed class Tab {
         abstract val label: StringResource
@@ -137,7 +151,7 @@ class DetailViewModel(
     sealed interface State {
         data object Loading : State
         data class Succeed(
-            val streamDetail: MovieStreamDetail,
+            val streamDetail: StreamDetail,
             val selectedTab: Tab = Tab.About,
         ) : State
     }

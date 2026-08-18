@@ -58,14 +58,18 @@ import com.sunstar.streamcompass.presentation.core.BackdropCard
 import com.sunstar.streamcompass.presentation.core.MediaRow
 import com.sunstar.streamcompass.presentation.core.POSTER_ROW_MIN_HEIGHT
 import com.sunstar.streamcompass.presentation.core.PosterCard
+import com.sunstar.streamcompass.presentation.core.backdropPath
+import com.sunstar.streamcompass.presentation.core.displayTitle
 import com.sunstar.streamcompass.presentation.core.mediaRowItemKey
+import com.sunstar.streamcompass.presentation.core.posterPath
 import com.sunstar.streamcompass.presentation.core.posterSharedElementKey
+import com.sunstar.streamcompass.presentation.core.streamType
+import com.sunstar.streamcompass.presentation.core.tmdbId
+import com.sunstar.streamcompass.presentation.core.typeLabelRes
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import streamcompass.architecture.presentation.generated.resources.Res
-import streamcompass.architecture.presentation.generated.resources.destination_movie
-import streamcompass.architecture.presentation.generated.resources.destination_tv
 import streamcompass.architecture.presentation.generated.resources.home_history_remove
 import streamcompass.architecture.presentation.generated.resources.home_row_movie_history
 import streamcompass.architecture.presentation.generated.resources.home_row_movie_history_empty
@@ -79,7 +83,7 @@ fun HomeScreen(
     scrollState: ScrollState = rememberScrollState(),
     sharedTransitionScope: SharedTransitionScope,
     animatedContentScope: AnimatedContentScope,
-    onStreamClick: (tmdbId: Int, posterPath: String, rowId: String) -> Unit,
+    onStreamClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
 ) {
     val state by viewModel.stateFlow.collectAsState()
     var selectedHistoryItem by remember { mutableStateOf<HistoryItem?>(null) }
@@ -119,8 +123,9 @@ fun HomeScreen(
         } else {
             TvHistoryRow(
                 items = state.tvHistoryStreams,
-                onLongClick = { stream -> selectedHistoryItem = HistoryItem.Tv(stream = stream) },
                 rowId = HomeViewModel.RowType.TvHistory.id,
+                onClick = onStreamClick,
+                onLongClick = { stream -> selectedHistoryItem = HistoryItem.Tv(stream = stream) },
             )
         }
     }
@@ -139,13 +144,6 @@ fun HomeScreen(
         )
     }
 }
-
-private data class TrendingItem(
-    val tmdbId: Int,
-    val backdropPath: String,
-    val posterPath: String,
-    val title: String,
-)
 
 private sealed interface HistoryItem {
     data class Movie(val stream: MovieStream) : HistoryItem
@@ -210,7 +208,7 @@ private fun HistoryEmptyRow(titleRes: StringResource, minHeight: Dp, messageRes:
 @Composable
 private fun TrendingCarousel(
     items: List<Stream>,
-    onClick: (tmdbId: Int, posterPath: String, rowId: String) -> Unit,
+    onClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
 ) {
     // for modulo indexing
     val virtualItemCount = items.size * VIRTUAL_LOOP_COUNT
@@ -233,12 +231,8 @@ private fun TrendingCarousel(
 
         // carousel row 하단: 현재 selected(focused) item의 title (item 자체가 아닌 row 공용 영역)
         val currentStream = items[carouselState.currentItem % items.size]
-        val currentTitle = when (currentStream) {
-            is Stream.MovieStream -> currentStream.title
-            is Stream.TvStream -> currentStream.name
-        }
         Text(
-            text = currentTitle,
+            text = currentStream.displayTitle,
             style = MaterialTheme.typography.titleMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -250,7 +244,7 @@ private fun TrendingCarousel(
 @Composable
 private fun CarouselItemScope.TrendingCarouselItem(
     stream: Stream,
-    onClick: (tmdbId: Int, posterPath: String, rowId: String) -> Unit,
+    onClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
 ) {
     val drawInfo = carouselItemDrawInfo
     val focusFraction = if (drawInfo.maxSize > drawInfo.minSize) {
@@ -262,33 +256,13 @@ private fun CarouselItemScope.TrendingCarouselItem(
         1f
     }
 
-    val (tmdbId, backdropPath, posterPath, title) = when (stream) {
-        is Stream.MovieStream -> TrendingItem(
-            stream.tmdbId,
-            stream.backdropPath,
-            stream.posterPath,
-            stream.title
-        )
-
-        is Stream.TvStream -> TrendingItem(
-            stream.tmdbId,
-            stream.backdropPath,
-            stream.posterPath,
-            stream.name
-        )
-    }
-    val typeLabelRes = when (stream) {
-        is Stream.MovieStream -> Res.string.destination_movie
-        is Stream.TvStream -> Res.string.destination_tv
-    }
-
     ElevatedCard(
         shape = RoundedCornerShape(CAROUSEL_ITEM_CORNER_RADIUS),
         modifier = Modifier
             .height(CAROUSEL_ITEM_HEIGHT)
             .maskClip(RoundedCornerShape(CAROUSEL_ITEM_CORNER_RADIUS))
-            .clickable(enabled = stream is Stream.MovieStream) {
-                onClick(tmdbId, posterPath, HomeViewModel.RowType.Trending.id)
+            .clickable {
+                onClick(stream.tmdbId, stream.posterPath, HomeViewModel.RowType.Trending.id, stream.streamType)
             }
             .graphicsLayer {
                 alpha = lerp(start = DIM_ALPHA, stop = 1f, fraction = focusFraction)
@@ -297,19 +271,19 @@ private fun CarouselItemScope.TrendingCarouselItem(
         Box {
             val context = LocalPlatformContext.current
             AsyncImage(
-                model = remember(backdropPath) {
+                model = remember(stream.backdropPath) {
                     ImageRequest.Builder(context)
-                        .data(backdropPath)
+                        .data(stream.backdropPath)
                         .crossfade(true)
                         .build()
                 },
-                contentDescription = title,
+                contentDescription = stream.displayTitle,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize(),
             )
 
             Text(
-                text = stringResource(typeLabelRes),
+                text = stringResource(stream.typeLabelRes),
                 style = MaterialTheme.typography.labelSmall,
                 color = Color.White,
                 modifier = Modifier
@@ -330,7 +304,7 @@ private fun MovieHistoryRow(
     rowId: String,
     sharedTransitionScope: SharedTransitionScope,
     animatedContentScope: AnimatedContentScope,
-    onClick: (tmdbId: Int, posterPath: String, rowId: String) -> Unit,
+    onClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
     onLongClick: (MovieStream) -> Unit,
 ) {
     MediaRow(titleRes = Res.string.home_row_movie_history, minHeight = POSTER_ROW_MIN_HEIGHT) {
@@ -360,7 +334,7 @@ private fun MovieHistoryRow(
                         animatedVisibilityScope = animatedContentScope,
                     )
                 },
-                onClick = { onClick(stream.tmdbId, stream.posterPath, rowId) },
+                onClick = { onClick(stream.tmdbId, stream.posterPath, rowId, StreamType.Movie) },
                 onLongClick = { onLongClick(stream) },
             )
         }
@@ -368,7 +342,12 @@ private fun MovieHistoryRow(
 }
 
 @Composable
-private fun TvHistoryRow(items: List<TvStream>, rowId: String, onLongClick: (TvStream) -> Unit) {
+private fun TvHistoryRow(
+    items: List<TvStream>,
+    rowId: String,
+    onClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
+    onLongClick: (TvStream) -> Unit,
+) {
     MediaRow(titleRes = Res.string.home_row_tv_history, minHeight = BACKDROP_ROW_MIN_HEIGHT) {
         itemsIndexed(
             items = items,
@@ -384,6 +363,7 @@ private fun TvHistoryRow(items: List<TvStream>, rowId: String, onLongClick: (TvS
             BackdropCard(
                 imageUrl = stream.backdropPath,
                 title = stream.name,
+                onClick = { onClick(stream.tmdbId, stream.posterPath, rowId, StreamType.Tv) },
                 onLongClick = { onLongClick(stream) },
             )
         }

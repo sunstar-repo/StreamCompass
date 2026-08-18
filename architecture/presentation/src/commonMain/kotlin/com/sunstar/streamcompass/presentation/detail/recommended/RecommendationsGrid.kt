@@ -13,19 +13,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.sunstar.streamcompass.domain.model.Stream.MovieStream
+import com.sunstar.streamcompass.domain.model.Stream
 import com.sunstar.streamcompass.domain.model.StreamType
 import com.sunstar.streamcompass.presentation.core.PosterCard
+import com.sunstar.streamcompass.presentation.core.displayTitle
+import com.sunstar.streamcompass.presentation.core.posterPath
 import com.sunstar.streamcompass.presentation.core.posterSharedElementKey
+import com.sunstar.streamcompass.presentation.core.streamType
+import com.sunstar.streamcompass.presentation.core.tmdbId
 import kotlinx.coroutines.flow.Flow
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun RecommendationsGrid(
-    recommendationsFlow: Flow<PagingData<MovieStream>>,
+    recommendationsFlow: Flow<PagingData<Stream>>,
     sharedTransitionScope: SharedTransitionScope,
     animatedContentScope: AnimatedContentScope,
-    onStreamClick: (tmdbId: Int, posterPath: String, rowId: String) -> Unit,
+    onStreamClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val pagingItems = recommendationsFlow.collectAsLazyPagingItems()
@@ -45,12 +49,12 @@ fun RecommendationsGrid(
             if (null != stream) {
                 PosterCard(
                     imageUrl = stream.posterPath,
-                    title = stream.title,
+                    title = stream.displayTitle,
                     imageModifier = with(sharedTransitionScope) {
                         Modifier.sharedElement(
                             sharedContentState = rememberSharedContentState(
                                 key = posterSharedElementKey(
-                                    streamType = StreamType.Movie,
+                                    streamType = stream.streamType,
                                     rowId = RECOMMENDATIONS_ROW_ID,
                                     tmdbId = stream.tmdbId,
                                 ),
@@ -62,7 +66,8 @@ fun RecommendationsGrid(
                         onStreamClick(
                             stream.tmdbId,
                             stream.posterPath,
-                            RECOMMENDATIONS_ROW_ID
+                            RECOMMENDATIONS_ROW_ID,
+                            stream.streamType,
                         )
                     },
                 )

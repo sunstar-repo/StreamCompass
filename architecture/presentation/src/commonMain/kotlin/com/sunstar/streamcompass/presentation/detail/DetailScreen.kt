@@ -57,9 +57,11 @@ import coil3.request.crossfade
 import coil3.svg.SvgDecoder
 import com.sunstar.streamcompass.domain.model.Deeplink
 import com.sunstar.streamcompass.domain.model.Review
-import com.sunstar.streamcompass.domain.model.Stream.MovieStream
-import com.sunstar.streamcompass.domain.model.StreamDetail.MovieStreamDetail
+import com.sunstar.streamcompass.domain.model.Stream
+import com.sunstar.streamcompass.domain.model.StreamDetail
 import com.sunstar.streamcompass.domain.model.StreamType
+import com.sunstar.streamcompass.presentation.core.deeplinks
+import com.sunstar.streamcompass.presentation.core.displayTitle
 import com.sunstar.streamcompass.presentation.core.posterSharedElementKey
 import com.sunstar.streamcompass.presentation.core.statusBarProtectionHeight
 import com.sunstar.streamcompass.presentation.detail.about.About
@@ -80,15 +82,17 @@ fun DetailScreen(
     posterPath: String,
     rowId: String,
     recordHistory: Boolean,
+    streamType: StreamType,
     viewModel: DetailViewModel = koinViewModel(parameters = {
         parametersOf(
             tmdbId,
+            streamType,
             recordHistory
         )
     }),
     sharedTransitionScope: SharedTransitionScope,
     animatedContentScope: AnimatedContentScope,
-    onStreamClick: (tmdbId: Int, posterPath: String, rowId: String) -> Unit,
+    onStreamClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
 ) {
     val state by viewModel.stateFlow.collectAsState()
     var isSheetShown by remember { mutableStateOf(false) }
@@ -148,13 +152,15 @@ fun DetailScreen(
                         tmdbId = tmdbId,
                         posterPath = posterPath,
                         rowId = rowId,
+                        streamType = streamType,
                         sharedTransitionScope = sharedTransitionScope,
                         animatedContentScope = animatedContentScope,
                     )
 
+                    val succeededDetail = (state as? DetailViewModel.State.Succeed)?.streamDetail
                     Overview(
-                        title = (state as? DetailViewModel.State.Succeed)?.streamDetail?.title,
-                        deeplinks = (state as? DetailViewModel.State.Succeed)?.streamDetail?.deeplinks.orEmpty(),
+                        title = succeededDetail?.displayTitle,
+                        deeplinks = succeededDetail?.deeplinks.orEmpty(),
                         onViewStreamingOptionsClick = { isSheetShown = true },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -207,6 +213,7 @@ private fun DetailPoster(
     tmdbId: Int,
     posterPath: String,
     rowId: String,
+    streamType: StreamType,
     sharedTransitionScope: SharedTransitionScope,
     animatedContentScope: AnimatedContentScope,
 ) {
@@ -226,7 +233,7 @@ private fun DetailPoster(
                 .sharedElement(
                     sharedContentState = rememberSharedContentState(
                         key = posterSharedElementKey(
-                            streamType = StreamType.Movie,
+                            streamType = streamType,
                             rowId = rowId,
                             tmdbId = tmdbId
                         ),
@@ -239,14 +246,14 @@ private fun DetailPoster(
 
 @Composable
 private fun DetailBody(
-    streamDetail: MovieStreamDetail,
+    streamDetail: StreamDetail,
     selectedTab: DetailViewModel.Tab,
     onTabSelected: (DetailViewModel.Tab) -> Unit,
-    recommendationsFlow: Flow<PagingData<MovieStream>>,
+    recommendationsFlow: Flow<PagingData<Stream>>,
     reviewsFlow: Flow<PagingData<Review>>,
     sharedTransitionScope: SharedTransitionScope,
     animatedContentScope: AnimatedContentScope,
-    onStreamClick: (tmdbId: Int, posterPath: String, rowId: String) -> Unit,
+    onStreamClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
     nestedScrollConnection: NestedScrollConnection,
     modifier: Modifier = Modifier,
 ) {

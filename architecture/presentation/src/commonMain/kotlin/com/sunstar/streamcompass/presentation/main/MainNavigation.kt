@@ -1,5 +1,6 @@
 package com.sunstar.streamcompass.presentation.main
 
+import com.sunstar.streamcompass.domain.model.StreamType
 import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
@@ -61,6 +62,7 @@ sealed class MainDestination {
         val posterPath: String,
         val rowId: String,
         val recordHistory: Boolean,
+        val streamType: String,
     ) : MainDestination() {
         override val label: StringResource get() = Res.string.destination_stream_detail
         override val icon: DrawableResource get() = Res.drawable.ic_movie
@@ -83,7 +85,13 @@ sealed class MainDestination {
         fun allValues(): List<MainDestination> =
             values() + listOf(
                 SearchDestination,
-                DetailDestination(tmdbId = 0, posterPath = "", rowId = "", recordHistory = false)
+                DetailDestination(
+                    tmdbId = 0,
+                    posterPath = "",
+                    rowId = "",
+                    recordHistory = false,
+                    streamType = StreamType.Movie.rawValue,
+                )
             )
     }
 }

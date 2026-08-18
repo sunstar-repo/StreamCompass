@@ -156,4 +156,30 @@ internal class TmdbDataSource(
             parameter(TmdbConstants.PARAM_LANGUAGE, language)
             parameter(TmdbConstants.PARAM_PAGE, page)
         }.body()
+
+    suspend fun getTvRecommendations(
+        tmdbId: Int,
+        page: Int = 1,
+        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+    ): TmdbTvPageResponseDto =
+        httpClient.get(
+            "${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_TV}/$tmdbId/${TmdbConstants.SEGMENT_RECOMMENDATIONS}"
+        ) {
+            parameter(TmdbConstants.PARAM_API_KEY, apiKey)
+            parameter(TmdbConstants.PARAM_LANGUAGE, language)
+            parameter(TmdbConstants.PARAM_PAGE, page)
+        }.body()
+
+    suspend fun getTvReviews(
+        tmdbId: Int,
+        page: Int = 1,
+        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+    ): TmdbReviewPageResponseDto =
+        httpClient.get(
+            "${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_TV}/$tmdbId/${TmdbConstants.SEGMENT_REVIEWS}"
+        ) {
+            parameter(TmdbConstants.PARAM_API_KEY, apiKey)
+            parameter(TmdbConstants.PARAM_LANGUAGE, language)
+            parameter(TmdbConstants.PARAM_PAGE, page)
+        }.body()
 }

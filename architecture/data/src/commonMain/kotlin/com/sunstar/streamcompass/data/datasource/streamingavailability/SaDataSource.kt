@@ -1,14 +1,17 @@
 package com.sunstar.streamcompass.data.datasource.streamingavailability
 
+import com.sunstar.streamcompass.data.Constants
 import com.sunstar.streamcompass.data.datasource.streamingavailability.dto.SaShowDto
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
+import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
@@ -49,9 +52,17 @@ internal class SaDataSource(
         tmdbId: Int,
         country: String?,
     ): SaShowDto =
-        httpClient.get("${SaConstants.BASE_URL}/${SaConstants.PATH_SHOWS}/$mediaType/$tmdbId") {
-            if (country != null) {
-                parameter(SaConstants.PARAM_COUNTRY, country)
+        try {
+            httpClient.get("${SaConstants.BASE_URL}/${SaConstants.PATH_SHOWS}/$mediaType/$tmdbId") {
+                if (country != null) {
+                    parameter(SaConstants.PARAM_COUNTRY, country)
+                }
+            }.body()
+        } catch (e: ClientRequestException) {
+            if (e.response.status == HttpStatusCode.NotFound) {
+                SaShowDto(id = Constants.EMPTY_STRING)
+            } else {
+                throw e
             }
-        }.body()
+        }
 }

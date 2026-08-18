@@ -25,6 +25,8 @@ import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTvSummaryDto
 import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbMovieRecommendationsPagingSource
 import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbMovieReviewsPagingSource
 import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbSuggestionPagingSource
+import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbTvRecommendationsPagingSource
+import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbTvReviewsPagingSource
 import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbTvSuggestionPagingSource
 import com.sunstar.streamcompass.domain.mapper.Mapper
 import com.sunstar.streamcompass.domain.model.Deeplink
@@ -120,29 +122,55 @@ internal class StreamRepositoryImpl(
             StreamType.Tv -> localDataSource.deleteTvHistory(tmdbId = tmdbId)
         }
 
-    override fun getMovieRecommendationsStreamFlow(tmdbId: Int): Flow<PagingData<MovieStream>> =
-        Pager(
-            config = PagingConfig(pageSize = TmdbConstants.PAGE_SIZE),
-            pagingSourceFactory = {
-                TmdbMovieRecommendationsPagingSource(
-                    tmdbDataSource = tmdbDataSource,
-                    summaryMapper = movieSummaryMapper,
-                    tmdbId = tmdbId,
-                )
-            },
-        ).flow
+    override fun getRecommendationsStreamFlow(tmdbId: Int, streamType: StreamType): Flow<PagingData<Stream>> =
+        when (streamType) {
+            StreamType.Movie -> Pager(
+                config = PagingConfig(pageSize = TmdbConstants.PAGE_SIZE),
+                pagingSourceFactory = {
+                    TmdbMovieRecommendationsPagingSource(
+                        tmdbDataSource = tmdbDataSource,
+                        summaryMapper = movieSummaryMapper,
+                        tmdbId = tmdbId,
+                    )
+                },
+            ).flow.map { pagingData -> pagingData.map { it } }
 
-    override fun getMovieReviewsStreamFlow(tmdbId: Int): Flow<PagingData<Review>> =
-        Pager(
-            config = PagingConfig(pageSize = TmdbConstants.PAGE_SIZE),
-            pagingSourceFactory = {
-                TmdbMovieReviewsPagingSource(
-                    tmdbDataSource = tmdbDataSource,
-                    reviewMapper = reviewMapper,
-                    tmdbId = tmdbId,
-                )
-            },
-        ).flow
+            StreamType.Tv -> Pager(
+                config = PagingConfig(pageSize = TmdbConstants.PAGE_SIZE),
+                pagingSourceFactory = {
+                    TmdbTvRecommendationsPagingSource(
+                        tmdbDataSource = tmdbDataSource,
+                        summaryMapper = tvSummaryMapper,
+                        tmdbId = tmdbId,
+                    )
+                },
+            ).flow.map { pagingData -> pagingData.map { it } }
+        }
+
+    override fun getReviewsStreamFlow(tmdbId: Int, streamType: StreamType): Flow<PagingData<Review>> =
+        when (streamType) {
+            StreamType.Movie -> Pager(
+                config = PagingConfig(pageSize = TmdbConstants.PAGE_SIZE),
+                pagingSourceFactory = {
+                    TmdbMovieReviewsPagingSource(
+                        tmdbDataSource = tmdbDataSource,
+                        reviewMapper = reviewMapper,
+                        tmdbId = tmdbId,
+                    )
+                },
+            ).flow
+
+            StreamType.Tv -> Pager(
+                config = PagingConfig(pageSize = TmdbConstants.PAGE_SIZE),
+                pagingSourceFactory = {
+                    TmdbTvReviewsPagingSource(
+                        tmdbDataSource = tmdbDataSource,
+                        reviewMapper = reviewMapper,
+                        tmdbId = tmdbId,
+                    )
+                },
+            ).flow
+        }
 
     override suspend fun getStreamDetail(
         tmdbId: Int,

@@ -9,10 +9,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.sunstar.streamcompass.domain.model.StreamDetail.MovieStreamDetail
+import com.sunstar.streamcompass.domain.model.StreamDetail
+import com.sunstar.streamcompass.presentation.core.overview
 
 @Composable
-fun About(streamDetail: MovieStreamDetail, modifier: Modifier = Modifier) {
+fun About(streamDetail: StreamDetail, modifier: Modifier = Modifier) {
     Column(modifier = modifier.verticalScroll(rememberScrollState())) {
         Text(
             text = streamDetail.overview,
