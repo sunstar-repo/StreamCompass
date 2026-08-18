@@ -82,3 +82,33 @@ val StreamDetail.deeplinks: List<Deeplink>
         is MovieStreamDetail -> deeplinks
         is TvStreamDetail -> deeplinks
     }
+
+val StreamDetail.genres: List<String>
+    get() = when (this) {
+        is MovieStreamDetail -> genres
+        is TvStreamDetail -> genres
+    }
+
+val StreamDetail.logo: String
+    get() = when (this) {
+        is MovieStreamDetail -> logo
+        is TvStreamDetail -> logo
+    }
+
+val StreamDetail.releaseDate: String
+    get() = when (this) {
+        is MovieStreamDetail -> releaseDate
+        is TvStreamDetail -> firstAirDate
+    }
+
+val StreamDetail.runtimeMinutes: Int
+    get() = when (this) {
+        is MovieStreamDetail -> runtime
+        is TvStreamDetail -> episodeRunTime.firstOrNull() ?: 0
+    }
+
+val StreamDetail.certification: String
+    get() = when (this) {
+        is MovieStreamDetail -> certification
+        is TvStreamDetail -> certification
+    }

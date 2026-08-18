@@ -23,6 +23,9 @@ sealed interface StreamDetail {
         val revenue: Long,
         val adult: Boolean,
         val video: Boolean,
+        val logo: String,
+        val backdrops: List<String>,
+        val certification: String,
         val deeplinks: List<Deeplink>,
     ) : StreamDetail
 
@@ -47,6 +50,9 @@ sealed interface StreamDetail {
         val tagline: String,
         val homepage: String,
         val inProduction: Boolean,
+        val logo: String,
+        val backdrops: List<String>,
+        val certification: String,
         val deeplinks: List<Deeplink>,
     ) : StreamDetail
 }

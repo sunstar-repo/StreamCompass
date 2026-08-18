@@ -28,6 +28,8 @@ internal data class TmdbTvDetailDto(
     val homepage: String = Constants.EMPTY_STRING,
     val inProduction: Boolean,
     val seasons: List<TmdbSeasonSummaryDto> = emptyList(),
+    val images: TmdbImagesDto = TmdbImagesDto(),
+    val contentRatings: TmdbContentRatingsDto = TmdbContentRatingsDto(),
 ) {
     val posterPath: String
         get() = if (_posterPath.isEmpty()) {

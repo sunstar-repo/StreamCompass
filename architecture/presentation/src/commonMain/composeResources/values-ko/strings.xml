@@ -14,6 +14,9 @@
     <string name="stream_detail_tab_review">리뷰</string>
     <string name="stream_detail_view_streaming_options">시청 옵션 보기</string>
     <string name="stream_detail_no_streaming_options">이용 가능한 스트리밍 서비스가 없습니다</string>
+    <string name="stream_detail_overview_more">더보기</string>
+    <string name="stream_detail_overview_runtime_format">%1$d분</string>
+    <string name="stream_detail_overview_runtime_hour_minute_format">%1$d시간 %2$d분</string>
 
     <string name="stream_detail_series_season_number">시즌 %1$d</string>
     <string name="stream_detail_series_episode_count">에피소드 %1$d개</string>

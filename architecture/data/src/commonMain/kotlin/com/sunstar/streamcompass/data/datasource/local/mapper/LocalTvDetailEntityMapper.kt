@@ -27,6 +27,9 @@ internal class LocalTvDetailEntityMapper : Mapper<LocalTvDetailEntity, TvStreamD
             tagline = source.tagline,
             homepage = source.homepage,
             inProduction = source.inProduction,
+            logo = source.logo,
+            backdrops = source.backdrops,
+            certification = source.certification,
             deeplinks = emptyList(),
         )
 }

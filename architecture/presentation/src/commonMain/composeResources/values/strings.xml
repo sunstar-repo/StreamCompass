@@ -14,6 +14,9 @@
     <string name="stream_detail_tab_review">Review</string>
     <string name="stream_detail_view_streaming_options">View Streaming Options</string>
     <string name="stream_detail_no_streaming_options">No streaming services available</string>
+    <string name="stream_detail_overview_more">More</string>
+    <string name="stream_detail_overview_runtime_format">%1$d min</string>
+    <string name="stream_detail_overview_runtime_hour_minute_format">%1$dh %2$dm</string>
 
     <string name="stream_detail_series_season_number">Season %1$d</string>
     <string name="stream_detail_series_episode_count">%1$d episodes</string>

@@ -28,6 +28,9 @@ internal class LocalMovieDetailEntityMapper : Mapper<LocalMovieDetailEntity, Mov
             revenue = source.revenue,
             adult = source.adult,
             video = source.video,
+            logo = source.logo,
+            backdrops = source.backdrops,
+            certification = source.certification,
             deeplinks = emptyList(),
         )
 }

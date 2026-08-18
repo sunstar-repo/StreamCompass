@@ -26,4 +26,7 @@ internal data class LocalMovieDetailEntity(
     val revenue: Long,
     val adult: Boolean,
     val video: Boolean,
+    val logo: String,
+    val backdrops: List<String>,
+    val certification: String,
 )

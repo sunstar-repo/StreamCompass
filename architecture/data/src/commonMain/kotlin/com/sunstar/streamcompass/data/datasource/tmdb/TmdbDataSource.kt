@@ -121,6 +121,10 @@ internal class TmdbDataSource(
         httpClient.get("${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_MOVIE}/$tmdbId") {
             parameter(TmdbConstants.PARAM_API_KEY, apiKey)
             parameter(TmdbConstants.PARAM_LANGUAGE, language)
+            parameter(
+                TmdbConstants.PARAM_APPEND_TO_RESPONSE,
+                "${TmdbConstants.APPEND_IMAGES},${TmdbConstants.APPEND_RELEASE_DATES}"
+            )
         }.body()
 
     suspend fun getTvDetail(
@@ -130,6 +134,10 @@ internal class TmdbDataSource(
         httpClient.get("${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_TV}/$tmdbId") {
             parameter(TmdbConstants.PARAM_API_KEY, apiKey)
             parameter(TmdbConstants.PARAM_LANGUAGE, language)
+            parameter(
+                TmdbConstants.PARAM_APPEND_TO_RESPONSE,
+                "${TmdbConstants.APPEND_IMAGES},${TmdbConstants.APPEND_CONTENT_RATINGS}"
+            )
         }.body()
 
     suspend fun getMovieRecommendations(

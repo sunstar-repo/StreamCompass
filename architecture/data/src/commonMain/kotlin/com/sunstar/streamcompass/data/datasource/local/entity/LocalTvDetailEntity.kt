@@ -25,4 +25,7 @@ internal data class LocalTvDetailEntity(
     val tagline: String,
     val homepage: String,
     val inProduction: Boolean,
+    val logo: String,
+    val backdrops: List<String>,
+    val certification: String,
 )

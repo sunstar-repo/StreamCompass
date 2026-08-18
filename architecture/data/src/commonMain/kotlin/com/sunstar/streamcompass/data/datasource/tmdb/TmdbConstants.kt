@@ -25,6 +25,11 @@ internal object TmdbConstants {
     const val PARAM_API_KEY = "api_key"
     const val PARAM_LANGUAGE = "language"
     const val PARAM_PAGE = "page"
+    const val PARAM_APPEND_TO_RESPONSE = "append_to_response"
+
+    const val APPEND_IMAGES = "images"
+    const val APPEND_RELEASE_DATES = "release_dates"
+    const val APPEND_CONTENT_RATINGS = "content_ratings"
 
     const val DEFAULT_LANGUAGE = "en-US"
 
@@ -34,4 +39,5 @@ internal object TmdbConstants {
     const val POSTER_SIZE = "w342"
     const val BACKDROP_SIZE = "w780"
     const val PROFILE_SIZE = "w185"
+    const val LOGO_SIZE = "w300"
 }

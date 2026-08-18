@@ -41,10 +41,16 @@ import coil3.request.crossfade
 import com.sunstar.streamcompass.domain.model.StreamDetail
 import com.sunstar.streamcompass.domain.model.StreamType
 import com.sunstar.streamcompass.presentation.core.CollapsingHeaderState
+import com.sunstar.streamcompass.presentation.core.certification
 import com.sunstar.streamcompass.presentation.core.deeplinks
 import com.sunstar.streamcompass.presentation.core.displayTitle
+import com.sunstar.streamcompass.presentation.core.genres
+import com.sunstar.streamcompass.presentation.core.logo
+import com.sunstar.streamcompass.presentation.core.overview
 import com.sunstar.streamcompass.presentation.core.posterSharedElementKey
+import com.sunstar.streamcompass.presentation.core.releaseDate
 import com.sunstar.streamcompass.presentation.core.rememberCollapsingHeaderState
+import com.sunstar.streamcompass.presentation.core.runtimeMinutes
 import com.sunstar.streamcompass.presentation.core.statusBarProtectionHeight
 import com.sunstar.streamcompass.presentation.detail.about.DetailAbout
 import com.sunstar.streamcompass.presentation.detail.overview.DetailOverview
@@ -175,11 +181,16 @@ private fun DetailHeader(
                     .fillMaxHeight(POSTER_GRADIENT_HEIGHT_FRACTION)
                     .align(Alignment.BottomCenter),
             ) {
-                val detail = streamDetail
-                if (null != detail) {
+                if (null != streamDetail) {
                     DetailOverview(
-                        title = detail.displayTitle,
-                        deeplinks = detail.deeplinks,
+                        title = streamDetail.displayTitle,
+                        logo = streamDetail.logo,
+                        genres = streamDetail.genres,
+                        description = streamDetail.overview,
+                        releaseDate = streamDetail.releaseDate,
+                        runtimeMinutes = streamDetail.runtimeMinutes,
+                        certification = streamDetail.certification,
+                        deeplinks = streamDetail.deeplinks,
                         modifier = Modifier.fillMaxSize(),
                     )
                 }

@@ -28,6 +28,8 @@ internal data class TmdbMovieDetailDto(
     val revenue: Long,
     val adult: Boolean,
     val video: Boolean,
+    val images: TmdbImagesDto = TmdbImagesDto(),
+    val releaseDates: TmdbReleaseDatesDto = TmdbReleaseDatesDto(),
 ) {
     val posterPath: String
         get() = if (_posterPath.isEmpty()) {
