@@ -44,6 +44,8 @@
     <string name="tv_row_popular">인기</string>
     <string name="tv_row_top_rated">평점 높은 작품</string>
 
+    <string name="home_row_new_movies">신작 영화</string>
+    <string name="home_row_new_tv">신작 시리즈</string>
     <string name="home_row_movie_history">영화 시청 기록</string>
     <string name="home_row_tv_history">TV 시청 기록</string>
     <string name="home_row_movie_history_empty">최근 확인한 영화가 없습니다</string>

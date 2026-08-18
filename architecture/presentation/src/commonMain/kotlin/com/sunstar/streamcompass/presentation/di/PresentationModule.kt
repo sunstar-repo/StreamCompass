@@ -16,6 +16,7 @@ val presentationModule =
             HomeViewModel(
                 removeHistoryUseCase = get(),
                 getTrendingStreamUseCase = get(),
+                getSuggestionUseCase = get(),
                 getHistoryStreamUseCase = get(),
             )
         }

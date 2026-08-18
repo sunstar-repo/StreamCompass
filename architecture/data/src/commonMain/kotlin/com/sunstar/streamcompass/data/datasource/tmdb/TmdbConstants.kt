@@ -22,10 +22,25 @@ internal object TmdbConstants {
     const val MEDIA_TYPE_MOVIE = "movie"
     const val MEDIA_TYPE_TV = "tv"
 
+    const val PATH_DISCOVER = "discover"
+
     const val PARAM_API_KEY = "api_key"
     const val PARAM_LANGUAGE = "language"
     const val PARAM_PAGE = "page"
     const val PARAM_APPEND_TO_RESPONSE = "append_to_response"
+    const val PARAM_SORT_BY = "sort_by"
+    const val PARAM_WITH_RELEASE_TYPE = "with_release_type"
+    // primary_release_date는 region과 무관하게 항상 채워지는 TMDB의 "공식" 개봉일이라 region 없이도 안정적으로 동작한다.
+    const val PARAM_PRIMARY_RELEASE_DATE_LTE = "primary_release_date.lte"
+    const val PARAM_WATCH_REGION = "watch_region"
+    const val PARAM_WITH_WATCH_MONETIZATION_TYPES = "with_watch_monetization_types"
+
+    // 신작: 디지털(4) 릴리즈만 — 극장 개봉(3)은 앱에서 시청 방법을 제공할 수 없어 제외.
+    const val RELEASE_TYPE_DIGITAL = "4"
+    const val SORT_BY_PRIMARY_RELEASE_DATE_DESC = "primary_release_date.desc"
+    const val SORT_BY_FIRST_AIR_DATE_DESC = "first_air_date.desc"
+    const val MONETIZATION_TYPE_FLATRATE = "flatrate"
+    const val DEFAULT_REGION = "US"
 
     const val APPEND_IMAGES = "images"
     const val APPEND_RELEASE_DATES = "release_dates"

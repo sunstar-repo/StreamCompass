@@ -14,9 +14,15 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.minus
+import kotlinx.datetime.todayIn
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNamingStrategy
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 internal class TmdbDataSource(
     private val apiKey: String,
@@ -70,6 +76,22 @@ internal class TmdbDataSource(
             parameter(TmdbConstants.PARAM_PAGE, page)
         }.body()
 
+    // 신작: 극장 또는 디지털로 이미 릴리즈됐고 구독(flatrate)으로 시청 가능한 영화를 최신 개봉일 순으로.
+    suspend fun getNewMovies(
+        page: Int = 1,
+        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+    ): TmdbMoviePageResponseDto =
+        httpClient.get("${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_DISCOVER}/${TmdbConstants.PATH_MOVIE}") {
+            parameter(TmdbConstants.PARAM_API_KEY, apiKey)
+            parameter(TmdbConstants.PARAM_LANGUAGE, language)
+            parameter(TmdbConstants.PARAM_PAGE, page)
+            parameter(TmdbConstants.PARAM_WITH_RELEASE_TYPE, TmdbConstants.RELEASE_TYPE_DIGITAL)
+            parameter(TmdbConstants.PARAM_SORT_BY, TmdbConstants.SORT_BY_PRIMARY_RELEASE_DATE_DESC)
+            parameter(TmdbConstants.PARAM_PRIMARY_RELEASE_DATE_LTE, yesterday())
+            parameter(TmdbConstants.PARAM_WITH_WATCH_MONETIZATION_TYPES, TmdbConstants.MONETIZATION_TYPE_FLATRATE)
+            parameter(TmdbConstants.PARAM_WATCH_REGION, TmdbConstants.DEFAULT_REGION)
+        }.body()
+
     suspend fun getAiringToday(
         page: Int = 1,
         language: String = TmdbConstants.DEFAULT_LANGUAGE,
@@ -99,6 +121,20 @@ internal class TmdbDataSource(
             parameter(TmdbConstants.PARAM_API_KEY, apiKey)
             parameter(TmdbConstants.PARAM_LANGUAGE, language)
             parameter(TmdbConstants.PARAM_PAGE, page)
+        }.body()
+
+    // 신작: 구독(flatrate) 스트리밍으로 시청 가능한 TV 시리즈를 최신 방영일 순으로.
+    suspend fun getNewTvShows(
+        page: Int = 1,
+        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+    ): TmdbTvPageResponseDto =
+        httpClient.get("${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_DISCOVER}/${TmdbConstants.PATH_TV}") {
+            parameter(TmdbConstants.PARAM_API_KEY, apiKey)
+            parameter(TmdbConstants.PARAM_LANGUAGE, language)
+            parameter(TmdbConstants.PARAM_PAGE, page)
+            parameter(TmdbConstants.PARAM_WITH_WATCH_MONETIZATION_TYPES, TmdbConstants.MONETIZATION_TYPE_FLATRATE)
+            parameter(TmdbConstants.PARAM_WATCH_REGION, TmdbConstants.DEFAULT_REGION)
+            parameter(TmdbConstants.PARAM_SORT_BY, TmdbConstants.SORT_BY_FIRST_AIR_DATE_DESC)
         }.body()
 
     suspend fun getTrendingAllDay(
@@ -205,4 +241,9 @@ internal class TmdbDataSource(
             parameter(TmdbConstants.PARAM_LANGUAGE, language)
             parameter(TmdbConstants.PARAM_PAGE, page)
         }.body()
+
+    // 신작 필터의 상한값 — 개봉 예정작(미래 날짜)이 섞이지 않도록 하루 전까지만 허용한다.
+    @OptIn(ExperimentalTime::class)
+    private fun yesterday(): String =
+        Clock.System.todayIn(TimeZone.currentSystemDefault()).minus(DatePeriod(days = 1)).toString()
 }

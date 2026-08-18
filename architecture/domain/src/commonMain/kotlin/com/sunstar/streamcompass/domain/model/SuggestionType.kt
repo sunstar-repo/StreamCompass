@@ -9,6 +9,8 @@ sealed interface SuggestionType {
         data object TopRated : Movie
 
         data object Upcoming : Movie
+
+        data object NewReleases : Movie
     }
 
     sealed interface Tv : SuggestionType {
@@ -19,5 +21,7 @@ sealed interface SuggestionType {
         data object Popular : Tv
 
         data object TopRated : Tv
+
+        data object NewReleases : Tv
     }
 }

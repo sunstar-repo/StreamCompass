@@ -45,6 +45,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
+import androidx.paging.PagingData
+import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
@@ -64,6 +66,7 @@ import com.sunstar.streamcompass.presentation.core.posterSharedElementKey
 import com.sunstar.streamcompass.presentation.core.streamType
 import com.sunstar.streamcompass.presentation.core.tmdbId
 import com.sunstar.streamcompass.presentation.core.typeLabelRes
+import kotlinx.coroutines.flow.Flow
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -71,6 +74,8 @@ import streamcompass.architecture.presentation.generated.resources.Res
 import streamcompass.architecture.presentation.generated.resources.home_history_remove
 import streamcompass.architecture.presentation.generated.resources.home_row_movie_history
 import streamcompass.architecture.presentation.generated.resources.home_row_movie_history_empty
+import streamcompass.architecture.presentation.generated.resources.home_row_new_movies
+import streamcompass.architecture.presentation.generated.resources.home_row_new_tv
 import streamcompass.architecture.presentation.generated.resources.home_row_tv_history
 import streamcompass.architecture.presentation.generated.resources.home_row_tv_history_empty
 
@@ -85,6 +90,8 @@ fun HomeScreen(
 ) {
     val state by viewModel.stateFlow.collectAsState()
     var selectedHistoryItem by remember { mutableStateOf<HistoryItem?>(null) }
+    val movieHistoryStreams by state.movieHistoryStreams.collectAsState(initial = emptyList())
+    val tvHistoryStreams by state.tvHistoryStreams.collectAsState(initial = emptyList())
 
     Column(modifier = Modifier.verticalScroll(scrollState)) {
         if (state.trendingStreams.isEmpty()) {
@@ -93,7 +100,23 @@ fun HomeScreen(
             TrendingCarousel(items = state.trendingStreams, onClick = onStreamClick)
         }
 
-        if (state.movieHistoryStreams.isEmpty()) {
+        NewMoviesRow(
+            contentsFlow = state.newMovieStreams,
+            rowId = HomeViewModel.RowType.NewMovies.id,
+            sharedTransitionScope = sharedTransitionScope,
+            animatedContentScope = animatedContentScope,
+            onClick = onStreamClick,
+        )
+
+        NewTvRow(
+            contentsFlow = state.newTvStreams,
+            rowId = HomeViewModel.RowType.NewTv.id,
+            sharedTransitionScope = sharedTransitionScope,
+            animatedContentScope = animatedContentScope,
+            onClick = onStreamClick,
+        )
+
+        if (movieHistoryStreams.isEmpty()) {
             HistoryEmptyRow(
                 titleRes = Res.string.home_row_movie_history,
                 minHeight = POSTER_ROW_MIN_HEIGHT,
@@ -101,7 +124,7 @@ fun HomeScreen(
             )
         } else {
             MovieHistoryRow(
-                items = state.movieHistoryStreams,
+                items = movieHistoryStreams,
                 rowId = HomeViewModel.RowType.MovieHistory.id,
                 sharedTransitionScope = sharedTransitionScope,
                 animatedContentScope = animatedContentScope,
@@ -112,7 +135,7 @@ fun HomeScreen(
             )
         }
 
-        if (state.tvHistoryStreams.isEmpty()) {
+        if (tvHistoryStreams.isEmpty()) {
             HistoryEmptyRow(
                 titleRes = Res.string.home_row_tv_history,
                 minHeight = POSTER_ROW_MIN_HEIGHT,
@@ -120,7 +143,7 @@ fun HomeScreen(
             )
         } else {
             TvHistoryRow(
-                items = state.tvHistoryStreams,
+                items = tvHistoryStreams,
                 rowId = HomeViewModel.RowType.TvHistory.id,
                 sharedTransitionScope = sharedTransitionScope,
                 animatedContentScope = animatedContentScope,
@@ -298,6 +321,100 @@ private fun CarouselItemScope.TrendingCarouselItem(
                     .background(MaterialTheme.colorScheme.scrim.copy(alpha = TYPE_BADGE_BACKGROUND_ALPHA))
                     .padding(horizontal = 8.dp, vertical = 4.dp),
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Composable
+private fun NewMoviesRow(
+    contentsFlow: Flow<PagingData<MovieStream>>,
+    rowId: String,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedContentScope: AnimatedContentScope,
+    onClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
+) {
+    val pagingItems = contentsFlow.collectAsLazyPagingItems()
+
+    MediaRow(titleRes = Res.string.home_row_new_movies, minHeight = POSTER_ROW_MIN_HEIGHT) {
+        items(
+            count = pagingItems.itemCount,
+            key = { index ->
+                mediaRowItemKey(
+                    streamType = StreamType.Movie,
+                    rowId = rowId,
+                    tmdbId = pagingItems[index]?.tmdbId,
+                    index = index
+                )
+            },
+        ) { index ->
+            val stream = pagingItems[index]
+            if (null != stream) {
+                PosterCard(
+                    imageUrl = stream.posterPath,
+                    title = stream.title,
+                    imageModifier = with(sharedTransitionScope) {
+                        Modifier.sharedElement(
+                            sharedContentState = rememberSharedContentState(
+                                key = posterSharedElementKey(
+                                    streamType = StreamType.Movie,
+                                    rowId = rowId,
+                                    tmdbId = stream.tmdbId
+                                ),
+                            ),
+                            animatedVisibilityScope = animatedContentScope,
+                        )
+                    },
+                    onClick = { onClick(stream.tmdbId, stream.posterPath, rowId, StreamType.Movie) },
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Composable
+private fun NewTvRow(
+    contentsFlow: Flow<PagingData<TvStream>>,
+    rowId: String,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedContentScope: AnimatedContentScope,
+    onClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
+) {
+    val pagingItems = contentsFlow.collectAsLazyPagingItems()
+
+    MediaRow(titleRes = Res.string.home_row_new_tv, minHeight = POSTER_ROW_MIN_HEIGHT) {
+        items(
+            count = pagingItems.itemCount,
+            key = { index ->
+                mediaRowItemKey(
+                    streamType = StreamType.Tv,
+                    rowId = rowId,
+                    tmdbId = pagingItems[index]?.tmdbId,
+                    index = index
+                )
+            },
+        ) { index ->
+            val stream = pagingItems[index]
+            if (null != stream) {
+                PosterCard(
+                    imageUrl = stream.posterPath,
+                    title = stream.name,
+                    imageModifier = with(sharedTransitionScope) {
+                        Modifier.sharedElement(
+                            sharedContentState = rememberSharedContentState(
+                                key = posterSharedElementKey(
+                                    streamType = StreamType.Tv,
+                                    rowId = rowId,
+                                    tmdbId = stream.tmdbId
+                                ),
+                            ),
+                            animatedVisibilityScope = animatedContentScope,
+                        )
+                    },
+                    onClick = { onClick(stream.tmdbId, stream.posterPath, rowId, StreamType.Tv) },
+                )
+            }
         }
     }
 }

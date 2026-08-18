@@ -44,6 +44,8 @@
     <string name="tv_row_popular">Popular</string>
     <string name="tv_row_top_rated">Top Rated</string>
 
+    <string name="home_row_new_movies">New Movies</string>
+    <string name="home_row_new_tv">New Series</string>
     <string name="home_row_movie_history">Movie History</string>
     <string name="home_row_tv_history">Tv History</string>
     <string name="home_row_movie_history_empty">No recently viewed movies</string>

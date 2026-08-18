@@ -22,6 +22,7 @@ internal class TmdbSuggestionPagingSource(
                     SuggestionType.Movie.Popular -> tmdbDataSource.getPopular(page = page)
                     SuggestionType.Movie.TopRated -> tmdbDataSource.getTopRated(page = page)
                     SuggestionType.Movie.Upcoming -> tmdbDataSource.getUpcoming(page = page)
+                    SuggestionType.Movie.NewReleases -> tmdbDataSource.getNewMovies(page = page)
                 }
             LoadResult.Page(
                 data = response.results.map { summaryMapper.map(it) },

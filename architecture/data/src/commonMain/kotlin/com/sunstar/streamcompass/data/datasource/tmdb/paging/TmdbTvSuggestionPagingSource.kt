@@ -22,6 +22,7 @@ internal class TmdbTvSuggestionPagingSource(
                     SuggestionType.Tv.OnTheAir -> tmdbDataSource.getOnTheAir(page = page)
                     SuggestionType.Tv.Popular -> tmdbDataSource.getTvPopular(page = page)
                     SuggestionType.Tv.TopRated -> tmdbDataSource.getTvTopRated(page = page)
+                    SuggestionType.Tv.NewReleases -> tmdbDataSource.getNewTvShows(page = page)
                 }
             LoadResult.Page(
                 data = response.results.map { summaryMapper.map(it) },

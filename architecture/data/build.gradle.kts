@@ -38,6 +38,7 @@ kotlin {
             implementation(libs.ktor.clientContentNegotiation)
             implementation(libs.ktor.serializationKotlinxJson)
             implementation(libs.kotlinx.serializationJson)
+            implementation(libs.kotlinx.datetime)
             implementation(libs.koin.core)
             implementation(libs.paging.common)
             implementation(libs.room.runtime)
