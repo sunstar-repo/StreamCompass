@@ -45,6 +45,7 @@ import com.sunstar.streamcompass.domain.model.StreamDetail.MovieStreamDetail
 import com.sunstar.streamcompass.domain.model.StreamDetail.TvStreamDetail
 import com.sunstar.streamcompass.domain.model.StreamType
 import com.sunstar.streamcompass.domain.model.SuggestionType
+import com.sunstar.streamcompass.domain.model.currentSystemLocale
 import com.sunstar.streamcompass.domain.repository.StreamRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -223,7 +224,7 @@ internal class StreamRepositoryImpl(
         locale: String,
         streamType: StreamType
     ): StreamDetail {
-        val deeplinks = getDeeplinks(tmdbId = tmdbId, locale = locale, streamType = streamType)
+        val deeplinks = getDeeplinks(tmdbId = tmdbId, streamType = streamType)
         return when (streamType) {
             StreamType.Movie -> {
                 val detailEntity = localDataSource.getMovieDetail(tmdbId = tmdbId, locale = locale)
@@ -258,10 +259,9 @@ internal class StreamRepositoryImpl(
 
     private suspend fun getDeeplinks(
         tmdbId: Int,
-        locale: String,
         streamType: StreamType
     ): List<Deeplink> {
-        val country = locale.split("-").lastOrNull() ?: return emptyList()
+        val country = currentSystemLocale().country
 
         return localDataSource.getDeeplinks(
             tmdbId = tmdbId,

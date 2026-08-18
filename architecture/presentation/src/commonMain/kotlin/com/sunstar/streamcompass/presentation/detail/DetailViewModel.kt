@@ -14,6 +14,7 @@ import com.sunstar.streamcompass.domain.model.StreamDetail
 import com.sunstar.streamcompass.domain.model.StreamDetail.MovieStreamDetail
 import com.sunstar.streamcompass.domain.model.StreamDetail.TvStreamDetail
 import com.sunstar.streamcompass.domain.model.StreamType
+import com.sunstar.streamcompass.domain.model.currentSystemLocale
 import com.sunstar.streamcompass.domain.usecase.GetEpisodesUseCase
 import com.sunstar.streamcompass.domain.usecase.GetRecommendationsUseCase
 import com.sunstar.streamcompass.domain.usecase.GetReviewsUseCase
@@ -85,7 +86,7 @@ class DetailViewModel(
         is Event.Initialize -> {
             val streamDetail = getStreamDetailUseCase(
                 tmdbId = tmdbId,
-                locale = DEFAULT_LOCALE,
+                locale = currentSystemLocale().locale,
                 streamType = streamType,
             )
             if (recordHistory) {
@@ -106,7 +107,7 @@ class DetailViewModel(
                     .cachedIn(viewModelScope),
                 reviewsFlow = getReviewsUseCase(tmdbId = tmdbId, streamType = streamType)
                     .cachedIn(viewModelScope),
-                seasonsFlow = getSeasonsUseCase(tmdbId = tmdbId, locale = DEFAULT_LOCALE)
+                seasonsFlow = getSeasonsUseCase(tmdbId = tmdbId, locale = currentSystemLocale().locale)
                     .cachedIn(viewModelScope),
                 episodesFlow = episodesFlow(seasonNumber = latestSeasonNumber),
                 selectedSeasonNumber = latestSeasonNumber,
@@ -129,7 +130,7 @@ class DetailViewModel(
     }
 
     private fun episodesFlow(seasonNumber: Int): Flow<PagingData<Episode>> =
-        getEpisodesUseCase(tmdbId = tmdbId, seasonNumber = seasonNumber, locale = DEFAULT_LOCALE)
+        getEpisodesUseCase(tmdbId = tmdbId, seasonNumber = seasonNumber, locale = currentSystemLocale().locale)
             .cachedIn(viewModelScope)
 
     private fun StreamDetail.toStream(): Stream = when (this) {
@@ -209,7 +210,6 @@ class DetailViewModel(
     }
 
     private companion object {
-        const val DEFAULT_LOCALE = "en-US"
         const val DEFAULT_SEASON_NUMBER = 1
     }
 }

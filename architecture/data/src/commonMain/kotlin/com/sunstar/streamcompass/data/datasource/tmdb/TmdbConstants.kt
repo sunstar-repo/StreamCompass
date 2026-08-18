@@ -34,13 +34,13 @@ internal object TmdbConstants {
     const val PARAM_PRIMARY_RELEASE_DATE_LTE = "primary_release_date.lte"
     const val PARAM_WATCH_REGION = "watch_region"
     const val PARAM_WITH_WATCH_MONETIZATION_TYPES = "with_watch_monetization_types"
+    const val PARAM_INCLUDE_ADULT = "include_adult"
 
     // 신작: 디지털(4) 릴리즈만 — 극장 개봉(3)은 앱에서 시청 방법을 제공할 수 없어 제외.
     const val RELEASE_TYPE_DIGITAL = "4"
     const val SORT_BY_PRIMARY_RELEASE_DATE_DESC = "primary_release_date.desc"
     const val SORT_BY_FIRST_AIR_DATE_DESC = "first_air_date.desc"
     const val MONETIZATION_TYPE_FLATRATE = "flatrate"
-    const val DEFAULT_REGION = "US"
 
     const val APPEND_IMAGES = "images"
     const val APPEND_RELEASE_DATES = "release_dates"
@@ -50,8 +50,6 @@ internal object TmdbConstants {
 
     const val VIDEO_SITE_YOUTUBE = "YouTube"
     const val VIDEO_TYPE_TRAILER = "Trailer"
-
-    const val DEFAULT_LANGUAGE = "en-US"
 
     const val PAGE_SIZE = 20
 

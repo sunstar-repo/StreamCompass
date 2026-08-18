@@ -7,6 +7,7 @@ import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbSeasonDetailDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTrendingPageResponseDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTvDetailDto
 import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTvPageResponseDto
+import com.sunstar.streamcompass.domain.model.currentSystemLocale
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.HttpTimeout
@@ -47,22 +48,22 @@ internal class TmdbDataSource(
 
     suspend fun getNowPlaying(
         page: Int = 1,
-        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+        language: String = currentSystemLocale().locale,
     ): TmdbMoviePageResponseDto = getMovieList(TmdbConstants.SEGMENT_NOW_PLAYING, page, language)
 
     suspend fun getPopular(
         page: Int = 1,
-        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+        language: String = currentSystemLocale().locale,
     ): TmdbMoviePageResponseDto = getMovieList(TmdbConstants.SEGMENT_POPULAR, page, language)
 
     suspend fun getTopRated(
         page: Int = 1,
-        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+        language: String = currentSystemLocale().locale,
     ): TmdbMoviePageResponseDto = getMovieList(TmdbConstants.SEGMENT_TOP_RATED, page, language)
 
     suspend fun getUpcoming(
         page: Int = 1,
-        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+        language: String = currentSystemLocale().locale,
     ): TmdbMoviePageResponseDto = getMovieList(TmdbConstants.SEGMENT_UPCOMING, page, language)
 
     private suspend fun getMovieList(
@@ -79,7 +80,7 @@ internal class TmdbDataSource(
     // 신작: 극장 또는 디지털로 이미 릴리즈됐고 구독(flatrate)으로 시청 가능한 영화를 최신 개봉일 순으로.
     suspend fun getNewMovies(
         page: Int = 1,
-        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+        language: String = currentSystemLocale().locale,
     ): TmdbMoviePageResponseDto =
         httpClient.get("${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_DISCOVER}/${TmdbConstants.PATH_MOVIE}") {
             parameter(TmdbConstants.PARAM_API_KEY, apiKey)
@@ -89,27 +90,28 @@ internal class TmdbDataSource(
             parameter(TmdbConstants.PARAM_SORT_BY, TmdbConstants.SORT_BY_PRIMARY_RELEASE_DATE_DESC)
             parameter(TmdbConstants.PARAM_PRIMARY_RELEASE_DATE_LTE, yesterday())
             parameter(TmdbConstants.PARAM_WITH_WATCH_MONETIZATION_TYPES, TmdbConstants.MONETIZATION_TYPE_FLATRATE)
-            parameter(TmdbConstants.PARAM_WATCH_REGION, TmdbConstants.DEFAULT_REGION)
+            parameter(TmdbConstants.PARAM_WATCH_REGION, currentSystemLocale().country)
+            parameter(TmdbConstants.PARAM_INCLUDE_ADULT, false)
         }.body()
 
     suspend fun getAiringToday(
         page: Int = 1,
-        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+        language: String = currentSystemLocale().locale,
     ): TmdbTvPageResponseDto = getTvList(TmdbConstants.SEGMENT_AIRING_TODAY, page, language)
 
     suspend fun getOnTheAir(
         page: Int = 1,
-        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+        language: String = currentSystemLocale().locale,
     ): TmdbTvPageResponseDto = getTvList(TmdbConstants.SEGMENT_ON_THE_AIR, page, language)
 
     suspend fun getTvPopular(
         page: Int = 1,
-        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+        language: String = currentSystemLocale().locale,
     ): TmdbTvPageResponseDto = getTvList(TmdbConstants.SEGMENT_POPULAR, page, language)
 
     suspend fun getTvTopRated(
         page: Int = 1,
-        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+        language: String = currentSystemLocale().locale,
     ): TmdbTvPageResponseDto = getTvList(TmdbConstants.SEGMENT_TOP_RATED, page, language)
 
     private suspend fun getTvList(
@@ -126,20 +128,21 @@ internal class TmdbDataSource(
     // 신작: 구독(flatrate) 스트리밍으로 시청 가능한 TV 시리즈를 최신 방영일 순으로.
     suspend fun getNewTvShows(
         page: Int = 1,
-        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+        language: String = currentSystemLocale().locale,
     ): TmdbTvPageResponseDto =
         httpClient.get("${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_DISCOVER}/${TmdbConstants.PATH_TV}") {
             parameter(TmdbConstants.PARAM_API_KEY, apiKey)
             parameter(TmdbConstants.PARAM_LANGUAGE, language)
             parameter(TmdbConstants.PARAM_PAGE, page)
             parameter(TmdbConstants.PARAM_WITH_WATCH_MONETIZATION_TYPES, TmdbConstants.MONETIZATION_TYPE_FLATRATE)
-            parameter(TmdbConstants.PARAM_WATCH_REGION, TmdbConstants.DEFAULT_REGION)
+            parameter(TmdbConstants.PARAM_WATCH_REGION, currentSystemLocale().country)
             parameter(TmdbConstants.PARAM_SORT_BY, TmdbConstants.SORT_BY_FIRST_AIR_DATE_DESC)
+            parameter(TmdbConstants.PARAM_INCLUDE_ADULT, false)
         }.body()
 
     suspend fun getTrendingAllDay(
         page: Int = 1,
-        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+        language: String = currentSystemLocale().locale,
     ): TmdbTrendingPageResponseDto =
         httpClient.get(
             "${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_TRENDING}" +
@@ -152,7 +155,7 @@ internal class TmdbDataSource(
 
     suspend fun getMovieDetail(
         tmdbId: Int,
-        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+        language: String = currentSystemLocale().locale,
     ): TmdbMovieDetailDto =
         httpClient.get("${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_MOVIE}/$tmdbId") {
             parameter(TmdbConstants.PARAM_API_KEY, apiKey)
@@ -166,7 +169,7 @@ internal class TmdbDataSource(
 
     suspend fun getTvDetail(
         tmdbId: Int,
-        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+        language: String = currentSystemLocale().locale,
     ): TmdbTvDetailDto =
         httpClient.get("${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_TV}/$tmdbId") {
             parameter(TmdbConstants.PARAM_API_KEY, apiKey)
@@ -181,7 +184,7 @@ internal class TmdbDataSource(
     suspend fun getMovieRecommendations(
         tmdbId: Int,
         page: Int = 1,
-        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+        language: String = currentSystemLocale().locale,
     ): TmdbMoviePageResponseDto =
         httpClient.get(
             "${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_MOVIE}/$tmdbId/${TmdbConstants.SEGMENT_RECOMMENDATIONS}"
@@ -194,7 +197,7 @@ internal class TmdbDataSource(
     suspend fun getMovieReviews(
         tmdbId: Int,
         page: Int = 1,
-        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+        language: String = currentSystemLocale().locale,
     ): TmdbReviewPageResponseDto =
         httpClient.get(
             "${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_MOVIE}/$tmdbId/${TmdbConstants.SEGMENT_REVIEWS}"
@@ -207,7 +210,7 @@ internal class TmdbDataSource(
     suspend fun getSeasonDetail(
         tmdbId: Int,
         seasonNumber: Int,
-        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+        language: String = currentSystemLocale().locale,
     ): TmdbSeasonDetailDto =
         httpClient.get(
             "${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_TV}/$tmdbId/${TmdbConstants.SEGMENT_SEASON}/$seasonNumber"
@@ -219,7 +222,7 @@ internal class TmdbDataSource(
     suspend fun getTvRecommendations(
         tmdbId: Int,
         page: Int = 1,
-        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+        language: String = currentSystemLocale().locale,
     ): TmdbTvPageResponseDto =
         httpClient.get(
             "${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_TV}/$tmdbId/${TmdbConstants.SEGMENT_RECOMMENDATIONS}"
@@ -232,7 +235,7 @@ internal class TmdbDataSource(
     suspend fun getTvReviews(
         tmdbId: Int,
         page: Int = 1,
-        language: String = TmdbConstants.DEFAULT_LANGUAGE,
+        language: String = currentSystemLocale().locale,
     ): TmdbReviewPageResponseDto =
         httpClient.get(
             "${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_TV}/$tmdbId/${TmdbConstants.SEGMENT_REVIEWS}"
