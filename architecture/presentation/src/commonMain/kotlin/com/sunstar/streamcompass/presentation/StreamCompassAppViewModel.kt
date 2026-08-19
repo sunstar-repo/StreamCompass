@@ -26,7 +26,7 @@ class StreamCompassAppViewModel(
     val themeModeFlow: StateFlow<ThemeMode> = getThemeModeUseCase()
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
+            started = SharingStarted.Lazily,
             initialValue = ThemeMode.System,
         )
 
