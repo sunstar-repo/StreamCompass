@@ -78,6 +78,7 @@ class HomeViewModel(
             tvHistoryStreams = getHistoryStreamUseCase(streamType = StreamType.Tv)
                 .map { it.filterIsInstance<TvStream>() },
         )
+
         is Event.RemoveMovieHistory -> {
             removeHistoryUseCase(tmdbId = event.tmdbId, streamType = StreamType.Movie)
             current

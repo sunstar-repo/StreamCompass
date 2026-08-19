@@ -107,7 +107,10 @@ class DetailViewModel(
                     .cachedIn(viewModelScope),
                 reviewsFlow = getReviewsUseCase(tmdbId = tmdbId, streamType = streamType)
                     .cachedIn(viewModelScope),
-                seasonsFlow = getSeasonsUseCase(tmdbId = tmdbId, locale = currentSystemLocale().locale)
+                seasonsFlow = getSeasonsUseCase(
+                    tmdbId = tmdbId,
+                    locale = currentSystemLocale().locale
+                )
                     .cachedIn(viewModelScope),
                 episodesFlow = episodesFlow(seasonNumber = latestSeasonNumber),
                 selectedSeasonNumber = latestSeasonNumber,
@@ -130,7 +133,11 @@ class DetailViewModel(
     }
 
     private fun episodesFlow(seasonNumber: Int): Flow<PagingData<Episode>> =
-        getEpisodesUseCase(tmdbId = tmdbId, seasonNumber = seasonNumber, locale = currentSystemLocale().locale)
+        getEpisodesUseCase(
+            tmdbId = tmdbId,
+            seasonNumber = seasonNumber,
+            locale = currentSystemLocale().locale
+        )
             .cachedIn(viewModelScope)
 
     private fun StreamDetail.toStream(): Stream = when (this) {

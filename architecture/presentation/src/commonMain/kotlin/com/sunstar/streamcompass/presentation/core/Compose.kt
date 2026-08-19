@@ -3,14 +3,17 @@ package com.sunstar.streamcompass.presentation.core
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -36,6 +39,8 @@ import coil3.request.crossfade
 import com.sunstar.streamcompass.domain.model.StreamType
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import streamcompass.architecture.presentation.generated.resources.Res
+import streamcompass.architecture.presentation.generated.resources.media_row_view_all
 
 fun mediaRowItemKey(streamType: StreamType, rowId: String, tmdbId: Int?, index: Int): String =
     "${streamType.rawValue}_${rowId}_${tmdbId}_${index}"
@@ -57,14 +62,26 @@ fun MediaRow(
     minHeight: Dp,
     topPadding: Dp = 16.dp,
     bottomPadding: Dp = 16.dp,
+    onViewAllClick: (() -> Unit)? = null,
     content: LazyListScope.() -> Unit,
 ) {
     Column(modifier = Modifier.padding(top = topPadding, bottom = bottomPadding)) {
-        Text(
-            text = stringResource(titleRes),
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(horizontal = 16.dp),
-        )
+        Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+            Text(
+                text = stringResource(titleRes),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.weight(1f).alignByBaseline(),
+            )
+
+            if (null != onViewAllClick) {
+                Text(
+                    text = stringResource(Res.string.media_row_view_all),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.clickable(onClick = onViewAllClick).alignByBaseline(),
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 

@@ -32,6 +32,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.sunstar.streamcompass.domain.model.StreamType
+import com.sunstar.streamcompass.presentation.allstreams.AllStreamsScreen
 import com.sunstar.streamcompass.presentation.detail.DetailScreen
 import com.sunstar.streamcompass.presentation.home.HomeScreen
 import com.sunstar.streamcompass.presentation.home.HomeViewModel
@@ -105,6 +106,17 @@ fun MainScreen() {
             }
         },
     ) { innerPadding ->
+        val onViewAllClick: (title: String, rowId: String, streamType: StreamType) -> Unit =
+            { title, rowId, streamType ->
+                navController.navigate(
+                    route = MainDestination.AllStreamsDestination(
+                        title = title,
+                        rowId = rowId,
+                        streamType = streamType.rawValue,
+                    )
+                )
+            }
+
         SharedTransitionLayout {
             NavHost(
                 navController = navController,
@@ -127,6 +139,7 @@ fun MainScreen() {
                                 )
                             )
                         },
+                        onViewAllClick = onViewAllClick,
                     )
                 }
                 composable<MainDestination.MovieDestination> {
@@ -145,6 +158,7 @@ fun MainScreen() {
                                 )
                             )
                         },
+                        onViewAllClick = onViewAllClick,
                     )
                 }
                 composable<MainDestination.TvDestination> {
@@ -161,6 +175,7 @@ fun MainScreen() {
                                 )
                             )
                         },
+                        onViewAllClick = onViewAllClick,
                     )
                 }
                 composable<MainDestination.SettingDestination> { SettingScreen() }
@@ -175,6 +190,29 @@ fun MainScreen() {
                         streamType = StreamType.from(rawValue = destination.streamType),
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedContentScope = this,
+                        onStreamClick = { tmdbId, posterPath, rowId, streamType ->
+                            navController.navigate(
+                                route = MainDestination.DetailDestination(
+                                    tmdbId = tmdbId,
+                                    posterPath = posterPath,
+                                    rowId = rowId,
+                                    recordHistory = rowId != HomeViewModel.RowType.MovieHistory.id,
+                                    streamType = streamType.rawValue,
+                                )
+                            )
+                        },
+                    )
+                }
+                composable<MainDestination.AllStreamsDestination> { backStackEntry ->
+                    val destination: MainDestination.AllStreamsDestination =
+                        backStackEntry.toRoute()
+                    AllStreamsScreen(
+                        title = destination.title,
+                        rowId = destination.rowId,
+                        streamType = StreamType.from(rawValue = destination.streamType),
+                        sharedTransitionScope = this@SharedTransitionLayout,
+                        animatedContentScope = this,
+                        onBackClick = { navController.popBackStack() },
                         onStreamClick = { tmdbId, posterPath, rowId, streamType ->
                             navController.navigate(
                                 route = MainDestination.DetailDestination(

@@ -18,6 +18,7 @@ import com.sunstar.streamcompass.presentation.core.PosterCard
 import com.sunstar.streamcompass.presentation.core.mediaRowItemKey
 import kotlinx.coroutines.flow.Flow
 import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -25,6 +26,7 @@ fun TvScreen(
     viewModel: TvViewModel = koinViewModel(),
     scrollState: ScrollState = rememberScrollState(),
     onStreamClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
+    onViewAllClick: (title: String, rowId: String, streamType: StreamType) -> Unit,
 ) {
     val state by viewModel.stateFlow.collectAsState()
 
@@ -35,6 +37,7 @@ fun TvScreen(
                 rowId = rowType.id,
                 contentsFlow = contentsFlow,
                 onStreamClick = onStreamClick,
+                onViewAllClick = onViewAllClick,
             )
         }
     }
@@ -46,10 +49,16 @@ private fun SuggestionRow(
     rowId: String,
     contentsFlow: Flow<PagingData<TvStream>>,
     onStreamClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
+    onViewAllClick: (title: String, rowId: String, streamType: StreamType) -> Unit,
 ) {
     val pagingItems = contentsFlow.collectAsLazyPagingItems()
+    val title = stringResource(titleRes)
 
-    MediaRow(titleRes = titleRes, minHeight = POSTER_ROW_MIN_HEIGHT) {
+    MediaRow(
+        titleRes = titleRes,
+        minHeight = POSTER_ROW_MIN_HEIGHT,
+        onViewAllClick = { onViewAllClick(title, rowId, StreamType.Tv) },
+    ) {
         items(
             count = pagingItems.itemCount,
             key = { index ->

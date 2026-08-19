@@ -16,6 +16,7 @@ import streamcompass.architecture.presentation.generated.resources.ic_movie
 import streamcompass.architecture.presentation.generated.resources.ic_search
 import streamcompass.architecture.presentation.generated.resources.ic_settings
 import streamcompass.architecture.presentation.generated.resources.ic_tv
+import streamcompass.architecture.presentation.generated.resources.media_row_view_all
 
 @Serializable
 sealed class MainDestination {
@@ -78,6 +79,18 @@ sealed class MainDestination {
         override val isTopBarUsed: Boolean get() = false
     }
 
+    @Serializable
+    data class AllStreamsDestination(
+        val title: String,
+        val rowId: String,
+        val streamType: String,
+    ) : MainDestination() {
+        override val label: StringResource get() = Res.string.media_row_view_all
+        override val icon: DrawableResource get() = Res.drawable.ic_movie
+        override val isNavigationUsed: Boolean get() = false
+        override val isTopBarUsed: Boolean get() = false
+    }
+
     companion object {
         fun values(): List<MainDestination> =
             listOf(HomeDestination, MovieDestination, TvDestination, SettingDestination)
@@ -91,7 +104,12 @@ sealed class MainDestination {
                     rowId = "",
                     recordHistory = false,
                     streamType = StreamType.Movie.rawValue,
-                )
+                ),
+                AllStreamsDestination(
+                    title = "",
+                    rowId = "",
+                    streamType = StreamType.Movie.rawValue,
+                ),
             )
     }
 }

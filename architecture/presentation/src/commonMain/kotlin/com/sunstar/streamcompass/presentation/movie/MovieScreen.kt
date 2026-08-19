@@ -23,6 +23,7 @@ import com.sunstar.streamcompass.presentation.core.posterOverlayClip
 import com.sunstar.streamcompass.presentation.core.posterSharedElementKey
 import kotlinx.coroutines.flow.Flow
 import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -33,6 +34,7 @@ fun MovieScreen(
     sharedTransitionScope: SharedTransitionScope,
     animatedContentScope: AnimatedContentScope,
     onStreamClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
+    onViewAllClick: (title: String, rowId: String, streamType: StreamType) -> Unit,
 ) {
     val state by viewModel.stateFlow.collectAsState()
 
@@ -45,6 +47,7 @@ fun MovieScreen(
                 sharedTransitionScope = sharedTransitionScope,
                 animatedContentScope = animatedContentScope,
                 onStreamClick = onStreamClick,
+                onViewAllClick = onViewAllClick,
             )
         }
     }
@@ -59,10 +62,16 @@ private fun SuggestionRow(
     sharedTransitionScope: SharedTransitionScope,
     animatedContentScope: AnimatedContentScope,
     onStreamClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
+    onViewAllClick: (title: String, rowId: String, streamType: StreamType) -> Unit,
 ) {
     val pagingItems = contentsFlow.collectAsLazyPagingItems()
+    val title = stringResource(titleRes)
 
-    MediaRow(titleRes = titleRes, minHeight = POSTER_ROW_MIN_HEIGHT) {
+    MediaRow(
+        titleRes = titleRes,
+        minHeight = POSTER_ROW_MIN_HEIGHT,
+        onViewAllClick = { onViewAllClick(title, rowId, StreamType.Movie) },
+    ) {
         items(
             count = pagingItems.itemCount,
             key = { index ->

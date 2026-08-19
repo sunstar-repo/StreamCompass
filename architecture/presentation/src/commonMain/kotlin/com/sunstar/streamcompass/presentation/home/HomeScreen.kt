@@ -88,6 +88,7 @@ fun HomeScreen(
     sharedTransitionScope: SharedTransitionScope,
     animatedContentScope: AnimatedContentScope,
     onStreamClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
+    onViewAllClick: (title: String, rowId: String, streamType: StreamType) -> Unit,
 ) {
     val state by viewModel.stateFlow.collectAsState()
     var selectedHistoryItem by remember { mutableStateOf<HistoryItem?>(null) }
@@ -107,6 +108,7 @@ fun HomeScreen(
             sharedTransitionScope = sharedTransitionScope,
             animatedContentScope = animatedContentScope,
             onClick = onStreamClick,
+            onViewAllClick = onViewAllClick,
         )
 
         NewTvRow(
@@ -115,6 +117,7 @@ fun HomeScreen(
             sharedTransitionScope = sharedTransitionScope,
             animatedContentScope = animatedContentScope,
             onClick = onStreamClick,
+            onViewAllClick = onViewAllClick,
         )
 
         if (movieHistoryStreams.isEmpty()) {
@@ -133,6 +136,7 @@ fun HomeScreen(
                 onLongClick = { stream ->
                     selectedHistoryItem = HistoryItem.Movie(stream = stream)
                 },
+                onViewAllClick = onViewAllClick,
             )
         }
 
@@ -150,6 +154,7 @@ fun HomeScreen(
                 animatedContentScope = animatedContentScope,
                 onClick = onStreamClick,
                 onLongClick = { stream -> selectedHistoryItem = HistoryItem.Tv(stream = stream) },
+                onViewAllClick = onViewAllClick,
             )
         }
     }
@@ -334,10 +339,16 @@ private fun NewMoviesRow(
     sharedTransitionScope: SharedTransitionScope,
     animatedContentScope: AnimatedContentScope,
     onClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
+    onViewAllClick: (title: String, rowId: String, streamType: StreamType) -> Unit,
 ) {
     val pagingItems = contentsFlow.collectAsLazyPagingItems()
+    val title = stringResource(Res.string.home_row_new_movies)
 
-    MediaRow(titleRes = Res.string.home_row_new_movies, minHeight = POSTER_ROW_MIN_HEIGHT) {
+    MediaRow(
+        titleRes = Res.string.home_row_new_movies,
+        minHeight = POSTER_ROW_MIN_HEIGHT,
+        onViewAllClick = { onViewAllClick(title, rowId, StreamType.Movie) },
+    ) {
         items(
             count = pagingItems.itemCount,
             key = { index ->
@@ -367,7 +378,14 @@ private fun NewMoviesRow(
                             clipInOverlayDuringTransition = posterOverlayClip(),
                         )
                     },
-                    onClick = { onClick(stream.tmdbId, stream.posterPath, rowId, StreamType.Movie) },
+                    onClick = {
+                        onClick(
+                            stream.tmdbId,
+                            stream.posterPath,
+                            rowId,
+                            StreamType.Movie
+                        )
+                    },
                 )
             }
         }
@@ -382,10 +400,16 @@ private fun NewTvRow(
     sharedTransitionScope: SharedTransitionScope,
     animatedContentScope: AnimatedContentScope,
     onClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
+    onViewAllClick: (title: String, rowId: String, streamType: StreamType) -> Unit,
 ) {
     val pagingItems = contentsFlow.collectAsLazyPagingItems()
+    val title = stringResource(Res.string.home_row_new_tv)
 
-    MediaRow(titleRes = Res.string.home_row_new_tv, minHeight = POSTER_ROW_MIN_HEIGHT) {
+    MediaRow(
+        titleRes = Res.string.home_row_new_tv,
+        minHeight = POSTER_ROW_MIN_HEIGHT,
+        onViewAllClick = { onViewAllClick(title, rowId, StreamType.Tv) },
+    ) {
         items(
             count = pagingItems.itemCount,
             key = { index ->
@@ -431,8 +455,15 @@ private fun MovieHistoryRow(
     animatedContentScope: AnimatedContentScope,
     onClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
     onLongClick: (MovieStream) -> Unit,
+    onViewAllClick: (title: String, rowId: String, streamType: StreamType) -> Unit,
 ) {
-    MediaRow(titleRes = Res.string.home_row_movie_history, minHeight = POSTER_ROW_MIN_HEIGHT) {
+    val title = stringResource(Res.string.home_row_movie_history)
+
+    MediaRow(
+        titleRes = Res.string.home_row_movie_history,
+        minHeight = POSTER_ROW_MIN_HEIGHT,
+        onViewAllClick = { onViewAllClick(title, rowId, StreamType.Movie) },
+    ) {
         itemsIndexed(
             items = items,
             key = { index, stream ->
@@ -476,8 +507,15 @@ private fun TvHistoryRow(
     animatedContentScope: AnimatedContentScope,
     onClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
     onLongClick: (TvStream) -> Unit,
+    onViewAllClick: (title: String, rowId: String, streamType: StreamType) -> Unit,
 ) {
-    MediaRow(titleRes = Res.string.home_row_tv_history, minHeight = POSTER_ROW_MIN_HEIGHT) {
+    val title = stringResource(Res.string.home_row_tv_history)
+
+    MediaRow(
+        titleRes = Res.string.home_row_tv_history,
+        minHeight = POSTER_ROW_MIN_HEIGHT,
+        onViewAllClick = { onViewAllClick(title, rowId, StreamType.Tv) },
+    ) {
         itemsIndexed(
             items = items,
             key = { index, stream ->
