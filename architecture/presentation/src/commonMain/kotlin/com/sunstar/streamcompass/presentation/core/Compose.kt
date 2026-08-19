@@ -1,5 +1,7 @@
 package com.sunstar.streamcompass.presentation.core
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -40,6 +42,14 @@ fun mediaRowItemKey(streamType: StreamType, rowId: String, tmdbId: Int?, index: 
 
 fun posterSharedElementKey(streamType: StreamType, rowId: String, tmdbId: Int): String =
     "poster_${streamType.rawValue}_${rowId}_${tmdbId}"
+
+// sharedElement()의 clipInOverlayDuringTransition 기본값(ParentClip)은 전환 중 overlay 레이어에서
+// 렌더링될 때 조상 clip을 못 찾아 사각형으로 그려지며 모서리가 깜빡인다 — PosterCard와 동일한
+// 라운드를 명시적으로 지정해 전환 중에도 유지되게 한다.
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Composable
+fun SharedTransitionScope.posterOverlayClip(): SharedTransitionScope.OverlayClip =
+    OverlayClip(MaterialTheme.shapes.medium)
 
 @Composable
 fun MediaRow(

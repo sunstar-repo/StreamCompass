@@ -47,6 +47,7 @@ import com.sunstar.streamcompass.presentation.core.displayTitle
 import com.sunstar.streamcompass.presentation.core.genres
 import com.sunstar.streamcompass.presentation.core.logo
 import com.sunstar.streamcompass.presentation.core.overview
+import com.sunstar.streamcompass.presentation.core.posterOverlayClip
 import com.sunstar.streamcompass.presentation.core.posterSharedElementKey
 import com.sunstar.streamcompass.presentation.core.releaseDate
 import com.sunstar.streamcompass.presentation.core.rememberCollapsingHeaderState
@@ -231,6 +232,7 @@ private fun DetailPoster(
                         ),
                     ),
                     animatedVisibilityScope = animatedContentScope,
+                    clipInOverlayDuringTransition = posterOverlayClip(),
                 )
         },
     )

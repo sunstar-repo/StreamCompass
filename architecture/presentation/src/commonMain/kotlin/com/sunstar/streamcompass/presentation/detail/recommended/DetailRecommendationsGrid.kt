@@ -15,6 +15,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.sunstar.streamcompass.domain.model.StreamType
 import com.sunstar.streamcompass.presentation.core.PosterCard
 import com.sunstar.streamcompass.presentation.core.displayTitle
+import com.sunstar.streamcompass.presentation.core.posterOverlayClip
 import com.sunstar.streamcompass.presentation.core.posterPath
 import com.sunstar.streamcompass.presentation.core.posterSharedElementKey
 import com.sunstar.streamcompass.presentation.core.streamType
@@ -58,6 +59,7 @@ fun DetailRecommendationsGrid(
                                 ),
                             ),
                             animatedVisibilityScope = animatedContentScope,
+                            clipInOverlayDuringTransition = posterOverlayClip(),
                         )
                     },
                     onClick = {

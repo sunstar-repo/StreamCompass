@@ -19,6 +19,7 @@ import com.sunstar.streamcompass.presentation.core.MediaRow
 import com.sunstar.streamcompass.presentation.core.POSTER_ROW_MIN_HEIGHT
 import com.sunstar.streamcompass.presentation.core.PosterCard
 import com.sunstar.streamcompass.presentation.core.mediaRowItemKey
+import com.sunstar.streamcompass.presentation.core.posterOverlayClip
 import com.sunstar.streamcompass.presentation.core.posterSharedElementKey
 import kotlinx.coroutines.flow.Flow
 import org.jetbrains.compose.resources.StringResource
@@ -88,6 +89,7 @@ private fun SuggestionRow(
                                 ),
                             ),
                             animatedVisibilityScope = animatedContentScope,
+                            clipInOverlayDuringTransition = posterOverlayClip(),
                         )
                     },
                     onClick = {

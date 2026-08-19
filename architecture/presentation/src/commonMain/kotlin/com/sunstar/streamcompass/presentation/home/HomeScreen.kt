@@ -61,6 +61,7 @@ import com.sunstar.streamcompass.presentation.core.PosterCard
 import com.sunstar.streamcompass.presentation.core.backdropPath
 import com.sunstar.streamcompass.presentation.core.displayTitle
 import com.sunstar.streamcompass.presentation.core.mediaRowItemKey
+import com.sunstar.streamcompass.presentation.core.posterOverlayClip
 import com.sunstar.streamcompass.presentation.core.posterPath
 import com.sunstar.streamcompass.presentation.core.posterSharedElementKey
 import com.sunstar.streamcompass.presentation.core.streamType
@@ -363,6 +364,7 @@ private fun NewMoviesRow(
                                 ),
                             ),
                             animatedVisibilityScope = animatedContentScope,
+                            clipInOverlayDuringTransition = posterOverlayClip(),
                         )
                     },
                     onClick = { onClick(stream.tmdbId, stream.posterPath, rowId, StreamType.Movie) },
@@ -410,6 +412,7 @@ private fun NewTvRow(
                                 ),
                             ),
                             animatedVisibilityScope = animatedContentScope,
+                            clipInOverlayDuringTransition = posterOverlayClip(),
                         )
                     },
                     onClick = { onClick(stream.tmdbId, stream.posterPath, rowId, StreamType.Tv) },
@@ -454,6 +457,7 @@ private fun MovieHistoryRow(
                             ),
                         ),
                         animatedVisibilityScope = animatedContentScope,
+                        clipInOverlayDuringTransition = posterOverlayClip(),
                     )
                 },
                 onClick = { onClick(stream.tmdbId, stream.posterPath, rowId, StreamType.Movie) },
@@ -498,6 +502,7 @@ private fun TvHistoryRow(
                             ),
                         ),
                         animatedVisibilityScope = animatedContentScope,
+                        clipInOverlayDuringTransition = posterOverlayClip(),
                     )
                 },
                 onClick = { onClick(stream.tmdbId, stream.posterPath, rowId, StreamType.Tv) },
