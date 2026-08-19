@@ -23,10 +23,12 @@ internal object TmdbConstants {
     const val MEDIA_TYPE_TV = "tv"
 
     const val PATH_DISCOVER = "discover"
+    const val PATH_SEARCH = "search"
 
     const val PARAM_API_KEY = "api_key"
     const val PARAM_LANGUAGE = "language"
     const val PARAM_PAGE = "page"
+    const val PARAM_QUERY = "query"
     const val PARAM_APPEND_TO_RESPONSE = "append_to_response"
     const val PARAM_SORT_BY = "sort_by"
     const val PARAM_WITH_RELEASE_TYPE = "with_release_type"

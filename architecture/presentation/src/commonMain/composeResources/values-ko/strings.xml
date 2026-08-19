@@ -10,6 +10,8 @@
 
     <string name="media_row_view_all">전체보기</string>
 
+    <string name="search_hint">영화, TV 프로그램 검색</string>
+
     <string name="stream_detail_tab_about">정보</string>
     <string name="stream_detail_tab_series">시리즈</string>
     <string name="stream_detail_tab_recommended">추천</string>

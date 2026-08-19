@@ -6,6 +6,7 @@ import com.sunstar.streamcompass.presentation.allstreams.AllStreamsViewModel
 import com.sunstar.streamcompass.presentation.detail.DetailViewModel
 import com.sunstar.streamcompass.presentation.home.HomeViewModel
 import com.sunstar.streamcompass.presentation.movie.MovieViewModel
+import com.sunstar.streamcompass.presentation.search.SearchViewModel
 import com.sunstar.streamcompass.presentation.setting.SettingViewModel
 import com.sunstar.streamcompass.presentation.tv.TvViewModel
 import org.koin.core.module.dsl.viewModel
@@ -49,6 +50,13 @@ val presentationModule =
                 streamType = streamType,
                 getSuggestionUseCase = get(),
                 getHistoryStreamUseCase = get(),
+            )
+        }
+        viewModel {
+            SearchViewModel(
+                getSearchHistoryUseCase = get(),
+                getSearchStreamUseCase = get(),
+                recordSearchHistoryUseCase = get(),
             )
         }
     }

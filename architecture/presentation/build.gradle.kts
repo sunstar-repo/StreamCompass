@@ -31,6 +31,7 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.compose.uiTooling)
             implementation(libs.androidx.core.view)
+            implementation(libs.androidx.activity.compose)
         }
         commonMain.dependencies {
             implementation(projects.architecture.domain)

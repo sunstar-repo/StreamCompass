@@ -45,11 +45,14 @@ import com.sunstar.streamcompass.domain.usecase.GetEpisodesUseCase
 import com.sunstar.streamcompass.domain.usecase.GetHistoryStreamUseCase
 import com.sunstar.streamcompass.domain.usecase.GetRecommendationsUseCase
 import com.sunstar.streamcompass.domain.usecase.GetReviewsUseCase
+import com.sunstar.streamcompass.domain.usecase.GetSearchHistoryUseCase
+import com.sunstar.streamcompass.domain.usecase.GetSearchStreamUseCase
 import com.sunstar.streamcompass.domain.usecase.GetSeasonsUseCase
 import com.sunstar.streamcompass.domain.usecase.GetStreamDetailUseCase
 import com.sunstar.streamcompass.domain.usecase.GetSuggestionStreamUseCase
 import com.sunstar.streamcompass.domain.usecase.GetTrendingStreamUseCase
 import com.sunstar.streamcompass.domain.usecase.RecordHistoryUseCase
+import com.sunstar.streamcompass.domain.usecase.RecordSearchHistoryUseCase
 import com.sunstar.streamcompass.domain.usecase.RemoveHistoryUseCase
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.firestore.FirebaseFirestore
@@ -73,6 +76,7 @@ private val TV_DETAIL_DAO = named("tvDetailDao")
 private val DEEPLINK_DAO = named("deeplinkDao")
 private val MOVIE_HISTORY_DAO = named("movieHistoryDao")
 private val TV_HISTORY_DAO = named("tvHistoryDao")
+private val SEARCH_HISTORY_DAO = named("searchHistoryDao")
 private val LOCAL_DATA_SOURCE = named("localDataSource")
 private val MOVIE_DETAIL_ENTITY_MAPPER = named("movieDetailEntityMapper")
 private val TV_DETAIL_ENTITY_MAPPER = named("tvDetailEntityMapper")
@@ -113,6 +117,7 @@ fun dataModule(apiKey: ApiKey): Module =
         single(DEEPLINK_DAO) { get<AppDatabase>(qualifier = APP_DATABASE).deeplinkDao() }
         single(MOVIE_HISTORY_DAO) { get<AppDatabase>(qualifier = APP_DATABASE).movieHistoryDao() }
         single(TV_HISTORY_DAO) { get<AppDatabase>(qualifier = APP_DATABASE).tvHistoryDao() }
+        single(SEARCH_HISTORY_DAO) { get<AppDatabase>(qualifier = APP_DATABASE).searchHistoryDao() }
         single(LOCAL_DATA_SOURCE) {
             LocalDataSource(
                 movieDetailDao = get(qualifier = MOVIE_DETAIL_DAO),
@@ -120,6 +125,7 @@ fun dataModule(apiKey: ApiKey): Module =
                 deeplinkDao = get(qualifier = DEEPLINK_DAO),
                 movieHistoryDao = get(qualifier = MOVIE_HISTORY_DAO),
                 tvHistoryDao = get(qualifier = TV_HISTORY_DAO),
+                searchHistoryDao = get(qualifier = SEARCH_HISTORY_DAO),
             )
         }
 
@@ -156,4 +162,7 @@ fun dataModule(apiKey: ApiKey): Module =
         single { RemoveHistoryUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
         single { GetSeasonsUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
         single { GetEpisodesUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
+        single { GetSearchStreamUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
+        single { RecordSearchHistoryUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
+        single { GetSearchHistoryUseCase(streamRepository = get(qualifier = STREAM_REPOSITORY)) }
     }

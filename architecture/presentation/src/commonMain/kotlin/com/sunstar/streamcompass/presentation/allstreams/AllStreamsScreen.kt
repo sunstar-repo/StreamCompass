@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -27,12 +25,10 @@ import com.sunstar.streamcompass.presentation.core.mediaRowItemKey
 import com.sunstar.streamcompass.presentation.core.posterOverlayClip
 import com.sunstar.streamcompass.presentation.core.posterPath
 import com.sunstar.streamcompass.presentation.core.posterSharedElementKey
+import com.sunstar.streamcompass.presentation.core.statusBarProtectionHeight
 import com.sunstar.streamcompass.presentation.core.tmdbId
-import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import streamcompass.architecture.presentation.generated.resources.Res
-import streamcompass.architecture.presentation.generated.resources.ic_arrow_back
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -48,7 +44,6 @@ fun AllStreamsScreen(
             streamType
         )
     }),
-    onBackClick: () -> Unit,
     onStreamClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
 ) {
     val state by viewModel.stateFlow.collectAsState()
@@ -58,18 +53,9 @@ fun AllStreamsScreen(
     val gridRowId = "${rowId}_all"
 
     Scaffold(
+        modifier = Modifier.padding(top = statusBarProtectionHeight()),
         topBar = {
-            TopAppBar(
-                title = { Text(text = title) },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            painter = painterResource(Res.drawable.ic_arrow_back),
-                            contentDescription = null
-                        )
-                    }
-                },
-            )
+            TopAppBar(title = { Text(text = title) })
         },
     ) { innerPadding ->
         LazyVerticalGrid(

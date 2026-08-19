@@ -35,4 +35,10 @@ interface StreamRepository {
     fun getHistoryStreamFlow(streamType: StreamType): Flow<List<Stream>>
 
     suspend fun removeHistory(tmdbId: Int, streamType: StreamType)
+
+    fun getSearchStreamFlow(query: String, streamType: StreamType): Flow<PagingData<Stream>>
+
+    suspend fun recordSearchHistory(query: String)
+
+    fun getSearchHistoryFlow(): Flow<List<String>>
 }

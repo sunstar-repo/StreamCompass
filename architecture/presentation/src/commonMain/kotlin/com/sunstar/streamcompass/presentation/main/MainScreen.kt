@@ -212,7 +212,6 @@ fun MainScreen() {
                         streamType = StreamType.from(rawValue = destination.streamType),
                         sharedTransitionScope = this@SharedTransitionLayout,
                         animatedContentScope = this,
-                        onBackClick = { navController.popBackStack() },
                         onStreamClick = { tmdbId, posterPath, rowId, streamType ->
                             navController.navigate(
                                 route = MainDestination.DetailDestination(
@@ -226,7 +225,23 @@ fun MainScreen() {
                         },
                     )
                 }
-                composable<MainDestination.SearchDestination> { SearchScreen() }
+                composable<MainDestination.SearchDestination> {
+                    SearchScreen(
+                        sharedTransitionScope = this@SharedTransitionLayout,
+                        animatedContentScope = this,
+                        onStreamClick = { tmdbId, posterPath, rowId, streamType ->
+                            navController.navigate(
+                                route = MainDestination.DetailDestination(
+                                    tmdbId = tmdbId,
+                                    posterPath = posterPath,
+                                    rowId = rowId,
+                                    recordHistory = rowId != HomeViewModel.RowType.MovieHistory.id,
+                                    streamType = streamType.rawValue,
+                                )
+                            )
+                        },
+                    )
+                }
             }
         }
     }

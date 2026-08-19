@@ -11,11 +11,13 @@ import com.sunstar.streamcompass.data.datasource.local.converter.StringListConve
 import com.sunstar.streamcompass.data.datasource.local.dao.DeeplinkDao
 import com.sunstar.streamcompass.data.datasource.local.dao.MovieDetailDao
 import com.sunstar.streamcompass.data.datasource.local.dao.MovieHistoryDao
+import com.sunstar.streamcompass.data.datasource.local.dao.SearchHistoryDao
 import com.sunstar.streamcompass.data.datasource.local.dao.TvDetailDao
 import com.sunstar.streamcompass.data.datasource.local.dao.TvHistoryDao
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalDeeplinkEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieDetailEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieHistoryEntity
+import com.sunstar.streamcompass.data.datasource.local.entity.LocalSearchHistoryEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalTvDetailEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalTvHistoryEntity
 
@@ -26,6 +28,7 @@ import com.sunstar.streamcompass.data.datasource.local.entity.LocalTvHistoryEnti
         LocalDeeplinkEntity::class,
         LocalMovieHistoryEntity::class,
         LocalTvHistoryEntity::class,
+        LocalSearchHistoryEntity::class,
     ],
     version = 1,
 )
@@ -41,6 +44,8 @@ internal abstract class AppDatabase : RoomDatabase() {
     abstract fun movieHistoryDao(): MovieHistoryDao
 
     abstract fun tvHistoryDao(): TvHistoryDao
+
+    abstract fun searchHistoryDao(): SearchHistoryDao
 }
 
 @Suppress("KotlinNoActualForExpect")

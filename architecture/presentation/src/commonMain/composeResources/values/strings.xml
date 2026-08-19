@@ -10,6 +10,8 @@
 
     <string name="media_row_view_all">View All</string>
 
+    <string name="search_hint">Search movies and TV shows</string>
+
     <string name="stream_detail_tab_about">About</string>
     <string name="stream_detail_tab_series">Series</string>
     <string name="stream_detail_tab_recommended">Recommended</string>

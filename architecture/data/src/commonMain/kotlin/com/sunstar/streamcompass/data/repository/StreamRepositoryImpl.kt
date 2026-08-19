@@ -13,6 +13,7 @@ import com.sunstar.streamcompass.data.datasource.local.LocalDataSource
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalDeeplinkEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieDetailEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieHistoryEntity
+import com.sunstar.streamcompass.data.datasource.local.entity.LocalSearchHistoryEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalTvDetailEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalTvHistoryEntity
 import com.sunstar.streamcompass.data.datasource.streamingavailability.SaDataSource
@@ -27,10 +28,12 @@ import com.sunstar.streamcompass.data.datasource.tmdb.dto.TmdbTvSummaryDto
 import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbEpisodesPagingSource
 import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbMovieRecommendationsPagingSource
 import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbMovieReviewsPagingSource
+import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbSearchPagingSource
 import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbSeasonsPagingSource
 import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbSuggestionPagingSource
 import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbTvRecommendationsPagingSource
 import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbTvReviewsPagingSource
+import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbTvSearchPagingSource
 import com.sunstar.streamcompass.data.datasource.tmdb.paging.TmdbTvSuggestionPagingSource
 import com.sunstar.streamcompass.domain.mapper.Mapper
 import com.sunstar.streamcompass.domain.model.Deeplink
@@ -130,6 +133,42 @@ internal class StreamRepositoryImpl(
             StreamType.Movie -> localDataSource.deleteMovieHistory(tmdbId = tmdbId)
             StreamType.Tv -> localDataSource.deleteTvHistory(tmdbId = tmdbId)
         }
+
+    override fun getSearchStreamFlow(query: String, streamType: StreamType): Flow<PagingData<Stream>> =
+        when (streamType) {
+            StreamType.Movie -> Pager(
+                config = PagingConfig(pageSize = TmdbConstants.PAGE_SIZE),
+                pagingSourceFactory = {
+                    TmdbSearchPagingSource(
+                        tmdbDataSource = tmdbDataSource,
+                        summaryMapper = movieSummaryMapper,
+                        query = query,
+                    )
+                },
+            ).flow.map { pagingData -> pagingData.map { it } }
+
+            StreamType.Tv -> Pager(
+                config = PagingConfig(pageSize = TmdbConstants.PAGE_SIZE),
+                pagingSourceFactory = {
+                    TmdbTvSearchPagingSource(
+                        tmdbDataSource = tmdbDataSource,
+                        summaryMapper = tvSummaryMapper,
+                        query = query,
+                    )
+                },
+            ).flow.map { pagingData -> pagingData.map { it } }
+        }
+
+    @OptIn(ExperimentalTime::class)
+    override suspend fun recordSearchHistory(query: String) {
+        val searchedAt = Clock.System.now().toEpochMilliseconds()
+        localDataSource.upsertSearchHistory(
+            entity = LocalSearchHistoryEntity(query = query, searchedAt = searchedAt)
+        )
+    }
+
+    override fun getSearchHistoryFlow(): Flow<List<String>> =
+        localDataSource.observeSearchHistory().map { entities -> entities.map { it.query } }
 
     override fun getRecommendationsStreamFlow(
         tmdbId: Int,

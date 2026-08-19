@@ -140,6 +140,32 @@ internal class TmdbDataSource(
             parameter(TmdbConstants.PARAM_INCLUDE_ADULT, false)
         }.body()
 
+    suspend fun searchMovies(
+        query: String,
+        page: Int = 1,
+        language: String = currentSystemLocale().locale,
+    ): TmdbMoviePageResponseDto =
+        httpClient.get("${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_SEARCH}/${TmdbConstants.PATH_MOVIE}") {
+            parameter(TmdbConstants.PARAM_API_KEY, apiKey)
+            parameter(TmdbConstants.PARAM_LANGUAGE, language)
+            parameter(TmdbConstants.PARAM_PAGE, page)
+            parameter(TmdbConstants.PARAM_QUERY, query)
+            parameter(TmdbConstants.PARAM_INCLUDE_ADULT, false)
+        }.body()
+
+    suspend fun searchTv(
+        query: String,
+        page: Int = 1,
+        language: String = currentSystemLocale().locale,
+    ): TmdbTvPageResponseDto =
+        httpClient.get("${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_SEARCH}/${TmdbConstants.PATH_TV}") {
+            parameter(TmdbConstants.PARAM_API_KEY, apiKey)
+            parameter(TmdbConstants.PARAM_LANGUAGE, language)
+            parameter(TmdbConstants.PARAM_PAGE, page)
+            parameter(TmdbConstants.PARAM_QUERY, query)
+            parameter(TmdbConstants.PARAM_INCLUDE_ADULT, false)
+        }.body()
+
     suspend fun getTrendingAllDay(
         page: Int = 1,
         language: String = currentSystemLocale().locale,

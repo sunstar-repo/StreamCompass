@@ -3,11 +3,13 @@ package com.sunstar.streamcompass.data.datasource.local
 import com.sunstar.streamcompass.data.datasource.local.dao.DeeplinkDao
 import com.sunstar.streamcompass.data.datasource.local.dao.MovieDetailDao
 import com.sunstar.streamcompass.data.datasource.local.dao.MovieHistoryDao
+import com.sunstar.streamcompass.data.datasource.local.dao.SearchHistoryDao
 import com.sunstar.streamcompass.data.datasource.local.dao.TvDetailDao
 import com.sunstar.streamcompass.data.datasource.local.dao.TvHistoryDao
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalDeeplinkEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieDetailEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieHistoryEntity
+import com.sunstar.streamcompass.data.datasource.local.entity.LocalSearchHistoryEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalTvDetailEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalTvHistoryEntity
 import kotlinx.coroutines.flow.Flow
@@ -18,6 +20,7 @@ internal class LocalDataSource(
     private val deeplinkDao: DeeplinkDao,
     private val movieHistoryDao: MovieHistoryDao,
     private val tvHistoryDao: TvHistoryDao,
+    private val searchHistoryDao: SearchHistoryDao,
 ) {
     suspend fun getMovieDetail(tmdbId: Int, locale: String): LocalMovieDetailEntity? =
         movieDetailDao.get(tmdbId = tmdbId, locale = locale)
@@ -62,4 +65,9 @@ internal class LocalDataSource(
     suspend fun deleteMovieHistory(tmdbId: Int) = movieHistoryDao.delete(tmdbId = tmdbId)
 
     suspend fun deleteTvHistory(tmdbId: Int) = tvHistoryDao.delete(tmdbId = tmdbId)
+
+    fun observeSearchHistory(): Flow<List<LocalSearchHistoryEntity>> = searchHistoryDao.observeRecent()
+
+    suspend fun upsertSearchHistory(entity: LocalSearchHistoryEntity) =
+        searchHistoryDao.upsert(entity = entity)
 }
