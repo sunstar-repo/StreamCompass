@@ -22,11 +22,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
@@ -41,6 +43,7 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import streamcompass.architecture.presentation.generated.resources.Res
 import streamcompass.architecture.presentation.generated.resources.media_row_view_all
+import streamcompass.architecture.presentation.generated.resources.paging_load_failed
 
 fun mediaRowItemKey(streamType: StreamType, rowId: String, tmdbId: Int?, index: Int): String =
     "${streamType.rawValue}_${rowId}_${tmdbId}_${index}"
@@ -62,6 +65,8 @@ fun MediaRow(
     minHeight: Dp,
     topPadding: Dp = 16.dp,
     bottomPadding: Dp = 16.dp,
+    isLoading: Boolean = false,
+    isError: Boolean = false,
     onViewAllClick: (() -> Unit)? = null,
     content: LazyListScope.() -> Unit,
 ) {
@@ -85,11 +90,38 @@ fun MediaRow(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.heightIn(min = minHeight),
-            content = content,
+        if (isLoading) {
+            LoadingIndicator(modifier = Modifier.fillMaxWidth().heightIn(min = minHeight))
+        } else if (isError) {
+            MessageIndicator(
+                text = stringResource(Res.string.paging_load_failed),
+                modifier = Modifier.fillMaxWidth().heightIn(min = minHeight),
+            )
+        } else {
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.heightIn(min = minHeight),
+                content = content,
+            )
+        }
+    }
+}
+
+@Composable
+fun LoadingIndicator(modifier: Modifier = Modifier) {
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        CircularProgressIndicator()
+    }
+}
+
+@Composable
+fun MessageIndicator(text: String, modifier: Modifier = Modifier) {
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }

@@ -10,12 +10,15 @@
 
     <string name="media_row_view_all">View All</string>
 
+    <string name="paging_load_failed">Failed to load</string>
+
     <string name="search_hint">Search movies and TV shows</string>
 
     <string name="stream_detail_tab_about">About</string>
     <string name="stream_detail_tab_series">Series</string>
     <string name="stream_detail_tab_recommended">Recommended</string>
     <string name="stream_detail_tab_review">Review</string>
+    <string name="stream_detail_review_empty">No reviews yet</string>
     <string name="stream_detail_view_streaming_options">View Streaming Options</string>
     <string name="stream_detail_no_streaming_options">No streaming services available</string>
     <string name="stream_detail_overview_more">More</string>

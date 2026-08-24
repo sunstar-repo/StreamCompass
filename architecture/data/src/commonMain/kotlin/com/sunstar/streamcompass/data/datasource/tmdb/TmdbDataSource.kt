@@ -220,16 +220,13 @@ internal class TmdbDataSource(
             parameter(TmdbConstants.PARAM_PAGE, page)
         }.body()
 
-    suspend fun getMovieReviews(
-        tmdbId: Int,
-        page: Int = 1,
-        language: String = currentSystemLocale().locale,
-    ): TmdbReviewPageResponseDto =
+    // 리뷰는 대부분 en-US로 등록돼 있어 language 필터를 걸면 비영어 로케일에서 결과가 거의 없다 —
+    // language 파라미터 없이 요청해 TMDB가 반환하는 원어 그대로의 리뷰를 모두 받는다.
+    suspend fun getMovieReviews(tmdbId: Int, page: Int = 1): TmdbReviewPageResponseDto =
         httpClient.get(
             "${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_MOVIE}/$tmdbId/${TmdbConstants.SEGMENT_REVIEWS}"
         ) {
             parameter(TmdbConstants.PARAM_API_KEY, apiKey)
-            parameter(TmdbConstants.PARAM_LANGUAGE, language)
             parameter(TmdbConstants.PARAM_PAGE, page)
         }.body()
 
@@ -258,16 +255,11 @@ internal class TmdbDataSource(
             parameter(TmdbConstants.PARAM_PAGE, page)
         }.body()
 
-    suspend fun getTvReviews(
-        tmdbId: Int,
-        page: Int = 1,
-        language: String = currentSystemLocale().locale,
-    ): TmdbReviewPageResponseDto =
+    suspend fun getTvReviews(tmdbId: Int, page: Int = 1): TmdbReviewPageResponseDto =
         httpClient.get(
             "${TmdbConstants.BASE_URL}/${TmdbConstants.PATH_TV}/$tmdbId/${TmdbConstants.SEGMENT_REVIEWS}"
         ) {
             parameter(TmdbConstants.PARAM_API_KEY, apiKey)
-            parameter(TmdbConstants.PARAM_LANGUAGE, language)
             parameter(TmdbConstants.PARAM_PAGE, page)
         }.body()
 

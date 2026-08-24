@@ -10,12 +10,15 @@
 
     <string name="media_row_view_all">전체보기</string>
 
+    <string name="paging_load_failed">로딩에 실패했습니다</string>
+
     <string name="search_hint">영화, TV 프로그램 검색</string>
 
     <string name="stream_detail_tab_about">정보</string>
     <string name="stream_detail_tab_series">시리즈</string>
     <string name="stream_detail_tab_recommended">추천</string>
     <string name="stream_detail_tab_review">리뷰</string>
+    <string name="stream_detail_review_empty">등록된 리뷰가 없습니다</string>
     <string name="stream_detail_view_streaming_options">시청 옵션 보기</string>
     <string name="stream_detail_no_streaming_options">이용 가능한 스트리밍 서비스가 없습니다</string>
     <string name="stream_detail_overview_more">더보기</string>

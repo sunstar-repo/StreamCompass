@@ -19,16 +19,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.sunstar.streamcompass.domain.model.StreamType
+import com.sunstar.streamcompass.presentation.core.LoadingIndicator
+import com.sunstar.streamcompass.presentation.core.MessageIndicator
 import com.sunstar.streamcompass.presentation.core.PosterCard
 import com.sunstar.streamcompass.presentation.core.displayTitle
+import com.sunstar.streamcompass.presentation.core.isInitialError
+import com.sunstar.streamcompass.presentation.core.isInitialLoading
 import com.sunstar.streamcompass.presentation.core.mediaRowItemKey
 import com.sunstar.streamcompass.presentation.core.posterOverlayClip
 import com.sunstar.streamcompass.presentation.core.posterPath
 import com.sunstar.streamcompass.presentation.core.posterSharedElementKey
 import com.sunstar.streamcompass.presentation.core.statusBarProtectionHeight
 import com.sunstar.streamcompass.presentation.core.tmdbId
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import streamcompass.architecture.presentation.generated.resources.Res
+import streamcompass.architecture.presentation.generated.resources.paging_load_failed
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -58,6 +65,19 @@ fun AllStreamsScreen(
             TopAppBar(title = { Text(text = title) })
         },
     ) { innerPadding ->
+        if (pagingItems.isInitialLoading) {
+            LoadingIndicator(modifier = Modifier.fillMaxSize().padding(innerPadding))
+            return@Scaffold
+        }
+
+        if (pagingItems.isInitialError) {
+            MessageIndicator(
+                text = stringResource(Res.string.paging_load_failed),
+                modifier = Modifier.fillMaxSize().padding(innerPadding),
+            )
+            return@Scaffold
+        }
+
         LazyVerticalGrid(
             columns = GridCells.Fixed(ALL_STREAMS_GRID_COLUMNS),
             contentPadding = PaddingValues(16.dp),

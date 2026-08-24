@@ -60,6 +60,8 @@ import com.sunstar.streamcompass.presentation.core.POSTER_ROW_MIN_HEIGHT
 import com.sunstar.streamcompass.presentation.core.PosterCard
 import com.sunstar.streamcompass.presentation.core.backdropPath
 import com.sunstar.streamcompass.presentation.core.displayTitle
+import com.sunstar.streamcompass.presentation.core.isInitialError
+import com.sunstar.streamcompass.presentation.core.isInitialLoading
 import com.sunstar.streamcompass.presentation.core.mediaRowItemKey
 import com.sunstar.streamcompass.presentation.core.posterOverlayClip
 import com.sunstar.streamcompass.presentation.core.posterPath
@@ -347,6 +349,8 @@ private fun NewMoviesRow(
     MediaRow(
         titleRes = Res.string.home_row_new_movies,
         minHeight = POSTER_ROW_MIN_HEIGHT,
+        isLoading = pagingItems.isInitialLoading,
+        isError = pagingItems.isInitialError,
         onViewAllClick = { onViewAllClick(title, rowId, StreamType.Movie) },
     ) {
         items(
@@ -408,6 +412,8 @@ private fun NewTvRow(
     MediaRow(
         titleRes = Res.string.home_row_new_tv,
         minHeight = POSTER_ROW_MIN_HEIGHT,
+        isLoading = pagingItems.isInitialLoading,
+        isError = pagingItems.isInitialError,
         onViewAllClick = { onViewAllClick(title, rowId, StreamType.Tv) },
     ) {
         items(

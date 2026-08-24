@@ -38,11 +38,24 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.sunstar.streamcompass.domain.model.Review
 import com.sunstar.streamcompass.presentation.core.AVATAR_SIZE
 import com.sunstar.streamcompass.presentation.core.AvatarCard
+import com.sunstar.streamcompass.presentation.core.MessageIndicator
+import com.sunstar.streamcompass.presentation.core.isEmpty
 import com.sunstar.streamcompass.presentation.detail.DetailViewModel
+import org.jetbrains.compose.resources.stringResource
+import streamcompass.architecture.presentation.generated.resources.Res
+import streamcompass.architecture.presentation.generated.resources.stream_detail_review_empty
 
 @Composable
 fun DetailReviewsList(state: DetailViewModel.State.Succeed, modifier: Modifier = Modifier) {
     val pagingItems = state.reviewsFlow.collectAsLazyPagingItems()
+
+    if (pagingItems.isEmpty) {
+        MessageIndicator(
+            text = stringResource(Res.string.stream_detail_review_empty),
+            modifier = modifier.fillMaxWidth().height(REVIEWS_LIST_MIN_HEIGHT),
+        )
+        return
+    }
 
     LazyColumn(
         contentPadding = PaddingValues(vertical = 8.dp),
@@ -170,3 +183,4 @@ private val REVIEW_BUBBLE_TAIL_WIDTH = 8.dp
 private val REVIEW_BUBBLE_TAIL_HEIGHT = 12.dp
 private val REVIEW_BUBBLE_TAIL_TOP_OFFSET = 10.dp
 private const val REVIEW_CONTENT_MAX_LINES = 5
+private val REVIEWS_LIST_MIN_HEIGHT = 200.dp

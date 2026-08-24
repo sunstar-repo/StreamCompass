@@ -18,6 +18,8 @@ import com.sunstar.streamcompass.domain.model.StreamType
 import com.sunstar.streamcompass.presentation.core.MediaRow
 import com.sunstar.streamcompass.presentation.core.POSTER_ROW_MIN_HEIGHT
 import com.sunstar.streamcompass.presentation.core.PosterCard
+import com.sunstar.streamcompass.presentation.core.isInitialError
+import com.sunstar.streamcompass.presentation.core.isInitialLoading
 import com.sunstar.streamcompass.presentation.core.mediaRowItemKey
 import com.sunstar.streamcompass.presentation.core.posterOverlayClip
 import com.sunstar.streamcompass.presentation.core.posterSharedElementKey
@@ -70,6 +72,8 @@ private fun SuggestionRow(
     MediaRow(
         titleRes = titleRes,
         minHeight = POSTER_ROW_MIN_HEIGHT,
+        isLoading = pagingItems.isInitialLoading,
+        isError = pagingItems.isInitialError,
         onViewAllClick = { onViewAllClick(title, rowId, StreamType.Movie) },
     ) {
         items(

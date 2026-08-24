@@ -33,8 +33,12 @@ import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.sunstar.streamcompass.domain.model.Stream
 import com.sunstar.streamcompass.domain.model.StreamType
+import com.sunstar.streamcompass.presentation.core.LoadingIndicator
+import com.sunstar.streamcompass.presentation.core.MessageIndicator
 import com.sunstar.streamcompass.presentation.core.PosterCard
 import com.sunstar.streamcompass.presentation.core.displayTitle
+import com.sunstar.streamcompass.presentation.core.isInitialError
+import com.sunstar.streamcompass.presentation.core.isInitialLoading
 import com.sunstar.streamcompass.presentation.core.mediaRowItemKey
 import com.sunstar.streamcompass.presentation.core.posterOverlayClip
 import com.sunstar.streamcompass.presentation.core.posterPath
@@ -47,6 +51,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import streamcompass.architecture.presentation.generated.resources.Res
 import streamcompass.architecture.presentation.generated.resources.destination_movie
 import streamcompass.architecture.presentation.generated.resources.destination_tv
+import streamcompass.architecture.presentation.generated.resources.paging_load_failed
 import streamcompass.architecture.presentation.generated.resources.search_hint
 
 private val SEARCH_TABS = listOf(StreamType.Movie, StreamType.Tv)
@@ -182,6 +187,19 @@ private fun SearchResultsContent(
 
         val pagingItems = if (selectedTab == StreamType.Movie) moviePagingItems else tvPagingItems
         val rowId = SEARCH_ROW_ID_PREFIX + selectedTab.rawValue
+
+        if (pagingItems.isInitialLoading) {
+            LoadingIndicator(modifier = Modifier.fillMaxSize())
+            return@Column
+        }
+
+        if (pagingItems.isInitialError) {
+            MessageIndicator(
+                text = stringResource(Res.string.paging_load_failed),
+                modifier = Modifier.fillMaxSize(),
+            )
+            return@Column
+        }
 
         LazyVerticalGrid(
             columns = GridCells.Fixed(SEARCH_GRID_COLUMNS),
