@@ -10,6 +10,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -18,6 +21,7 @@ import com.sunstar.streamcompass.domain.model.StreamType
 import com.sunstar.streamcompass.presentation.core.MediaRow
 import com.sunstar.streamcompass.presentation.core.POSTER_ROW_MIN_HEIGHT
 import com.sunstar.streamcompass.presentation.core.PosterCard
+import com.sunstar.streamcompass.presentation.core.WatchlistActionBottomSheet
 import com.sunstar.streamcompass.presentation.core.isInitialError
 import com.sunstar.streamcompass.presentation.core.isInitialLoading
 import com.sunstar.streamcompass.presentation.core.mediaRowItemKey
@@ -39,6 +43,8 @@ fun MovieScreen(
     onViewAllClick: (title: String, rowId: String, streamType: StreamType) -> Unit,
 ) {
     val state by viewModel.stateFlow.collectAsState()
+    var selectedStream by remember { mutableStateOf<MovieStream?>(null) }
+    val watchlistedTmdbIds by state.watchlistedTmdbIds.collectAsState(initial = emptySet())
 
     Column(modifier = Modifier.verticalScroll(scrollState)) {
         state.rows.forEach { (rowType, contentsFlow) ->
@@ -49,9 +55,23 @@ fun MovieScreen(
                 sharedTransitionScope = sharedTransitionScope,
                 animatedContentScope = animatedContentScope,
                 onStreamClick = onStreamClick,
+                onStreamLongClick = { stream -> selectedStream = stream },
                 onViewAllClick = onViewAllClick,
             )
         }
+    }
+
+    val stream = selectedStream
+    if (null != stream) {
+        val isWatchlisted = watchlistedTmdbIds.contains(stream.tmdbId)
+        WatchlistActionBottomSheet(
+            isWatchlisted = isWatchlisted,
+            onWatchlistToggleClick = {
+                viewModel.toggleWatchlist(stream = stream, isCurrentlyWatchlisted = isWatchlisted)
+                selectedStream = null
+            },
+            onDismissRequest = { selectedStream = null },
+        )
     }
 }
 
@@ -64,6 +84,7 @@ private fun SuggestionRow(
     sharedTransitionScope: SharedTransitionScope,
     animatedContentScope: AnimatedContentScope,
     onStreamClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
+    onStreamLongClick: (MovieStream) -> Unit,
     onViewAllClick: (title: String, rowId: String, streamType: StreamType) -> Unit,
 ) {
     val pagingItems = contentsFlow.collectAsLazyPagingItems()
@@ -113,6 +134,7 @@ private fun SuggestionRow(
                             StreamType.Movie
                         )
                     },
+                    onLongClick = { onStreamLongClick(stream) },
                 )
             }
         }

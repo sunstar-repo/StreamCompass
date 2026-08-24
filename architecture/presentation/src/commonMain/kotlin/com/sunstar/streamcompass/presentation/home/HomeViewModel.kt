@@ -9,10 +9,13 @@ import com.sunstar.streamcompass.domain.model.Stream.MovieStream
 import com.sunstar.streamcompass.domain.model.Stream.TvStream
 import com.sunstar.streamcompass.domain.model.StreamType
 import com.sunstar.streamcompass.domain.model.SuggestionType
+import com.sunstar.streamcompass.domain.usecase.AddWatchlistUseCase
 import com.sunstar.streamcompass.domain.usecase.GetHistoryStreamUseCase
 import com.sunstar.streamcompass.domain.usecase.GetSuggestionStreamUseCase
 import com.sunstar.streamcompass.domain.usecase.GetTrendingStreamUseCase
+import com.sunstar.streamcompass.domain.usecase.GetWatchlistStreamUseCase
 import com.sunstar.streamcompass.domain.usecase.RemoveHistoryUseCase
+import com.sunstar.streamcompass.domain.usecase.RemoveWatchlistUseCase
 import com.sunstar.streamcompass.presentation.core.filterIsInstance
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -31,6 +34,9 @@ class HomeViewModel(
     private val getTrendingStreamUseCase: GetTrendingStreamUseCase,
     private val getSuggestionUseCase: GetSuggestionStreamUseCase,
     private val getHistoryStreamUseCase: GetHistoryStreamUseCase,
+    private val getWatchlistStreamUseCase: GetWatchlistStreamUseCase,
+    private val addWatchlistUseCase: AddWatchlistUseCase,
+    private val removeWatchlistUseCase: RemoveWatchlistUseCase,
 ) : ViewModel() {
 
     val stateFlow: StateFlow<State>
@@ -64,6 +70,28 @@ class HomeViewModel(
         }
     }
 
+    fun toggleMovieWatchlist(stream: MovieStream, isCurrentlyWatchlisted: Boolean) {
+        viewModelScope.launch {
+            eventChannel.send(
+                Event.ToggleMovieWatchlist(
+                    stream = stream,
+                    isCurrentlyWatchlisted = isCurrentlyWatchlisted
+                )
+            )
+        }
+    }
+
+    fun toggleTvWatchlist(stream: TvStream, isCurrentlyWatchlisted: Boolean) {
+        viewModelScope.launch {
+            eventChannel.send(
+                Event.ToggleTvWatchlist(
+                    stream = stream,
+                    isCurrentlyWatchlisted = isCurrentlyWatchlisted
+                )
+            )
+        }
+    }
+
     private suspend fun handleEvent(current: State, event: Event): State = when (event) {
         is Event.Initialize -> current.copy(
             trendingStreams = getTrendingStreamUseCase(),
@@ -77,6 +105,10 @@ class HomeViewModel(
                 .map { it.filterIsInstance<MovieStream>() },
             tvHistoryStreams = getHistoryStreamUseCase(streamType = StreamType.Tv)
                 .map { it.filterIsInstance<TvStream>() },
+            movieWatchlistStreams = getWatchlistStreamUseCase(streamType = StreamType.Movie)
+                .map { it.filterIsInstance<MovieStream>() },
+            tvWatchlistStreams = getWatchlistStreamUseCase(streamType = StreamType.Tv)
+                .map { it.filterIsInstance<TvStream>() },
         )
 
         is Event.RemoveMovieHistory -> {
@@ -88,12 +120,37 @@ class HomeViewModel(
             removeHistoryUseCase(tmdbId = event.tmdbId, streamType = StreamType.Tv)
             current
         }
+
+        is Event.ToggleMovieWatchlist -> {
+            if (event.isCurrentlyWatchlisted) {
+                removeWatchlistUseCase(tmdbId = event.stream.tmdbId, streamType = StreamType.Movie)
+            } else {
+                addWatchlistUseCase(stream = event.stream)
+            }
+            current
+        }
+
+        is Event.ToggleTvWatchlist -> {
+            if (event.isCurrentlyWatchlisted) {
+                removeWatchlistUseCase(tmdbId = event.stream.tmdbId, streamType = StreamType.Tv)
+            } else {
+                addWatchlistUseCase(stream = event.stream)
+            }
+            current
+        }
     }
 
     sealed interface Event {
         data object Initialize : Event
         data class RemoveMovieHistory(val tmdbId: Int) : Event
         data class RemoveTvHistory(val tmdbId: Int) : Event
+        data class ToggleMovieWatchlist(
+            val stream: MovieStream,
+            val isCurrentlyWatchlisted: Boolean
+        ) : Event
+
+        data class ToggleTvWatchlist(val stream: TvStream, val isCurrentlyWatchlisted: Boolean) :
+            Event
     }
 
     data class State(
@@ -102,6 +159,8 @@ class HomeViewModel(
         val newTvStreams: Flow<PagingData<TvStream>> = emptyFlow(),
         val movieHistoryStreams: Flow<List<MovieStream>> = emptyFlow(),
         val tvHistoryStreams: Flow<List<TvStream>> = emptyFlow(),
+        val movieWatchlistStreams: Flow<List<MovieStream>> = emptyFlow(),
+        val tvWatchlistStreams: Flow<List<TvStream>> = emptyFlow(),
     )
 
     sealed interface RowType {
@@ -125,6 +184,14 @@ class HomeViewModel(
 
         data object TvHistory : RowType {
             override val id: String = "tv_history"
+        }
+
+        data object MovieWatchlist : RowType {
+            override val id: String = "movie_watchlist"
+        }
+
+        data object TvWatchlist : RowType {
+            override val id: String = "tv_watchlist"
         }
     }
 }

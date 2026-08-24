@@ -36,6 +36,14 @@ interface StreamRepository {
 
     suspend fun removeHistory(tmdbId: Int, streamType: StreamType)
 
+    suspend fun addWatchlist(stream: Stream)
+
+    fun getWatchlistStreamFlow(streamType: StreamType): Flow<List<Stream>>
+
+    suspend fun removeWatchlist(tmdbId: Int, streamType: StreamType)
+
+    suspend fun isWatchlisted(tmdbId: Int, streamType: StreamType): Boolean
+
     fun getSearchStreamFlow(query: String, streamType: StreamType): Flow<PagingData<Stream>>
 
     suspend fun recordSearchHistory(query: String)

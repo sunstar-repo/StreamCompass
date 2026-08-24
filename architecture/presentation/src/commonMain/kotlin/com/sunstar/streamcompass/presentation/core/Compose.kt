@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -24,8 +25,11 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -44,6 +48,8 @@ import org.jetbrains.compose.resources.stringResource
 import streamcompass.architecture.presentation.generated.resources.Res
 import streamcompass.architecture.presentation.generated.resources.media_row_view_all
 import streamcompass.architecture.presentation.generated.resources.paging_load_failed
+import streamcompass.architecture.presentation.generated.resources.watchlist_add
+import streamcompass.architecture.presentation.generated.resources.watchlist_remove
 
 fun mediaRowItemKey(streamType: StreamType, rowId: String, tmdbId: Int?, index: Int): String =
     "${streamType.rawValue}_${rowId}_${tmdbId}_${index}"
@@ -126,6 +132,36 @@ fun MessageIndicator(text: String, modifier: Modifier = Modifier) {
     }
 }
 
+// Home(History row + New Movies/Tv row + Watchlist row)/Movie/Tv 3개 화면이 동일하게 필요로 해서
+// 공용화 — History의 sheet는 화면 하나에서만 쓰여서 화면-로컬로 남겨뒀던 것과는 다른 경우.
+// extraContent는 History row에서만 "이력에서 삭제" 줄을 추가로 넣기 위한 슬롯.
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun WatchlistActionBottomSheet(
+    isWatchlisted: Boolean,
+    onWatchlistToggleClick: () -> Unit,
+    onDismissRequest: () -> Unit,
+    extraContent: (@Composable ColumnScope.() -> Unit)? = null,
+) {
+    val sheetState = rememberModalBottomSheetState()
+
+    ModalBottomSheet(onDismissRequest = onDismissRequest, sheetState = sheetState) {
+        Column {
+            Text(
+                text = stringResource(
+                    if (isWatchlisted) Res.string.watchlist_remove else Res.string.watchlist_add
+                ),
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onWatchlistToggleClick)
+                    .padding(horizontal = 16.dp, vertical = 16.dp),
+            )
+            extraContent?.invoke(this)
+        }
+    }
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PosterCard(
@@ -159,7 +195,12 @@ fun PosterCard(
                 text = title,
                 style = MaterialTheme.typography.bodySmall,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                // 언어별 폰트 fallback(한글/영문 혼용 등)으로 줄 높이가 미세하게 달라지면 Row 전체 높이가
+                // 흔들려 하단 Row들의 y좌표가 같이 움직인다 — heightIn(min=)은 바닥만 고정할 뿐 실제
+                // 렌더링이 그 값을 넘으면(fallback 폰트로 더 큰 line height) 여전히 흔들리므로,
+                // 고정 height()로 모든 항목이 항상 동일한 높이를 갖도록 강제한다.
+                modifier = Modifier.height(MEDIA_TITLE_LINE_HEIGHT),
             )
         }
     }

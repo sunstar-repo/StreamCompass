@@ -84,7 +84,10 @@ class SearchViewModel(
                     queryText = query,
                     page = Page.Results,
                     activeQuery = query,
-                    movieResults = getSearchStreamUseCase(query = query, streamType = StreamType.Movie)
+                    movieResults = getSearchStreamUseCase(
+                        query = query,
+                        streamType = StreamType.Movie
+                    )
                         .cachedIn(viewModelScope),
                     tvResults = getSearchStreamUseCase(query = query, streamType = StreamType.Tv)
                         .cachedIn(viewModelScope),

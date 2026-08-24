@@ -8,14 +8,17 @@ import com.sunstar.streamcompass.data.converter.toDeeplink
 import com.sunstar.streamcompass.data.converter.toEntities
 import com.sunstar.streamcompass.data.converter.toEntity
 import com.sunstar.streamcompass.data.converter.toFirestoreDeeplinkDtos
+import com.sunstar.streamcompass.data.converter.toWatchlistEntity
 import com.sunstar.streamcompass.data.datasource.firestore.FirestoreDataSource
 import com.sunstar.streamcompass.data.datasource.local.LocalDataSource
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalDeeplinkEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieDetailEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieHistoryEntity
+import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieWatchlistEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalSearchHistoryEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalTvDetailEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalTvHistoryEntity
+import com.sunstar.streamcompass.data.datasource.local.entity.LocalTvWatchlistEntity
 import com.sunstar.streamcompass.data.datasource.streamingavailability.SaDataSource
 import com.sunstar.streamcompass.data.datasource.tmdb.TmdbConstants
 import com.sunstar.streamcompass.data.datasource.tmdb.TmdbDataSource
@@ -68,6 +71,8 @@ internal class StreamRepositoryImpl(
     private val deeplinkEntityMapper: Mapper<LocalDeeplinkEntity, Deeplink>,
     private val movieHistoryEntityMapper: Mapper<LocalMovieHistoryEntity, MovieStream>,
     private val tvHistoryEntityMapper: Mapper<LocalTvHistoryEntity, TvStream>,
+    private val movieWatchlistEntityMapper: Mapper<LocalMovieWatchlistEntity, MovieStream>,
+    private val tvWatchlistEntityMapper: Mapper<LocalTvWatchlistEntity, TvStream>,
     private val reviewMapper: Mapper<TmdbReviewDto, Review>,
     private val seasonSummaryMapper: Mapper<TmdbSeasonSummaryDto, Season>,
     private val episodeMapper: Mapper<TmdbEpisodeDto, Episode>,
@@ -132,6 +137,38 @@ internal class StreamRepositoryImpl(
         when (streamType) {
             StreamType.Movie -> localDataSource.deleteMovieHistory(tmdbId = tmdbId)
             StreamType.Tv -> localDataSource.deleteTvHistory(tmdbId = tmdbId)
+        }
+
+    @OptIn(ExperimentalTime::class)
+    override suspend fun addWatchlist(stream: Stream) {
+        val addedAt = Clock.System.now().toEpochMilliseconds()
+        when (stream) {
+            is MovieStream -> localDataSource.upsertMovieWatchlist(entity = stream.toWatchlistEntity(addedAt = addedAt))
+            is TvStream -> localDataSource.upsertTvWatchlist(entity = stream.toWatchlistEntity(addedAt = addedAt))
+        }
+    }
+
+    override fun getWatchlistStreamFlow(streamType: StreamType): Flow<List<Stream>> =
+        when (streamType) {
+            StreamType.Movie -> localDataSource.observeMovieWatchlist().map { entities ->
+                entities.map { movieWatchlistEntityMapper.map(source = it) }
+            }
+
+            StreamType.Tv -> localDataSource.observeTvWatchlist().map { entities ->
+                entities.map { tvWatchlistEntityMapper.map(source = it) }
+            }
+        }
+
+    override suspend fun removeWatchlist(tmdbId: Int, streamType: StreamType) =
+        when (streamType) {
+            StreamType.Movie -> localDataSource.deleteMovieWatchlist(tmdbId = tmdbId)
+            StreamType.Tv -> localDataSource.deleteTvWatchlist(tmdbId = tmdbId)
+        }
+
+    override suspend fun isWatchlisted(tmdbId: Int, streamType: StreamType): Boolean =
+        when (streamType) {
+            StreamType.Movie -> localDataSource.isMovieWatchlisted(tmdbId = tmdbId)
+            StreamType.Tv -> localDataSource.isTvWatchlisted(tmdbId = tmdbId)
         }
 
     override fun getSearchStreamFlow(query: String, streamType: StreamType): Flow<PagingData<Stream>> =

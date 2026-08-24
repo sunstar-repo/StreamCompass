@@ -102,6 +102,8 @@ fun DetailScreen(
                 rowId = rowId,
                 streamType = streamType,
                 streamDetail = (state as? DetailViewModel.State.Succeed)?.streamDetail,
+                isWatchlisted = (state as? DetailViewModel.State.Succeed)?.isWatchlisted ?: false,
+                onWatchlistToggleClick = viewModel::onWatchlistToggleClick,
                 posterWidth = posterWidth,
                 posterHeight = posterHeight,
                 posterHeightPx = posterHeightPx,
@@ -146,6 +148,8 @@ private fun DetailHeader(
     rowId: String,
     streamType: StreamType,
     streamDetail: StreamDetail?,
+    isWatchlisted: Boolean,
+    onWatchlistToggleClick: () -> Unit,
     posterWidth: Dp,
     posterHeight: Dp,
     posterHeightPx: Float,
@@ -192,6 +196,8 @@ private fun DetailHeader(
                         runtimeMinutes = streamDetail.runtimeMinutes,
                         certification = streamDetail.certification,
                         deeplinks = streamDetail.deeplinks,
+                        isWatchlisted = isWatchlisted,
+                        onWatchlistToggleClick = onWatchlistToggleClick,
                         modifier = Modifier.fillMaxSize(),
                     )
                 }

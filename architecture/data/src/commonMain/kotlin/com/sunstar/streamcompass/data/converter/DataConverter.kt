@@ -5,9 +5,11 @@ import com.sunstar.streamcompass.data.datasource.firestore.dto.FirestoreDeeplink
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalDeeplinkEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieDetailEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieHistoryEntity
+import com.sunstar.streamcompass.data.datasource.local.entity.LocalMovieWatchlistEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalPerson
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalTvDetailEntity
 import com.sunstar.streamcompass.data.datasource.local.entity.LocalTvHistoryEntity
+import com.sunstar.streamcompass.data.datasource.local.entity.LocalTvWatchlistEntity
 import com.sunstar.streamcompass.data.datasource.streamingavailability.SaConstants
 import com.sunstar.streamcompass.data.datasource.streamingavailability.dto.SaShowDto
 import com.sunstar.streamcompass.data.datasource.streamingavailability.dto.SaStreamingOptionDto
@@ -174,6 +176,38 @@ internal fun TvStream.toEntity(visitedAt: Long): LocalTvHistoryEntity =
         originalLanguage = originalLanguage,
         originalName = originalName,
         visitedAt = visitedAt,
+    )
+
+internal fun MovieStream.toWatchlistEntity(addedAt: Long): LocalMovieWatchlistEntity =
+    LocalMovieWatchlistEntity(
+        tmdbId = tmdbId,
+        title = title,
+        overview = overview,
+        posterPath = posterPath,
+        backdropPath = backdropPath,
+        releaseDate = releaseDate,
+        voteAverage = voteAverage,
+        voteCount = voteCount,
+        popularity = popularity,
+        originalLanguage = originalLanguage,
+        originalTitle = originalTitle,
+        addedAt = addedAt,
+    )
+
+internal fun TvStream.toWatchlistEntity(addedAt: Long): LocalTvWatchlistEntity =
+    LocalTvWatchlistEntity(
+        tmdbId = tmdbId,
+        name = name,
+        overview = overview,
+        posterPath = posterPath,
+        backdropPath = backdropPath,
+        firstAirDate = firstAirDate,
+        voteAverage = voteAverage,
+        voteCount = voteCount,
+        popularity = popularity,
+        originalLanguage = originalLanguage,
+        originalName = originalName,
+        addedAt = addedAt,
     )
 
 internal fun SaShowDto.toEntities(): List<LocalDeeplinkEntity> {

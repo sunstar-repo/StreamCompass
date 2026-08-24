@@ -22,7 +22,10 @@ val BACKDROP_HEIGHT = 112.dp
 val AVATAR_SIZE = 40.dp
 
 val MEDIA_TITLE_SPACING = 4.dp
-private val MEDIA_TITLE_LINE_HEIGHT = 16.dp
+
+// 한글 등 폰트 fallback으로 실제 렌더링 줄 높이가 이 값을 넘는 스크립트가 있어 여유를 조금 둠 —
+// PosterCard에서 min이 아닌 고정 height로 적용해야 진짜로 흔들리지 않는다(min은 바닥만 보장).
+val MEDIA_TITLE_LINE_HEIGHT = 20.dp
 
 val POSTER_ROW_MIN_HEIGHT = POSTER_HEIGHT + MEDIA_TITLE_SPACING + MEDIA_TITLE_LINE_HEIGHT
 val BACKDROP_ROW_MIN_HEIGHT = BACKDROP_HEIGHT + MEDIA_TITLE_SPACING + MEDIA_TITLE_LINE_HEIGHT

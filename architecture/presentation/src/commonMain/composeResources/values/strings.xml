@@ -58,6 +58,12 @@
     <string name="home_row_movie_history_empty">No recently viewed movies</string>
     <string name="home_row_tv_history_empty">No recently viewed TV shows</string>
     <string name="home_history_remove">Remove from history</string>
+    <string name="home_row_watchlist_movie">Movie Watchlist</string>
+    <string name="home_row_watchlist_tv">Tv Watchlist</string>
+    <string name="home_row_watchlist_movie_empty">No movies in your watchlist</string>
+    <string name="home_row_watchlist_tv_empty">No TV shows in your watchlist</string>
+    <string name="watchlist_add">Add to Watchlist</string>
+    <string name="watchlist_remove">Remove from Watchlist</string>
 
     <string name="setting_theme_title">Theme</string>
     <string name="setting_theme_mode_system">System Default</string>

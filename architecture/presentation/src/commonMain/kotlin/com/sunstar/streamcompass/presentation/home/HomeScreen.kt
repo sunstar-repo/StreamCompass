@@ -22,13 +22,11 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.carousel.CarouselDefaults
 import androidx.compose.material3.carousel.CarouselItemScope
 import androidx.compose.material3.carousel.HorizontalCenteredHeroCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -58,6 +56,7 @@ import com.sunstar.streamcompass.domain.model.StreamType
 import com.sunstar.streamcompass.presentation.core.MediaRow
 import com.sunstar.streamcompass.presentation.core.POSTER_ROW_MIN_HEIGHT
 import com.sunstar.streamcompass.presentation.core.PosterCard
+import com.sunstar.streamcompass.presentation.core.WatchlistActionBottomSheet
 import com.sunstar.streamcompass.presentation.core.backdropPath
 import com.sunstar.streamcompass.presentation.core.displayTitle
 import com.sunstar.streamcompass.presentation.core.isInitialError
@@ -81,6 +80,10 @@ import streamcompass.architecture.presentation.generated.resources.home_row_new_
 import streamcompass.architecture.presentation.generated.resources.home_row_new_tv
 import streamcompass.architecture.presentation.generated.resources.home_row_tv_history
 import streamcompass.architecture.presentation.generated.resources.home_row_tv_history_empty
+import streamcompass.architecture.presentation.generated.resources.home_row_watchlist_movie
+import streamcompass.architecture.presentation.generated.resources.home_row_watchlist_movie_empty
+import streamcompass.architecture.presentation.generated.resources.home_row_watchlist_tv
+import streamcompass.architecture.presentation.generated.resources.home_row_watchlist_tv_empty
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
@@ -93,9 +96,17 @@ fun HomeScreen(
     onViewAllClick: (title: String, rowId: String, streamType: StreamType) -> Unit,
 ) {
     val state by viewModel.stateFlow.collectAsState()
-    var selectedHistoryItem by remember { mutableStateOf<HistoryItem?>(null) }
+    var selectedRowItem by remember { mutableStateOf<RowItem?>(null) }
     val movieHistoryStreams by state.movieHistoryStreams.collectAsState(initial = emptyList())
     val tvHistoryStreams by state.tvHistoryStreams.collectAsState(initial = emptyList())
+    val movieWatchlistStreams by state.movieWatchlistStreams.collectAsState(initial = emptyList())
+    val tvWatchlistStreams by state.tvWatchlistStreams.collectAsState(initial = emptyList())
+    val watchlistedMovieIds = remember(movieWatchlistStreams) {
+        movieWatchlistStreams.map { it.tmdbId }.toSet()
+    }
+    val watchlistedTvIds = remember(tvWatchlistStreams) {
+        tvWatchlistStreams.map { it.tmdbId }.toSet()
+    }
 
     Column(modifier = Modifier.verticalScroll(scrollState)) {
         if (state.trendingStreams.isEmpty()) {
@@ -110,6 +121,7 @@ fun HomeScreen(
             sharedTransitionScope = sharedTransitionScope,
             animatedContentScope = animatedContentScope,
             onClick = onStreamClick,
+            onLongClick = { stream -> selectedRowItem = RowItem.NewMovie(stream = stream) },
             onViewAllClick = onViewAllClick,
         )
 
@@ -119,11 +131,50 @@ fun HomeScreen(
             sharedTransitionScope = sharedTransitionScope,
             animatedContentScope = animatedContentScope,
             onClick = onStreamClick,
+            onLongClick = { stream -> selectedRowItem = RowItem.NewTv(stream = stream) },
             onViewAllClick = onViewAllClick,
         )
 
+        if (movieWatchlistStreams.isEmpty()) {
+            RowEmptyMessage(
+                titleRes = Res.string.home_row_watchlist_movie,
+                minHeight = POSTER_ROW_MIN_HEIGHT,
+                messageRes = Res.string.home_row_watchlist_movie_empty,
+            )
+        } else {
+            MovieWatchlistRow(
+                items = movieWatchlistStreams,
+                rowId = HomeViewModel.RowType.MovieWatchlist.id,
+                sharedTransitionScope = sharedTransitionScope,
+                animatedContentScope = animatedContentScope,
+                onClick = onStreamClick,
+                onLongClick = { stream ->
+                    selectedRowItem = RowItem.WatchlistMovie(stream = stream)
+                },
+                onViewAllClick = onViewAllClick,
+            )
+        }
+
+        if (tvWatchlistStreams.isEmpty()) {
+            RowEmptyMessage(
+                titleRes = Res.string.home_row_watchlist_tv,
+                minHeight = POSTER_ROW_MIN_HEIGHT,
+                messageRes = Res.string.home_row_watchlist_tv_empty,
+            )
+        } else {
+            TvWatchlistRow(
+                items = tvWatchlistStreams,
+                rowId = HomeViewModel.RowType.TvWatchlist.id,
+                sharedTransitionScope = sharedTransitionScope,
+                animatedContentScope = animatedContentScope,
+                onClick = onStreamClick,
+                onLongClick = { stream -> selectedRowItem = RowItem.WatchlistTv(stream = stream) },
+                onViewAllClick = onViewAllClick,
+            )
+        }
+
         if (movieHistoryStreams.isEmpty()) {
-            HistoryEmptyRow(
+            RowEmptyMessage(
                 titleRes = Res.string.home_row_movie_history,
                 minHeight = POSTER_ROW_MIN_HEIGHT,
                 messageRes = Res.string.home_row_movie_history_empty,
@@ -136,14 +187,14 @@ fun HomeScreen(
                 animatedContentScope = animatedContentScope,
                 onClick = onStreamClick,
                 onLongClick = { stream ->
-                    selectedHistoryItem = HistoryItem.Movie(stream = stream)
+                    selectedRowItem = RowItem.HistoryMovie(stream = stream)
                 },
                 onViewAllClick = onViewAllClick,
             )
         }
 
         if (tvHistoryStreams.isEmpty()) {
-            HistoryEmptyRow(
+            RowEmptyMessage(
                 titleRes = Res.string.home_row_tv_history,
                 minHeight = POSTER_ROW_MIN_HEIGHT,
                 messageRes = Res.string.home_row_tv_history_empty,
@@ -155,49 +206,105 @@ fun HomeScreen(
                 sharedTransitionScope = sharedTransitionScope,
                 animatedContentScope = animatedContentScope,
                 onClick = onStreamClick,
-                onLongClick = { stream -> selectedHistoryItem = HistoryItem.Tv(stream = stream) },
+                onLongClick = { stream -> selectedRowItem = RowItem.HistoryTv(stream = stream) },
                 onViewAllClick = onViewAllClick,
             )
         }
     }
 
-    val historyItem = selectedHistoryItem
-    if (null != historyItem) {
-        HistoryOptionBottomSheet(
-            onRemoveClick = {
-                when (historyItem) {
-                    is HistoryItem.Movie -> viewModel.removeMovieHistory(tmdbId = historyItem.stream.tmdbId)
-                    is HistoryItem.Tv -> viewModel.removeTvHistory(tmdbId = historyItem.stream.tmdbId)
+    val rowItem = selectedRowItem
+    if (null != rowItem) {
+        val isWatchlisted = when (rowItem) {
+            is RowItem.WatchlistMovie, is RowItem.WatchlistTv -> true
+            is RowItem.HistoryMovie -> watchlistedMovieIds.contains(rowItem.stream.tmdbId)
+            is RowItem.HistoryTv -> watchlistedTvIds.contains(rowItem.stream.tmdbId)
+            is RowItem.NewMovie -> watchlistedMovieIds.contains(rowItem.stream.tmdbId)
+            is RowItem.NewTv -> watchlistedTvIds.contains(rowItem.stream.tmdbId)
+        }
+
+        WatchlistActionBottomSheet(
+            isWatchlisted = isWatchlisted,
+            onWatchlistToggleClick = {
+                when (rowItem) {
+                    is RowItem.HistoryMovie -> viewModel.toggleMovieWatchlist(
+                        stream = rowItem.stream,
+                        isCurrentlyWatchlisted = isWatchlisted
+                    )
+
+                    is RowItem.HistoryTv -> viewModel.toggleTvWatchlist(
+                        stream = rowItem.stream,
+                        isCurrentlyWatchlisted = isWatchlisted
+                    )
+
+                    is RowItem.WatchlistMovie -> viewModel.toggleMovieWatchlist(
+                        stream = rowItem.stream,
+                        isCurrentlyWatchlisted = isWatchlisted
+                    )
+
+                    is RowItem.WatchlistTv -> viewModel.toggleTvWatchlist(
+                        stream = rowItem.stream,
+                        isCurrentlyWatchlisted = isWatchlisted
+                    )
+
+                    is RowItem.NewMovie -> viewModel.toggleMovieWatchlist(
+                        stream = rowItem.stream,
+                        isCurrentlyWatchlisted = isWatchlisted
+                    )
+
+                    is RowItem.NewTv -> viewModel.toggleTvWatchlist(
+                        stream = rowItem.stream,
+                        isCurrentlyWatchlisted = isWatchlisted
+                    )
                 }
-                selectedHistoryItem = null
+                selectedRowItem = null
             },
-            onDismissRequest = { selectedHistoryItem = null },
-        )
-    }
-}
-
-private sealed interface HistoryItem {
-    data class Movie(val stream: MovieStream) : HistoryItem
-    data class Tv(val stream: TvStream) : HistoryItem
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun HistoryOptionBottomSheet(onRemoveClick: () -> Unit, onDismissRequest: () -> Unit) {
-    val sheetState = rememberModalBottomSheetState()
-
-    ModalBottomSheet(onDismissRequest = onDismissRequest, sheetState = sheetState) {
-        Text(
-            text = stringResource(Res.string.home_history_remove),
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    onRemoveClick()
+            onDismissRequest = { selectedRowItem = null },
+            extraContent = when (rowItem) {
+                is RowItem.HistoryMovie -> {
+                    {
+                        HistoryRemoveOption(onClick = {
+                            viewModel.removeMovieHistory(tmdbId = rowItem.stream.tmdbId)
+                            selectedRowItem = null
+                        })
+                    }
                 }
-                .padding(horizontal = 16.dp, vertical = 16.dp),
+
+                is RowItem.HistoryTv -> {
+                    {
+                        HistoryRemoveOption(onClick = {
+                            viewModel.removeTvHistory(tmdbId = rowItem.stream.tmdbId)
+                            selectedRowItem = null
+                        })
+                    }
+                }
+
+                else -> null
+            },
         )
     }
+}
+
+// long-press 대상 6곳(History Movie/Tv, Watchlist Movie/Tv, New Movie/Tv)을 한 sheet로 처리하기 위한
+// 선택 상태 — History만 "이력에서 삭제"를 추가로 보여준다(WatchlistActionBottomSheet의 extraContent).
+private sealed interface RowItem {
+    data class HistoryMovie(val stream: MovieStream) : RowItem
+    data class HistoryTv(val stream: TvStream) : RowItem
+    data class WatchlistMovie(val stream: MovieStream) : RowItem
+    data class WatchlistTv(val stream: TvStream) : RowItem
+    data class NewMovie(val stream: MovieStream) : RowItem
+    data class NewTv(val stream: TvStream) : RowItem
+}
+
+@Composable
+private fun HistoryRemoveOption(onClick: () -> Unit) {
+    Text(
+        text = stringResource(Res.string.home_history_remove),
+        style = MaterialTheme.typography.bodyLarge,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 16.dp),
+    )
 }
 
 @Composable
@@ -211,7 +318,7 @@ private fun TrendingLoadingRow() {
 }
 
 @Composable
-private fun HistoryEmptyRow(titleRes: StringResource, minHeight: Dp, messageRes: StringResource) {
+private fun RowEmptyMessage(titleRes: StringResource, minHeight: Dp, messageRes: StringResource) {
     Column(modifier = Modifier.padding(vertical = 16.dp)) {
         Text(
             text = stringResource(titleRes),
@@ -341,6 +448,7 @@ private fun NewMoviesRow(
     sharedTransitionScope: SharedTransitionScope,
     animatedContentScope: AnimatedContentScope,
     onClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
+    onLongClick: (MovieStream) -> Unit,
     onViewAllClick: (title: String, rowId: String, streamType: StreamType) -> Unit,
 ) {
     val pagingItems = contentsFlow.collectAsLazyPagingItems()
@@ -390,6 +498,7 @@ private fun NewMoviesRow(
                             StreamType.Movie
                         )
                     },
+                    onLongClick = { onLongClick(stream) },
                 )
             }
         }
@@ -404,6 +513,7 @@ private fun NewTvRow(
     sharedTransitionScope: SharedTransitionScope,
     animatedContentScope: AnimatedContentScope,
     onClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
+    onLongClick: (TvStream) -> Unit,
     onViewAllClick: (title: String, rowId: String, streamType: StreamType) -> Unit,
 ) {
     val pagingItems = contentsFlow.collectAsLazyPagingItems()
@@ -446,6 +556,7 @@ private fun NewTvRow(
                         )
                     },
                     onClick = { onClick(stream.tmdbId, stream.posterPath, rowId, StreamType.Tv) },
+                    onLongClick = { onLongClick(stream) },
                 )
             }
         }
@@ -519,6 +630,110 @@ private fun TvHistoryRow(
 
     MediaRow(
         titleRes = Res.string.home_row_tv_history,
+        minHeight = POSTER_ROW_MIN_HEIGHT,
+        onViewAllClick = { onViewAllClick(title, rowId, StreamType.Tv) },
+    ) {
+        itemsIndexed(
+            items = items,
+            key = { index, stream ->
+                mediaRowItemKey(
+                    streamType = StreamType.Tv,
+                    rowId = rowId,
+                    tmdbId = stream.tmdbId,
+                    index = index
+                )
+            },
+        ) { _, stream ->
+            PosterCard(
+                imageUrl = stream.posterPath,
+                title = stream.name,
+                imageModifier = with(sharedTransitionScope) {
+                    Modifier.sharedElement(
+                        sharedContentState = rememberSharedContentState(
+                            key = posterSharedElementKey(
+                                streamType = StreamType.Tv,
+                                rowId = rowId,
+                                tmdbId = stream.tmdbId
+                            ),
+                        ),
+                        animatedVisibilityScope = animatedContentScope,
+                        clipInOverlayDuringTransition = posterOverlayClip(),
+                    )
+                },
+                onClick = { onClick(stream.tmdbId, stream.posterPath, rowId, StreamType.Tv) },
+                onLongClick = { onLongClick(stream) },
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Composable
+private fun MovieWatchlistRow(
+    items: List<MovieStream>,
+    rowId: String,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedContentScope: AnimatedContentScope,
+    onClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
+    onLongClick: (MovieStream) -> Unit,
+    onViewAllClick: (title: String, rowId: String, streamType: StreamType) -> Unit,
+) {
+    val title = stringResource(Res.string.home_row_watchlist_movie)
+
+    MediaRow(
+        titleRes = Res.string.home_row_watchlist_movie,
+        minHeight = POSTER_ROW_MIN_HEIGHT,
+        onViewAllClick = { onViewAllClick(title, rowId, StreamType.Movie) },
+    ) {
+        itemsIndexed(
+            items = items,
+            key = { index, stream ->
+                mediaRowItemKey(
+                    streamType = StreamType.Movie,
+                    rowId = rowId,
+                    tmdbId = stream.tmdbId,
+                    index = index
+                )
+            },
+        ) { _, stream ->
+            PosterCard(
+                imageUrl = stream.posterPath,
+                title = stream.title,
+                imageModifier = with(sharedTransitionScope) {
+                    Modifier.sharedElement(
+                        sharedContentState = rememberSharedContentState(
+                            key = posterSharedElementKey(
+                                streamType = StreamType.Movie,
+                                rowId = rowId,
+                                tmdbId = stream.tmdbId
+                            ),
+                        ),
+                        animatedVisibilityScope = animatedContentScope,
+                        clipInOverlayDuringTransition = posterOverlayClip(),
+                    )
+                },
+                onClick = { onClick(stream.tmdbId, stream.posterPath, rowId, StreamType.Movie) },
+                onLongClick = { onLongClick(stream) },
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Composable
+private fun TvWatchlistRow(
+    items: List<TvStream>,
+    rowId: String,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedContentScope: AnimatedContentScope,
+    onClick: (tmdbId: Int, posterPath: String, rowId: String, streamType: StreamType) -> Unit,
+    onLongClick: (TvStream) -> Unit,
+    onViewAllClick: (title: String, rowId: String, streamType: StreamType) -> Unit,
+) {
+    val title = stringResource(Res.string.home_row_watchlist_tv)
+
+    MediaRow(
+        titleRes = Res.string.home_row_watchlist_tv,
         minHeight = POSTER_ROW_MIN_HEIGHT,
         onViewAllClick = { onViewAllClick(title, rowId, StreamType.Tv) },
     ) {

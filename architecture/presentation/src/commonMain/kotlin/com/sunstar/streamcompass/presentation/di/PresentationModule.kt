@@ -20,10 +20,27 @@ val presentationModule =
                 getTrendingStreamUseCase = get(),
                 getSuggestionUseCase = get(),
                 getHistoryStreamUseCase = get(),
+                getWatchlistStreamUseCase = get(),
+                addWatchlistUseCase = get(),
+                removeWatchlistUseCase = get(),
             )
         }
-        viewModel { MovieViewModel(getSuggestionUseCase = get()) }
-        viewModel { TvViewModel(getSuggestionUseCase = get()) }
+        viewModel {
+            MovieViewModel(
+                getSuggestionUseCase = get(),
+                getWatchlistStreamUseCase = get(),
+                addWatchlistUseCase = get(),
+                removeWatchlistUseCase = get(),
+            )
+        }
+        viewModel {
+            TvViewModel(
+                getSuggestionUseCase = get(),
+                getWatchlistStreamUseCase = get(),
+                addWatchlistUseCase = get(),
+                removeWatchlistUseCase = get(),
+            )
+        }
         viewModel { SettingViewModel(setThemeModeUseCase = get(), getThemeModeUseCase = get()) }
         viewModel {
             StreamCompassAppViewModel(
@@ -42,6 +59,9 @@ val presentationModule =
                 getReviewsUseCase = get(),
                 getSeasonsUseCase = get(),
                 getEpisodesUseCase = get(),
+                addWatchlistUseCase = get(),
+                removeWatchlistUseCase = get(),
+                isWatchlistedUseCase = get(),
             )
         }
         viewModel { (rowId: String, streamType: StreamType) ->
@@ -50,6 +70,7 @@ val presentationModule =
                 streamType = streamType,
                 getSuggestionUseCase = get(),
                 getHistoryStreamUseCase = get(),
+                getWatchlistStreamUseCase = get(),
             )
         }
         viewModel {

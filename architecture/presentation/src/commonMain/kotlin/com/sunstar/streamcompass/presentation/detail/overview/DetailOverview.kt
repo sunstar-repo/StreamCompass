@@ -17,12 +17,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -56,13 +58,18 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import coil3.svg.SvgDecoder
 import com.sunstar.streamcompass.domain.model.Deeplink
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import streamcompass.architecture.presentation.generated.resources.Res
+import streamcompass.architecture.presentation.generated.resources.ic_bookmark_filled
+import streamcompass.architecture.presentation.generated.resources.ic_bookmark_outline
 import streamcompass.architecture.presentation.generated.resources.stream_detail_no_streaming_options
 import streamcompass.architecture.presentation.generated.resources.stream_detail_overview_more
 import streamcompass.architecture.presentation.generated.resources.stream_detail_overview_runtime_format
 import streamcompass.architecture.presentation.generated.resources.stream_detail_overview_runtime_hour_minute_format
 import streamcompass.architecture.presentation.generated.resources.stream_detail_view_streaming_options
+import streamcompass.architecture.presentation.generated.resources.watchlist_add
+import streamcompass.architecture.presentation.generated.resources.watchlist_remove
 
 @Composable
 fun DetailOverview(
@@ -74,6 +81,8 @@ fun DetailOverview(
     runtimeMinutes: Int,
     certification: String,
     deeplinks: List<Deeplink>,
+    isWatchlisted: Boolean,
+    onWatchlistToggleClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var isStreamingOptionsSheetShown by remember { mutableStateOf(false) }
@@ -161,7 +170,8 @@ fun DetailOverview(
                 )
             }
 
-            // 5. 개봉연도 / 상영시간 / certification 배지, genre와 동일한 구분자 사용, 좌측 정렬
+            // 5. 개봉연도 / 상영시간 / certification 배지(좌측) + watchlist 아이콘(우측).
+            // 배지가 없어도 아이콘은 항상 노출돼야 하므로 배지 유무와 무관하게 이 줄 자체는 항상 그린다.
             val releaseYear = releaseDate.substringBefore("-")
             val runtimeLabel = if (runtimeMinutes > 0) {
                 val hours = runtimeMinutes / MINUTES_PER_HOUR
@@ -183,11 +193,14 @@ fun DetailOverview(
                 runtimeLabel,
                 certification.takeIf { it.isNotEmpty() },
             )
-            if (metadataItems.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.align(Alignment.Start),
+                    modifier = Modifier.weight(1f),
                 ) {
                     metadataItems.forEachIndexed { index, item ->
                         Text(
@@ -211,6 +224,7 @@ fun DetailOverview(
                         }
                     }
                 }
+                WatchlistIconButton(isWatchlisted = isWatchlisted, onClick = onWatchlistToggleClick)
             }
         }
     }
@@ -226,6 +240,29 @@ fun DetailOverview(
         DetailDescriptionBottomSheet(
             description = description,
             onDismissRequest = { isDescriptionSheetShown = false },
+        )
+    }
+}
+
+@Composable
+private fun WatchlistIconButton(isWatchlisted: Boolean, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(WATCHLIST_ICON_BUTTON_SIZE)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.scrim.copy(alpha = BADGE_BACKGROUND_ALPHA))
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            painter = painterResource(
+                if (isWatchlisted) Res.drawable.ic_bookmark_filled else Res.drawable.ic_bookmark_outline
+            ),
+            contentDescription = stringResource(
+                if (isWatchlisted) Res.string.watchlist_remove else Res.string.watchlist_add
+            ),
+            tint = Color.White,
+            modifier = Modifier.size(WATCHLIST_ICON_SIZE),
         )
     }
 }
@@ -423,6 +460,8 @@ private val BADGE_CORNER_RADIUS = 4.dp
 private const val BADGE_BACKGROUND_ALPHA = 0.6f
 private val BADGE_HORIZONTAL_PADDING = 6.dp
 private val BADGE_VERTICAL_PADDING = 2.dp
+private val WATCHLIST_ICON_BUTTON_SIZE = 36.dp
+private val WATCHLIST_ICON_SIZE = 20.dp
 private const val ELLIPSIS = "…"
 private const val BADGE_LEADING_SPACE = " "
 private const val BADGE_ID = "more_badge"

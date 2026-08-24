@@ -43,7 +43,9 @@ fun DetailRecommendationsGrid(
     val pagingItems = state.recommendationsFlow.collectAsLazyPagingItems()
 
     if (pagingItems.isInitialLoading) {
-        LoadingIndicator(modifier = modifier.fillMaxWidth().heightIn(min = RECOMMENDATIONS_GRID_MIN_HEIGHT))
+        LoadingIndicator(
+            modifier = modifier.fillMaxWidth().heightIn(min = RECOMMENDATIONS_GRID_MIN_HEIGHT)
+        )
         return
     }
 

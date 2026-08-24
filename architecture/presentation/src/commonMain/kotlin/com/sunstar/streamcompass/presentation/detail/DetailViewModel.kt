@@ -15,12 +15,15 @@ import com.sunstar.streamcompass.domain.model.StreamDetail.MovieStreamDetail
 import com.sunstar.streamcompass.domain.model.StreamDetail.TvStreamDetail
 import com.sunstar.streamcompass.domain.model.StreamType
 import com.sunstar.streamcompass.domain.model.currentSystemLocale
+import com.sunstar.streamcompass.domain.usecase.AddWatchlistUseCase
 import com.sunstar.streamcompass.domain.usecase.GetEpisodesUseCase
 import com.sunstar.streamcompass.domain.usecase.GetRecommendationsUseCase
 import com.sunstar.streamcompass.domain.usecase.GetReviewsUseCase
 import com.sunstar.streamcompass.domain.usecase.GetSeasonsUseCase
 import com.sunstar.streamcompass.domain.usecase.GetStreamDetailUseCase
+import com.sunstar.streamcompass.domain.usecase.IsWatchlistedUseCase
 import com.sunstar.streamcompass.domain.usecase.RecordHistoryUseCase
+import com.sunstar.streamcompass.domain.usecase.RemoveWatchlistUseCase
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -47,6 +50,9 @@ class DetailViewModel(
     private val getReviewsUseCase: GetReviewsUseCase,
     private val getSeasonsUseCase: GetSeasonsUseCase,
     private val getEpisodesUseCase: GetEpisodesUseCase,
+    private val addWatchlistUseCase: AddWatchlistUseCase,
+    private val removeWatchlistUseCase: RemoveWatchlistUseCase,
+    private val isWatchlistedUseCase: IsWatchlistedUseCase,
 ) : ViewModel() {
 
     val stateFlow: StateFlow<State>
@@ -82,6 +88,12 @@ class DetailViewModel(
         }
     }
 
+    fun onWatchlistToggleClick() {
+        viewModelScope.launch {
+            eventChannel.send(Event.ToggleWatchlist)
+        }
+    }
+
     private suspend fun handleEvent(current: State, event: Event): State = when (event) {
         is Event.Initialize -> {
             val streamDetail = getStreamDetailUseCase(
@@ -114,6 +126,7 @@ class DetailViewModel(
                     .cachedIn(viewModelScope),
                 episodesFlow = episodesFlow(seasonNumber = latestSeasonNumber),
                 selectedSeasonNumber = latestSeasonNumber,
+                isWatchlisted = isWatchlistedUseCase(tmdbId = tmdbId, streamType = streamType),
             )
         }
 
@@ -127,6 +140,20 @@ class DetailViewModel(
                 selectedSeasonNumber = event.seasonNumber,
                 episodesFlow = episodesFlow(seasonNumber = event.seasonNumber),
             )
+
+            State.Loading -> current
+        }
+
+        is Event.ToggleWatchlist -> when (current) {
+            is State.Succeed -> {
+                val newValue = !current.isWatchlisted
+                if (newValue) {
+                    addWatchlistUseCase(stream = current.streamDetail.toStream())
+                } else {
+                    removeWatchlistUseCase(tmdbId = tmdbId, streamType = streamType)
+                }
+                current.copy(isWatchlisted = newValue)
+            }
 
             State.Loading -> current
         }
@@ -201,6 +228,7 @@ class DetailViewModel(
         data object Initialize : Event
         data class SelectTab(val tab: Tab) : Event
         data class SelectSeason(val seasonNumber: Int) : Event
+        data object ToggleWatchlist : Event
     }
 
     sealed interface State {
@@ -213,6 +241,7 @@ class DetailViewModel(
             val episodesFlow: Flow<PagingData<Episode>>,
             val selectedTab: Tab = Tab.About,
             val selectedSeasonNumber: Int = DEFAULT_SEASON_NUMBER,
+            val isWatchlisted: Boolean = false,
         ) : State
     }
 

@@ -9,6 +9,7 @@ import com.sunstar.streamcompass.domain.model.StreamType
 import com.sunstar.streamcompass.domain.model.SuggestionType
 import com.sunstar.streamcompass.domain.usecase.GetHistoryStreamUseCase
 import com.sunstar.streamcompass.domain.usecase.GetSuggestionStreamUseCase
+import com.sunstar.streamcompass.domain.usecase.GetWatchlistStreamUseCase
 import com.sunstar.streamcompass.presentation.home.HomeViewModel
 import com.sunstar.streamcompass.presentation.movie.MovieViewModel
 import com.sunstar.streamcompass.presentation.tv.TvViewModel
@@ -28,6 +29,7 @@ class AllStreamsViewModel(
     private val streamType: StreamType,
     private val getSuggestionUseCase: GetSuggestionStreamUseCase,
     private val getHistoryStreamUseCase: GetHistoryStreamUseCase,
+    private val getWatchlistStreamUseCase: GetWatchlistStreamUseCase,
 ) : ViewModel() {
 
     val stateFlow: StateFlow<State>
@@ -54,15 +56,23 @@ class AllStreamsViewModel(
     }
 
     // rowId는 Movie/Tv/Home 각 화면 Row의 SuggestionType과 1:1로 대응 — 대응되는 게 없으면
-    // (Home의 History Row) Room 기반 시청 기록을 그대로 전체보기 대상으로 삼는다.
+    // Home의 History/Watchlist Row이므로 각각의 Room 기반 목록을 그대로 전체보기 대상으로 삼는다.
     private fun fetchStreams(): Flow<PagingData<Stream>> {
         val suggestionType = findSuggestionType(rowId = rowId, streamType = streamType)
-        return if (null != suggestionType) {
-            getSuggestionUseCase(type = suggestionType).cachedIn(viewModelScope)
-        } else {
-            getHistoryStreamUseCase(streamType = streamType).map { PagingData.from(it) }
+        return when {
+            null != suggestionType -> getSuggestionUseCase(type = suggestionType).cachedIn(
+                viewModelScope
+            )
+
+            isWatchlistRowId(rowId = rowId) -> getWatchlistStreamUseCase(streamType = streamType)
+                .map { PagingData.from(it) }
+
+            else -> getHistoryStreamUseCase(streamType = streamType).map { PagingData.from(it) }
         }
     }
+
+    private fun isWatchlistRowId(rowId: String): Boolean =
+        rowId == HomeViewModel.RowType.MovieWatchlist.id || rowId == HomeViewModel.RowType.TvWatchlist.id
 
     sealed interface Event {
         data object Initialize : Event
