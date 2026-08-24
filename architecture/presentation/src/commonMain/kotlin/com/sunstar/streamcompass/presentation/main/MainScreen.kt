@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -22,6 +23,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -250,7 +254,15 @@ fun MainScreen() {
 @Composable
 private fun MainTopBar(onSearchClick: () -> Unit) {
     TopAppBar(
-        title = { Text(text = stringResource(Res.string.app_title)) },
+        title = {
+            Text(
+                text = stringResource(Res.string.app_title),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Black,
+                letterSpacing = 0.5.sp,
+                color = BRAND_COLOR,
+            )
+        },
         actions = {
             IconButton(onClick = onSearchClick) {
                 Icon(painter = painterResource(Res.drawable.ic_search), contentDescription = null)
@@ -281,3 +293,5 @@ private fun MainBottomBar(
         }
     }
 }
+
+private val BRAND_COLOR = Color(0xFFFF5A3C)

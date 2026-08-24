@@ -1,6 +1,4 @@
 <resources>
-    <string name="app_title">StreamCompass</string>
-
     <string name="destination_home">홈</string>
     <string name="destination_movie">영화</string>
     <string name="destination_tv">TV</string>

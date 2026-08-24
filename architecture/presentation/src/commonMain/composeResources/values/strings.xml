@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_title">StreamCompass</string>
+    <string name="app_title" translatable="false">Watchly</string>
 
     <string name="destination_home">Home</string>
     <string name="destination_movie">Movie</string>
