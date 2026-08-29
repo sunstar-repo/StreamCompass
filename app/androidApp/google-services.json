@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "913485225427",
+    "project_id": "streamcompass-c0d49",
+    "storage_bucket": "streamcompass-c0d49.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:913485225427:android:4df08cef4e118c6927e326",
+        "android_client_info": {
+          "package_name": "com.sunstar.streamcompass"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+
+          "current_key": "AIzaSyBlYXQDPsMv2lU3z3rsf9uN-UYjHdpRc9w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
