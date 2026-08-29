@@ -1,7 +1,7 @@
 package com.sunstar.streamcompass.presentation.di
 
 import com.sunstar.streamcompass.domain.model.StreamType
-import com.sunstar.streamcompass.presentation.StreamCompassAppViewModel
+import com.sunstar.streamcompass.presentation.StreamCompassPresenterViewModel
 import com.sunstar.streamcompass.presentation.allstreams.AllStreamsViewModel
 import com.sunstar.streamcompass.presentation.detail.DetailViewModel
 import com.sunstar.streamcompass.presentation.home.HomeViewModel
@@ -43,7 +43,7 @@ val presentationModule =
         }
         viewModel { SettingViewModel(setThemeModeUseCase = get(), getThemeModeUseCase = get()) }
         viewModel {
-            StreamCompassAppViewModel(
+            StreamCompassPresenterViewModel(
                 initializeAppUseCase = get(),
                 getThemeModeUseCase = get(),
             )

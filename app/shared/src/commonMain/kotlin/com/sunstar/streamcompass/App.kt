@@ -5,7 +5,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.sunstar.streamcompass.data.di.dataModule
 import com.sunstar.streamcompass.data.di.initializeModule
 import com.sunstar.streamcompass.data.di.settingModule
-import com.sunstar.streamcompass.presentation.StreamCompassApp
+import com.sunstar.streamcompass.presentation.StreamCompassPresenter
 import com.sunstar.streamcompass.presentation.di.presentationModule
 import org.koin.compose.KoinApplication
 import org.koin.compose.module.rememberKoinModules
@@ -27,7 +27,7 @@ fun App() {
             )
         }
     ) {
-        StreamCompassApp(
+        StreamCompassPresenter(
             onAppReady = { apiKey ->
                 rememberKoinModules {
                     listOf(dataModule(apiKey = apiKey))

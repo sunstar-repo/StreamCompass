@@ -8,11 +8,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.sunstar.streamcompass.domain.model.ApiKey
-import com.sunstar.streamcompass.presentation.StreamCompassAppViewModel
+import com.sunstar.streamcompass.presentation.StreamCompassPresenterViewModel
 
 @Composable
 fun SplashScreen(
-    state: StreamCompassAppViewModel.State,
+    state: StreamCompassPresenterViewModel.State,
     onLoading: @Composable () -> Unit,
     onFailure: @Composable (message: String) -> Unit,
     onSucceed: @Composable (apiKey: ApiKey) -> Unit
@@ -22,11 +22,11 @@ fun SplashScreen(
         contentAlignment = Alignment.Center
     ) {
         when (state) {
-            StreamCompassAppViewModel.State.Idle,
-            StreamCompassAppViewModel.State.Loading -> onLoading()
+            StreamCompassPresenterViewModel.State.Idle,
+            StreamCompassPresenterViewModel.State.Loading -> onLoading()
 
-            is StreamCompassAppViewModel.State.Failure -> onFailure(state.message)
-            is StreamCompassAppViewModel.State.Succeed -> onSucceed(state.apiKey)
+            is StreamCompassPresenterViewModel.State.Failure -> onFailure(state.message)
+            is StreamCompassPresenterViewModel.State.Succeed -> onSucceed(state.apiKey)
         }
     }
 }

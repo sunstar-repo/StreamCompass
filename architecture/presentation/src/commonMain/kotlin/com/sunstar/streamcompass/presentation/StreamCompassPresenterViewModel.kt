@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class StreamCompassAppViewModel(
+class StreamCompassPresenterViewModel(
     private val initializeAppUseCase: InitializeAppUseCase,
     private val getThemeModeUseCase: GetThemeModeUseCase,
 ) : ViewModel() {

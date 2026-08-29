@@ -72,37 +72,37 @@ fun SearchScreen(
     SearchBackHandler(
         enabled = state.page == SearchViewModel.Page.History && null != state.activeQuery,
         onBack = viewModel::onHistoryOverlayDismissed,
-    )
-
-    Column(modifier = Modifier.fillMaxSize().padding(top = statusBarProtectionHeight())) {
-        SearchTextField(
-            queryText = state.queryText,
-            onQueryChanged = viewModel::onQueryChanged,
-            onFocused = viewModel::onSearchEditTextFocused,
-            onSearch = {
-                viewModel.onSearchSubmitted(state.queryText)
-                focusManager.clearFocus()
-            },
-        )
-
-        when (state.page) {
-            SearchViewModel.Page.History -> SearchHistoryContent(
-                historyFlow = state.history,
-                onHistoryItemClick = { query ->
-                    viewModel.onSearchSubmitted(query)
+    ) {
+        Column(modifier = Modifier.fillMaxSize().padding(top = statusBarProtectionHeight())) {
+            SearchTextField(
+                queryText = state.queryText,
+                onQueryChanged = viewModel::onQueryChanged,
+                onFocused = viewModel::onSearchEditTextFocused,
+                onSearch = {
+                    viewModel.onSearchSubmitted(state.queryText)
                     focusManager.clearFocus()
                 },
             )
 
-            SearchViewModel.Page.Results -> SearchResultsContent(
-                selectedTab = state.selectedTab,
-                onTabSelected = viewModel::onTabSelected,
-                movieResults = state.movieResults,
-                tvResults = state.tvResults,
-                sharedTransitionScope = sharedTransitionScope,
-                animatedContentScope = animatedContentScope,
-                onStreamClick = onStreamClick,
-            )
+            when (state.page) {
+                SearchViewModel.Page.History -> SearchHistoryContent(
+                    historyFlow = state.history,
+                    onHistoryItemClick = { query ->
+                        viewModel.onSearchSubmitted(query)
+                        focusManager.clearFocus()
+                    },
+                )
+
+                SearchViewModel.Page.Results -> SearchResultsContent(
+                    selectedTab = state.selectedTab,
+                    onTabSelected = viewModel::onTabSelected,
+                    movieResults = state.movieResults,
+                    tvResults = state.tvResults,
+                    sharedTransitionScope = sharedTransitionScope,
+                    animatedContentScope = animatedContentScope,
+                    onStreamClick = onStreamClick,
+                )
+            }
         }
     }
 }

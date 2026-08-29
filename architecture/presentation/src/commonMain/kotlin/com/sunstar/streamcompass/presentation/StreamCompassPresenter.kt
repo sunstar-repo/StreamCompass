@@ -32,8 +32,8 @@ import streamcompass.architecture.presentation.generated.resources.Res
 import streamcompass.architecture.presentation.generated.resources.app_title
 
 @Composable
-fun StreamCompassApp(
-    viewModel: StreamCompassAppViewModel = koinViewModel(),
+fun StreamCompassPresenter(
+    viewModel: StreamCompassPresenterViewModel = koinViewModel(),
     onAppReady: @Composable (apiKey: ApiKey) -> Unit,
 ) {
     val state by viewModel.stateFlow.collectAsState()
