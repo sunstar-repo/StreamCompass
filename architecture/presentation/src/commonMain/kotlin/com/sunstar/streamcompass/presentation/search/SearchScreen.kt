@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +25,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
@@ -221,26 +223,30 @@ private fun SearchResultsContent(
             ) { index ->
                 val stream = pagingItems[index]
                 if (null != stream) {
-                    PosterCard(
-                        imageUrl = stream.posterPath,
-                        title = stream.displayTitle,
-                        imageModifier = with(sharedTransitionScope) {
-                            Modifier.sharedElement(
-                                sharedContentState = rememberSharedContentState(
-                                    key = posterSharedElementKey(
-                                        streamType = selectedTab,
-                                        rowId = rowId,
-                                        tmdbId = stream.tmdbId,
+                    // GridCells.Fixed(3)의 cell 너비는 화면 폭에 따라 늘어나지만 PosterCard는 고정
+                    // POSTER_WIDTH라, 넓은 화면에서 cell 안에 왼쪽으로 쏠려 붙지 않도록 가운데 정렬한다.
+                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
+                        PosterCard(
+                            imageUrl = stream.posterPath,
+                            title = stream.displayTitle,
+                            imageModifier = with(sharedTransitionScope) {
+                                Modifier.sharedElement(
+                                    sharedContentState = rememberSharedContentState(
+                                        key = posterSharedElementKey(
+                                            streamType = selectedTab,
+                                            rowId = rowId,
+                                            tmdbId = stream.tmdbId,
+                                        ),
                                     ),
-                                ),
-                                animatedVisibilityScope = animatedContentScope,
-                                clipInOverlayDuringTransition = posterOverlayClip(),
-                            )
-                        },
-                        onClick = {
-                            onStreamClick(stream.tmdbId, stream.posterPath, rowId, selectedTab)
-                        },
-                    )
+                                    animatedVisibilityScope = animatedContentScope,
+                                    clipInOverlayDuringTransition = posterOverlayClip(),
+                                )
+                            },
+                            onClick = {
+                                onStreamClick(stream.tmdbId, stream.posterPath, rowId, selectedTab)
+                            },
+                        )
+                    }
                 }
             }
         }
