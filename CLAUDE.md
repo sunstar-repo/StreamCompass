@@ -4,15 +4,14 @@ Kotlin Multiplatform(Compose Multiplatform, Android + JVM Desktop) 스트리밍 
 
 ## 이 프로젝트에서 작업할 때 먼저 읽을 것
 
-- **`doc/handoff.md`** — 지금까지의 작업 이력, 주요 결정과 그 이유, 미해결/보류 항목. 다른 계정·머신에서 이 저장소를 이어받았다면 반드시 먼저 읽을 것.
-- **`doc/architecture.md`** — 모듈 경계·의존성 규칙 정리. **단, 2026-08-05 기준으로 최신화가 멈춰 있어 Movie/Tv/Home tab, History 기능, `presentation/core` 공용 컴포저블 등 최근 작업이 반영되어 있지 않음** — 구조적 원칙(Repository는 domain에 인터페이스, 구현은 data 등)은 여전히 유효하지만 세부 화면 구성은 `doc/handoff.md` 쪽이 더 최신.
+- **`README.md`** — 모듈 경계·의존성 규칙·데이터 흐름·설계 결정·알려진 제약사항을 정리한 최신 문서. `doc/handoff.md`/`doc/architecture.md`는 삭제되었고 그 내용은 여기로 이관되었다.
 
 ## 핵심 컨벤션
 
 - Kotlin 함수 호출은 항상 **named argument**로 작성한다.
 - 과도한 추상화·방어 코드를 추가하지 않는다(YAGNI). 실제로 반복되는 부분만 공용화하고, 사용처마다 다른 로직(예: 특정 화면 전용 empty-state 문구)까지 억지로 공용 컴포저블에 밀어넣지 않는다.
 - Firebase API Key 등 secret은 git-tracked 파일에 하드코딩하지 않는다 — `local.properties` + Gradle codegen 패턴을 따른다.
-- Room DB는 아직 버전 1(마이그레이션 인프라 없음) — 스키마를 바꿔야 하면 `doc/handoff.md`의 "미해결·보류 항목"을 먼저 확인한다.
+- Room DB는 아직 버전 1(마이그레이션 인프라 없음) — 스키마를 바꿔야 하면 `README.md`의 "설계 결정"을 먼저 확인한다.
 
 ## 빌드/환경 참고
 
