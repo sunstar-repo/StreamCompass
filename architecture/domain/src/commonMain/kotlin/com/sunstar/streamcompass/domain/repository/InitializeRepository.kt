@@ -2,6 +2,6 @@ package com.sunstar.streamcompass.domain.repository
 
 import com.sunstar.streamcompass.domain.model.ApiKey
 
-interface RemoteConfigRepository {
+interface InitializeRepository {
     suspend fun initialize(): ApiKey
 }

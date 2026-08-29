@@ -143,8 +143,17 @@ internal class StreamRepositoryImpl(
     override suspend fun addWatchlist(stream: Stream) {
         val addedAt = Clock.System.now().toEpochMilliseconds()
         when (stream) {
-            is MovieStream -> localDataSource.upsertMovieWatchlist(entity = stream.toWatchlistEntity(addedAt = addedAt))
-            is TvStream -> localDataSource.upsertTvWatchlist(entity = stream.toWatchlistEntity(addedAt = addedAt))
+            is MovieStream -> localDataSource.upsertMovieWatchlist(
+                entity = stream.toWatchlistEntity(
+                    addedAt = addedAt
+                )
+            )
+
+            is TvStream -> localDataSource.upsertTvWatchlist(
+                entity = stream.toWatchlistEntity(
+                    addedAt = addedAt
+                )
+            )
         }
     }
 
@@ -171,7 +180,10 @@ internal class StreamRepositoryImpl(
             StreamType.Tv -> localDataSource.isTvWatchlisted(tmdbId = tmdbId)
         }
 
-    override fun getSearchStreamFlow(query: String, streamType: StreamType): Flow<PagingData<Stream>> =
+    override fun getSearchStreamFlow(
+        query: String,
+        streamType: StreamType
+    ): Flow<PagingData<Stream>> =
         when (streamType) {
             StreamType.Movie -> Pager(
                 config = PagingConfig(pageSize = TmdbConstants.PAGE_SIZE),

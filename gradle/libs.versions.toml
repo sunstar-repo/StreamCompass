@@ -16,6 +16,7 @@ composeMultiplatform = "1.11.1"
 datastore = "1.1.1"
 firebaseBom = "34.17.0"
 firebaseGitlive = "2.5.0"
+firebaseJavaSdk = "0.6.3"
 googleServices = "4.5.0"
 junit = "4.13.2"
 kotlin = "2.3.20"
@@ -72,8 +73,8 @@ room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
 firebase-firestore = { module = "dev.gitlive:firebase-firestore", version.ref = "firebaseGitlive" }
-firebase-config = { module = "dev.gitlive:firebase-config", version.ref = "firebaseGitlive" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-javaSdk = { module = "dev.gitlive:firebase-java-sdk", version.ref = "firebaseJavaSdk" }
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 
 [plugins]

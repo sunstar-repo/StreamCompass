@@ -72,19 +72,22 @@ internal class LocalDataSource(
 
     suspend fun deleteTvHistory(tmdbId: Int) = tvHistoryDao.delete(tmdbId = tmdbId)
 
-    fun observeSearchHistory(): Flow<List<LocalSearchHistoryEntity>> = searchHistoryDao.observeRecent()
+    fun observeSearchHistory(): Flow<List<LocalSearchHistoryEntity>> =
+        searchHistoryDao.observeRecent()
 
     suspend fun upsertSearchHistory(entity: LocalSearchHistoryEntity) =
         searchHistoryDao.upsert(entity = entity)
 
-    fun observeMovieWatchlist(): Flow<List<LocalMovieWatchlistEntity>> = movieWatchlistDao.observeAll()
+    fun observeMovieWatchlist(): Flow<List<LocalMovieWatchlistEntity>> =
+        movieWatchlistDao.observeAll()
 
     fun observeTvWatchlist(): Flow<List<LocalTvWatchlistEntity>> = tvWatchlistDao.observeAll()
 
     suspend fun upsertMovieWatchlist(entity: LocalMovieWatchlistEntity) =
         movieWatchlistDao.upsert(entity = entity)
 
-    suspend fun upsertTvWatchlist(entity: LocalTvWatchlistEntity) = tvWatchlistDao.upsert(entity = entity)
+    suspend fun upsertTvWatchlist(entity: LocalTvWatchlistEntity) =
+        tvWatchlistDao.upsert(entity = entity)
 
     suspend fun deleteMovieWatchlist(tmdbId: Int) = movieWatchlistDao.delete(tmdbId = tmdbId)
 

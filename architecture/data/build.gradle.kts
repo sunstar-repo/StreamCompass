@@ -44,7 +44,6 @@ kotlin {
             implementation(libs.sqlite.bundled)
             implementation(libs.androidx.datastore.preferencesCore)
             implementation(libs.firebase.firestore)
-            implementation(libs.firebase.config)
         }
         androidMain.dependencies {
             implementation(libs.ktor.clientOkhttp)

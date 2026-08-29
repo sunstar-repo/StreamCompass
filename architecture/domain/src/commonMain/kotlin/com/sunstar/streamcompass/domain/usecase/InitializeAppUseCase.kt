@@ -1,9 +1,9 @@
 package com.sunstar.streamcompass.domain.usecase
 
-import com.sunstar.streamcompass.domain.repository.RemoteConfigRepository
+import com.sunstar.streamcompass.domain.repository.InitializeRepository
 
 class InitializeAppUseCase(
-    private val remoteConfigRepository: RemoteConfigRepository,
+    private val initializeRepository: InitializeRepository,
 ) {
-    suspend operator fun invoke() = remoteConfigRepository.initialize()
+    suspend operator fun invoke() = initializeRepository.initialize()
 }

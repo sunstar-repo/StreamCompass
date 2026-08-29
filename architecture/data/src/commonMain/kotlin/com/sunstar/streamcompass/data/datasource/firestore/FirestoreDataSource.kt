@@ -1,6 +1,7 @@
 package com.sunstar.streamcompass.data.datasource.firestore
 
 import com.sunstar.streamcompass.data.converter.toDeeplink
+import com.sunstar.streamcompass.data.datasource.firestore.dto.ApiKeyDto
 import com.sunstar.streamcompass.data.datasource.firestore.dto.FirestoreDeeplinkDto
 import com.sunstar.streamcompass.domain.model.Deeplink
 import com.sunstar.streamcompass.domain.model.StreamType
@@ -9,6 +10,13 @@ import dev.gitlive.firebase.firestore.FirebaseFirestore
 internal class FirestoreDataSource(
     private val firestore: FirebaseFirestore,
 ) {
+    suspend fun getApiKey(): ApiKeyDto =
+        firestore
+            .collection(FirestoreConstants.COLLECTION_INITIALIZE)
+            .document(FirestoreConstants.DOCUMENT_API_KEY)
+            .get()
+            .data(strategy = ApiKeyDto.serializer())
+
     suspend fun getDeeplinks(tmdbId: Int, streamType: StreamType, country: String): List<Deeplink> =
         firestore
             .collection(streamType.rawValue)

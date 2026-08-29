@@ -35,6 +35,9 @@ kotlin {
             implementation(project.dependencies.platform(libs.firebase.bom))
             implementation(libs.firebase.firestore)
         }
+        jvmMain.dependencies {
+            implementation(libs.firebase.javaSdk)
+        }
     }
 }
 

@@ -89,7 +89,10 @@ internal class TmdbDataSource(
             parameter(TmdbConstants.PARAM_WITH_RELEASE_TYPE, TmdbConstants.RELEASE_TYPE_DIGITAL)
             parameter(TmdbConstants.PARAM_SORT_BY, TmdbConstants.SORT_BY_PRIMARY_RELEASE_DATE_DESC)
             parameter(TmdbConstants.PARAM_PRIMARY_RELEASE_DATE_LTE, yesterday())
-            parameter(TmdbConstants.PARAM_WITH_WATCH_MONETIZATION_TYPES, TmdbConstants.MONETIZATION_TYPE_FLATRATE)
+            parameter(
+                TmdbConstants.PARAM_WITH_WATCH_MONETIZATION_TYPES,
+                TmdbConstants.MONETIZATION_TYPE_FLATRATE
+            )
             parameter(TmdbConstants.PARAM_WATCH_REGION, currentSystemLocale().country)
             parameter(TmdbConstants.PARAM_INCLUDE_ADULT, false)
         }.body()
@@ -134,7 +137,10 @@ internal class TmdbDataSource(
             parameter(TmdbConstants.PARAM_API_KEY, apiKey)
             parameter(TmdbConstants.PARAM_LANGUAGE, language)
             parameter(TmdbConstants.PARAM_PAGE, page)
-            parameter(TmdbConstants.PARAM_WITH_WATCH_MONETIZATION_TYPES, TmdbConstants.MONETIZATION_TYPE_FLATRATE)
+            parameter(
+                TmdbConstants.PARAM_WITH_WATCH_MONETIZATION_TYPES,
+                TmdbConstants.MONETIZATION_TYPE_FLATRATE
+            )
             parameter(TmdbConstants.PARAM_WATCH_REGION, currentSystemLocale().country)
             parameter(TmdbConstants.PARAM_SORT_BY, TmdbConstants.SORT_BY_FIRST_AIR_DATE_DESC)
             parameter(TmdbConstants.PARAM_INCLUDE_ADULT, false)
