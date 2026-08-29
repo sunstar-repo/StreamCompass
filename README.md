@@ -20,6 +20,12 @@ Kotlin Multiplatform(Compose Multiplatform) 기반 스트리밍 탐색 앱.<br/>
 
 Watchly는 [TMDB](https://www.themoviedb.org/documentation/api)(작품 메타데이터)와 [Streaming Availability API](https://www.movieofthenight.com/about/api)(OTT 서비스별 시청 링크)를 결합해, "이 작품을 어디서 볼 수 있는지"까지 한 화면에서 확인할 수 있는 개인 포트폴리오 프로젝트입니다. Android와 Desktop(JVM) 두 플랫폼을 하나의 코드베이스(Compose Multiplatform)로 구현했고, Clean Architecture 3-module 구조로 domain/data/presentation 계층을 분리했습니다.
 
+## 데모
+
+|                                                         Android                                                         |                             Desktop (JVM)                             |
+|:-----------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------:|
+| <img src="media/android_demo.gif" width="200" alt="Android 데모: Splash → Home → Movie → Detail → 스트리밍 정보 → Netflix 진입"/> | <img src="media/desktop_demo.gif" width="280" alt="Desktop(JVM) 데모"/> |
+
 ## 기술 스택 & 오픈소스 라이브러리
 
 - **최소 SDK**: Android API 24, Kotlin 2.3.20
@@ -43,8 +49,8 @@ Watchly는 [TMDB](https://www.themoviedb.org/documentation/api)(작품 메타데
 
 ## 주요 기능
 
-- **Home** — 오늘의 인기작 Carousel, 신작 영화/TV, 찜한 영화/TV, 최근 시청한 영화/TV까지 총 7개의 row.
-- **Movie / Tv** — 카테고리별(상영중/인기/평점 높은/개봉 예정 등) row + row별 "전체보기"(3열 grid, Paging).
+- **Home** — 오늘의 인기작, 신작 영화/TV, 찜한 영화/TV, 최근 시청한 영화/TV까지 총 7개의 row.
+- **Movie / Tv** — 카테고리별(상영중/인기/평점 높은/개봉 예정 등) row + row별 "전체보기".
 - **Search** — 검색 기록 우선 노출 → 검색어 입력 시 Movie/Tv 탭 + 3열 grid 결과로 전환.
 - **Detail** — 3(+1)개 탭(About/Recommended/Review/Series) 구성. 포스터 공유 요소 전환 애니메이션(SharedElementTransition), OTT 서비스별 시청 딥링크, 시즌·에피소드 목록.
 - **Watchlist / History** — 포스터 long-press로 추가/삭제, Detail 화면의 원형 아이콘 토글, Home에 전용 row 노출.
